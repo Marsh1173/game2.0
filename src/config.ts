@@ -39,7 +39,7 @@ export const defaultConfig: Config = {
         x: 300,
         y: 650
     },
-    playerJumpHeight: 800,
+    playerJumpHeight: 1200,
     xSize,
     ySize,
     playerKeys: {

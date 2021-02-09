@@ -51,31 +51,6 @@ export class ClientPlayer extends Player {
         ctx.shadowColor = "gray";
     }
 
-    public renderHealth(ctx: CanvasRenderingContext2D) {
-        ctx.save();
-        ctx.shadowBlur = 0;
-
-        ctx.fillStyle = "red";
-        ctx.fillRect(this.position.x + this.config.playerSize.width / 8, this.position.y - 10, (this.config.playerSize.width * 3) / 4, 5);
-        ctx.fillStyle = "#32a852";
-        ctx.fillRect(this.position.x + this.config.playerSize.width / 8, this.position.y - 10, (Math.max((this.config.playerSize.width * this.health) / (100), 0) * 3) / 4, 5);
-
-        ctx.restore();
-    }
-
-    public renderName(ctx: CanvasRenderingContext2D, color: string) {
-        ctx.save();
-        ctx.shadowBlur = 0;
-
-        ctx.fillStyle = color;
-        ctx.fillText(
-            this.name,
-            this.position.x + this.config.playerSize.width / 2 - (this.name).length * 2.4,
-            this.position.y - 11,
-        );
-        ctx.restore();
-    }
-
     public renderFocus(ctx: CanvasRenderingContext2D) { // for focus debugging
         ctx.fillStyle = "red";
         ctx.fillRect(this.focusPosition.x - 3, this.focusPosition.y - 3, 6, 6);

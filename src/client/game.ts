@@ -8,8 +8,14 @@ import { ClientPlayer } from "./player";
 import { ServerTalker } from "./servertalker";
 import { safeGetElementById } from "./util";
 import { createTextChangeRange, moveEmitHelpers } from "typescript";
+import { LavaFly } from "../objects/Actors/Mobs/airMob/lavaFly";
+import { ClientLavaFly } from "./clientActors/clientMobs/clientAirMobs/clientLavaFly";
+import { renderActors } from "./clientActors/renderActors";
 
 export class Game {
+
+    private lavaFlies: ClientLavaFly[] = [];
+
     private static readonly menuDiv = safeGetElementById("menuDiv");
     private static readonly gameDiv = safeGetElementById("gameDiv");
     private static readonly canvas = safeGetElementById("canvas") as HTMLCanvasElement;
@@ -45,6 +51,10 @@ export class Game {
         Game.canvas.width = this.config.xSize;
         Game.canvas.height = this.config.ySize;
         Game.particleAmount = particleAmount / 100;
+
+        for (let i = 0; i < 15; i++) {
+            this.lavaFlies.push(new ClientLavaFly(this.config, {x: 600 + i * 20, y: 600}, 0, 100))
+        }
 
         this.constructGame(info);
 
@@ -178,6 +188,10 @@ export class Game {
     private update(elapsedTime: number) {
         elapsedTime = Math.min(0.03, elapsedTime);//fix to make sure sudden lag spikes dont clip them through the floors
 
+        this.lavaFlies.forEach(fly => {
+            fly.clientUpdate(elapsedTime, this.players, this.lavaFlies);
+        })
+
         const playerWithId = this.findPlayer();
         
         this.updateHTML(elapsedTime, playerWithId);
@@ -219,25 +233,17 @@ export class Game {
 
         Game.ctx.setTransform(1, 0, 0, 1, this.screenPos.x, this.screenPos.y);
 
+        
         const playerWithId = this.findPlayer();
-
+        
         this.players.forEach((player) => {
             player.render(Game.ctx);
         });
-
-        this.players.forEach((player) => {
-            if (!player.isDead) {
-                player.renderHealth(Game.ctx);
-                if (player === playerWithId) player.renderName(Game.ctx, "cyan");
-                else if (player.team === playerWithId.team) player.renderName(Game.ctx, "white");
-                else player.renderName(Game.ctx, "red");
-            }
-            //player.renderFocus(Game.ctx); //FOR DEBUGGING
-        });
-
-
+        
+        
         this.platforms.forEach((platform) => platform.render(Game.ctx));
         
+        renderActors(Game.ctx, this.lavaFlies);
     }
 
     private updateSliderX() {

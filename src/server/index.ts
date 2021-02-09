@@ -53,4 +53,4 @@ app.ws("/:id", (ws, request) => {
     });
 });
 
-app.listen(3000);
+app.listen(3006);
