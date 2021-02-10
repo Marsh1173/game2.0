@@ -3,6 +3,12 @@ import { Size } from "../../size";
 import { Vector } from "../../vector";
 import { Platform } from "../platform";
 
+var actorId: number = 0;
+
+export function getNextActorId(): number {
+    actorId++;
+    return actorId;
+}
 
 export abstract class Actor {
 
@@ -12,6 +18,7 @@ export abstract class Actor {
 
     constructor(
         public readonly config: Config,
+        public readonly id: number,
         public position: Vector,
         public team: number,
         public health: number,

@@ -11,6 +11,7 @@ import { createTextChangeRange, moveEmitHelpers } from "typescript";
 import { LavaFly } from "../objects/Actors/Mobs/airMob/lavaFly";
 import { ClientLavaFly } from "./clientActors/clientMobs/clientAirMobs/clientLavaFly";
 import { renderActors } from "./clientActors/renderActors";
+import { getNextActorId } from "../objects/Actors/actor";
 
 export class Game {
 
@@ -43,6 +44,21 @@ export class Game {
                     this.id,
                 ),
         );
+        info.lavaFlies.forEach((lavaFlyInfo) => {
+            let targetPlayer: ClientPlayer | undefined = undefined;
+            this.players.forEach((player) => {
+                if (lavaFlyInfo.targetPlayerId == player.id) targetPlayer = player;
+            });
+            this.lavaFlies.push(new ClientLavaFly(
+                this.config,
+                lavaFlyInfo.id,
+                lavaFlyInfo.position,
+                lavaFlyInfo.team,
+                lavaFlyInfo.health,
+                lavaFlyInfo.momentum,
+                targetPlayer
+            ))
+        });
     }
 
     constructor(info: AllInfo, private readonly config: Config, private readonly id: number, private readonly serverTalker: ServerTalker, particleAmount: number) {
@@ -52,15 +68,31 @@ export class Game {
         Game.canvas.height = this.config.ySize;
         Game.particleAmount = particleAmount / 100;
 
-        for (let i = 0; i < 15; i++) {
-            this.lavaFlies.push(new ClientLavaFly(this.config, {x: 600 + i * 20, y: 600}, 0, 100))
-        }
-
         this.constructGame(info);
 
         this.serverTalker.messageHandler = (msg: ServerMessage) => {
             let player;
             switch (msg.type) {
+                case "newLavaFly":
+                    this.lavaFlies.push(new ClientLavaFly(
+                            this.config,
+                            msg.id,
+                            msg.position,
+                            msg.team,
+                            10
+                        ),
+                    );
+                    break;
+                case "changeServerLavaFlyTarget" :
+                    this.lavaFlies.forEach(lavaFly => {
+                        if (lavaFly.id == msg.id) {
+                            lavaFly.position = msg.position;
+                            lavaFly.momentum = msg.momentum;
+                            let target: ClientPlayer | undefined = this.players.find(player => player.id == msg.playerid);
+                            lavaFly.setTargetPlayer(target);
+                        }
+                    })
+                    break;
                 case "info":
                     this.constructGame(msg.info);
                     break;
@@ -188,10 +220,6 @@ export class Game {
     private update(elapsedTime: number) {
         elapsedTime = Math.min(0.03, elapsedTime);//fix to make sure sudden lag spikes dont clip them through the floors
 
-        this.lavaFlies.forEach(fly => {
-            fly.clientUpdate(elapsedTime, this.players, this.lavaFlies);
-        })
-
         const playerWithId = this.findPlayer();
         
         this.updateHTML(elapsedTime, playerWithId);
@@ -308,6 +336,7 @@ export class Game {
 
     private updateObjects(elapsedTime: number) {
         this.players.forEach((player) => player.update(elapsedTime, this.players, this.platforms, (player.id === this.id)));
+        this.lavaFlies.forEach((lavaFly) => lavaFly.clientLavaFlyUpdate(elapsedTime, this.players, this.lavaFlies));
 
     }
 }

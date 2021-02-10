@@ -5,11 +5,14 @@ import { ClientMessage, InfoMessage, PlayerLeavingMessage, ServerMessage } from 
 import { Vector } from "../vector";
 import { Config } from "../config";
 import { moveEmitHelpers } from "typescript";
+import { ServerLavaFly } from "./serverActors/serverMobs/serverAirMobs/serverLavaFly";
+import { getNextActorId } from "../objects/Actors/actor";
 
 export class Game {
     private intervalId?: NodeJS.Timeout;
     private static readonly REFRESH_RATE = 16;
 
+    private lavaFlies: ServerLavaFly[] = [];
     private players: ServerPlayer[] = [];
     private readonly platforms: ServerPlatform[] = getDefaultPlatformList(this.config);
     public static readonly clientMap: Record<number, (message: ServerMessage) => void> = {};
@@ -19,15 +22,11 @@ export class Game {
         });
     }
 
-    private aiId: number;
-    public static itemId: number;
-
     constructor(public readonly config: Config) {
-        Game.itemId = 0;
-        this.aiId = -2;
     }
 
     public start() {
+        this.newLavaFlyLoop();
         this.intervalId = setInterval(() => {
             this.loop(Date.now());
         }, Game.REFRESH_RATE);
@@ -43,6 +42,7 @@ export class Game {
 
     public allInfo(): AllInfo {
         return {
+            lavaFlies: this.lavaFlies.map((lavaFly) => lavaFly.serialize()),
             players: this.players.map((player) => player.serialize()),
             platforms: this.platforms.map((platform) => platform.serialize()),
         };
@@ -70,7 +70,7 @@ export class Game {
     }
 
     private updateObjectsSecondary(elapsedTime: number) {
-
+        this.lavaFlies.forEach(lavaFly => lavaFly.serverLavaFlyUpdate(elapsedTime, this.players, this.lavaFlies));
     }
 
     public newPlayer(id: number, name: string, color: string, position: Vector, team: number) {
@@ -93,7 +93,46 @@ export class Game {
         });
     }
 
+    private newLavaFly(position: Vector) {
+        let id = getNextActorId();
+        const newLavaFly = new ServerLavaFly(
+            this.config,
+            id,
+            position,
+            0,
+            10,
+            {x: 0, y: 0}
+        );
+        this.lavaFlies.push(newLavaFly);
+
+        Game.broadcastMessage({
+            type: "newLavaFly",
+            id: id,
+            position: position,
+            team: 0
+        });
+    }
+
+    private newLavaFlyLoop() {
+        for (let i: number = 0; i < 10; i++) {
+            this.newLavaFly({x: Math.random() * 1000 + 500, y: 500});
+        }
+        //setTimeout(() => this.newLavaFlyLoop(), 2000);
+    }
+
     public removePlayer(id: number) {
+        this.lavaFlies.forEach((lavaFly => {
+            if(lavaFly.targetPlayer && lavaFly.targetPlayer.id == id) {
+                lavaFly.targetPlayer = undefined;
+                Game.broadcastMessage({
+                    type: "changeServerLavaFlyTarget",
+                    id: lavaFly.id,
+                    position: lavaFly.position,
+                    momentum: lavaFly.momentum,
+                    playerid: undefined,
+                });
+            }
+        }));
         this.players = this.players.filter((player) => player.id !== id);
         const leavingMessage: PlayerLeavingMessage = {
             type: "playerLeaving",

@@ -72,7 +72,7 @@ export abstract class Player {
                 {
                     // below
                     x: this.position.x,
-                    y: object.position.y + this.config.playerSize.height,
+                    y: object.position.y + object.size.height,
                 },
                 {
                     // left
@@ -81,7 +81,7 @@ export abstract class Player {
                 },
                 {
                     // right
-                    x: object.position.x + this.config.playerSize.width,
+                    x: object.position.x + object.size.width,
                     y: this.position.y,
                 },
             ];

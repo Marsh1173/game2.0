@@ -1,5 +1,6 @@
 import { PlayerActions } from "../objects/player";
 import { SerializedPlayer } from "../serialized/player";
+import { ChangeServerLavaFlyTarget, NewLavaFly } from "../server/serverActors/serverMobs/serverAirMobs/serverLavaFly";
 import { Vector } from "../vector";
 import { AllInfo } from "./allinfo";
 
@@ -35,7 +36,8 @@ export interface ServerPlayerActions {
 export type ServerMessage = PlayerInfoMessage |
     PlayerLeavingMessage |
     InfoMessage |
-    ServerPlayerActions;
+    ServerPlayerActions |
+    ChangeServerLavaFlyTarget | NewLavaFly;
 
 export interface ClientPlayerActions {
     type: "clientPlayerActions",

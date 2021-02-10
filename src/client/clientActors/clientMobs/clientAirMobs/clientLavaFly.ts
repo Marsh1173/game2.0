@@ -14,11 +14,14 @@ export class ClientLavaFly extends LavaFly {
     
     constructor(
         public readonly config: Config,
+        public readonly id: number,
         public position: Vector,
         public team: number,
         public health: number,
+        public momentum: Vector = {x: 0, y: 0},
+        public targetPlayer: ClientPlayer | undefined = undefined,
     ) {
-        super(config, position, team, health);
+        super(config, id, position, team, health, momentum, targetPlayer);
 
         this.time = Math.random() * 10;
     }
@@ -27,30 +30,13 @@ export class ClientLavaFly extends LavaFly {
         //ctx.fillRect(this.position.x - this.size.width / 2 + this.buzzPosition.x, this.position.y - this.size.height / 2 + this.buzzPosition.y, this.size.width, this.size.height);
     }
 
-    public clientUpdate(elapsedTime: number, players: ClientPlayer[], lavaFlies: ClientLavaFly[]) {
+    public clientLavaFlyUpdate(elapsedTime: number, players: ClientPlayer[], lavaFlies: ClientLavaFly[]) {
 
         this.time = (this.time + elapsedTime) % 2.5;
         this.buzzPosition.x += Math.sin(this.time * 10) * 2;
         this.buzzPosition.y += Math.sin(this.time * 12.5) * 2;
 
-        players.forEach(player => {
-            if (findDistance(this.position, player.position) < 400) {
-                this.momentum.x += (player.position.x - this.position.x) / 4;
-                this.momentum.y += (player.position.y - this.position.y) / 3;
-            }
-        })
-
-        lavaFlies.forEach(fly => {
-            if (fly.position != this.position && findDistance(this.position, fly.position) < 20) {
-                this.momentum.x -= (fly.position.x - this.position.x) / 2;
-                this.momentum.y -= (fly.position.y - this.position.y) / 2;
-            }
-        })
-
-        this.momentum.x *= 0.95;
-        this.momentum.y *= 0.95;
-
-        super.update(elapsedTime);
+        super.lavaFlyUpdate(elapsedTime, lavaFlies);
     }
 
 }
