@@ -44,7 +44,7 @@ export class Game {
                     this.id,
                 ),
         );
-        this.lavaFlies = info.lavaFlies.map(
+        /*this.lavaFlies = info.lavaFlies.map(
             (lavaFlyInfo) =>
                 new ClientLavaFly(
                     this.config,
@@ -53,8 +53,8 @@ export class Game {
                     lavaFlyInfo.team,
                     lavaFlyInfo.health,
                     lavaFlyInfo.momentum,
-        ));
-        /*info.lavaFlies.forEach((lavaFlyInfo) => {
+        ));*/
+        info.lavaFlies.forEach((lavaFlyInfo) => {
             let targetPlayer: ClientPlayer | undefined = undefined;
             this.players.forEach((player) => {
                 if (lavaFlyInfo.targetPlayerId == player.id) targetPlayer = player;
@@ -68,7 +68,7 @@ export class Game {
                 lavaFlyInfo.momentum,
                 targetPlayer
             ))
-        });*/
+        });
     }
 
     constructor(info: AllInfo, private readonly config: Config, private readonly id: number, private readonly serverTalker: ServerTalker, particleAmount: number) {
