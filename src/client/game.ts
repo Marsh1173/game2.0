@@ -44,16 +44,6 @@ export class Game {
                     this.id,
                 ),
         );
-        /*this.lavaFlies = info.lavaFlies.map(
-            (lavaFlyInfo) =>
-                new ClientLavaFly(
-                    this.config,
-                    lavaFlyInfo.id,
-                    lavaFlyInfo.position,
-                    lavaFlyInfo.team,
-                    lavaFlyInfo.health,
-                    lavaFlyInfo.momentum,
-        ));*/
         info.lavaFlies.forEach((lavaFlyInfo) => {
             let targetPlayer: ClientPlayer | undefined = undefined;
             this.players.forEach((player) => {

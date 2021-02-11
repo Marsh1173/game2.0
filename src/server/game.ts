@@ -114,8 +114,8 @@ export class Game {
     }
 
     private newLavaFlyLoop() {
-        for (let i: number = 0; i < 10; i++) {
-            this.newLavaFly({x: Math.random() * 1000 + 500, y: 500});
+        for (let i: number = 0; i < 30; i++) {
+            this.newLavaFly({x: Math.random() * 1700 + 1000, y: 700});
         }
         //setTimeout(() => this.newLavaFlyLoop(), 2000);
     }

@@ -32,7 +32,7 @@ export class ClientLavaFly extends LavaFly {
 
     public clientLavaFlyUpdate(elapsedTime: number, players: ClientPlayer[], lavaFlies: ClientLavaFly[]) {
 
-        this.time = (this.time + elapsedTime) % 2.5;
+        this.time = (this.time + elapsedTime);
         this.buzzPosition.x += Math.sin(this.time * 10) * 2;
         this.buzzPosition.y += Math.sin(this.time * 12.5) * 2;
 

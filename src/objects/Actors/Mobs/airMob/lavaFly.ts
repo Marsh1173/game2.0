@@ -40,8 +40,11 @@ export abstract class LavaFly extends AirMob {
     public lavaFlyUpdate(elapsedTime: number, lavaFlies: LavaFly[]) {
 
         if (this.targetPlayer != undefined) {
-            this.momentum.x += (this.targetPlayer.position.x - this.position.x) / 4;
-            this.momentum.y += (this.targetPlayer.position.y - this.position.y) / 3;
+            this.momentum.x += (this.targetPlayer.position.x + 25 - this.position.x) / 6;
+            this.momentum.y += (this.targetPlayer.position.y + 25 - this.position.y) / 6;
+        } else {
+            this.momentum.x += Math.min(50, Math.max(-50, this.homePosition.x - this.position.x)) / 2;
+            this.momentum.y += Math.min(50, Math.max(-50, this.homePosition.y - this.position.y)) / 2;
         }
 
         lavaFlies.forEach(fly => {

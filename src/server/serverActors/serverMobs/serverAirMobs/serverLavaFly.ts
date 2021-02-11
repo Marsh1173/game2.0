@@ -88,7 +88,7 @@ export class ServerLavaFly extends LavaFly {
 
         this.updateTargetCounter += elapsedTime;
         if (this.updateTargetCounter > 0.5) {
-            this.updateTargetPlayer(players);
+            setTimeout(() => this.updateTargetPlayer(players), Math.random() * 300);
             this.updateTargetCounter = 0;
         }
 
