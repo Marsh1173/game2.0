@@ -15,15 +15,10 @@ export abstract class LavaFly extends AirMob {
         public team: number,
         public health: number,
         public momentum: Vector = {x: 0, y: 0},
-        public targetPlayer: Player | undefined,
     ) {
         super(config, id, position, team, health);
 
         this.size = {"width": 10, "height": 10};
-    }
-
-    public setTargetPlayer(player: Player | undefined) {
-        this.targetPlayer = player;
     }
 
     public serialize(): SerializedLavaFly {
@@ -34,7 +29,13 @@ export abstract class LavaFly extends AirMob {
             team: this.team,
             health: this.health,
             targetPlayerId: (this.targetPlayer != undefined) ? this.targetPlayer.id : undefined,
+            homePosition: this.homePosition,
         };
+    }
+
+    private dampenMomentum(elapsedTime: number) {
+        this.momentum.x *= 0.98 ** (elapsedTime * 60);
+        this.momentum.y *= 0.96 ** (elapsedTime * 60);
     }
 
     public lavaFlyUpdate(elapsedTime: number, lavaFlies: LavaFly[]) {
@@ -54,8 +55,8 @@ export abstract class LavaFly extends AirMob {
             }
         })
 
-        this.momentum.x *= 0.97;
-        this.momentum.y *= 0.97;
+        this.checkSideCollision(elapsedTime);
+        this.dampenMomentum(elapsedTime);
 
         super.update(elapsedTime);
     }

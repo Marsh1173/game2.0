@@ -8,4 +8,5 @@ export interface SerializedLavaFly {
     team: number,
     health: number,
     targetPlayerId: number | undefined,
+    homePosition: Vector
 }

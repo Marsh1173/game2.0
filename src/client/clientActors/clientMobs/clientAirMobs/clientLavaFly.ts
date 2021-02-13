@@ -9,6 +9,7 @@ import { ClientPlayer } from "../../../player";
 
 export class ClientLavaFly extends LavaFly {
 
+    public stutterCompensatePosition: Vector = {x: 0, y: 0};
     public buzzPosition: Vector = {x: 0, y: 0};
     private time: number;
     
@@ -19,11 +20,14 @@ export class ClientLavaFly extends LavaFly {
         public team: number,
         public health: number,
         public momentum: Vector = {x: 0, y: 0},
-        public targetPlayer: ClientPlayer | undefined = undefined,
+        targetPlayer?: ClientPlayer,
+        homePosition?: Vector
     ) {
-        super(config, id, position, team, health, momentum, targetPlayer);
+        super(config, id, position, team, health, momentum);
 
         this.time = Math.random() * 10;
+        if (homePosition) this.homePosition = homePosition;
+        this.targetPlayer = targetPlayer;
     }
 
     public render(ctx: CanvasRenderingContext2D) { // implemented in the clientActors renderActors
@@ -35,6 +39,9 @@ export class ClientLavaFly extends LavaFly {
         this.time = (this.time + elapsedTime);
         this.buzzPosition.x += Math.sin(this.time * 10) * 2;
         this.buzzPosition.y += Math.sin(this.time * 12.5) * 2;
+
+        this.stutterCompensatePosition.x *= 0.98;
+        this.stutterCompensatePosition.y *= 0.98;
 
         super.lavaFlyUpdate(elapsedTime, lavaFlies);
     }

@@ -1,11 +1,14 @@
 import { Config } from "../../../config";
 import { Vector } from "../../../vector";
+import { Player } from "../../player";
 import { Actor } from "../actor";
 
 
 export abstract class Mob extends Actor {
 
     protected homePosition: Vector;
+    public targetPlayer: Player | undefined = undefined;
+
 
     constructor(
         public readonly config: Config,
@@ -17,7 +20,7 @@ export abstract class Mob extends Actor {
 
         super(config, id, position, team, health);
 
-        this.homePosition = {x: this.position.x, y: this.position.y};
+        this.homePosition = {x: this.position.x + 0, y: this.position.y + 0};
     }
 
 }

@@ -12,22 +12,25 @@ import { LavaFly } from "../objects/Actors/Mobs/airMob/lavaFly";
 import { ClientLavaFly } from "./clientActors/clientMobs/clientAirMobs/clientLavaFly";
 import { renderActors } from "./clientActors/renderActors";
 import { getNextActorId } from "../objects/Actors/actor";
+import { ClientPlayerActor } from "./clientActors/clientPlayers/clientPlayerActor";
 
 export class Game {
 
-    private lavaFlies: ClientLavaFly[] = [];
-
+    
     private static readonly menuDiv = safeGetElementById("menuDiv");
     private static readonly gameDiv = safeGetElementById("gameDiv");
     private static readonly canvas = safeGetElementById("canvas") as HTMLCanvasElement;
     public static readonly ctx = Game.canvas.getContext("2d")!; // should be private, I changed to public for testing purposes
-    public static particleAmount: number;
-
     private slideContainer = safeGetElementById("slideContainer");
-
-    private readonly keyState: Record<string, boolean> = {};
+    
+    //public playerActor: ClientPlayerActor = new ClientPlayerActor(this.config, -10, {x: 500, y: 500}, 0, 100, "orange");
+    
     private players: ClientPlayer[] = [];
     private platforms: ClientPlatform[] = [];
+    private lavaFlies: ClientLavaFly[] = [];
+    
+    public static particleAmount: number;
+    private readonly keyState: Record<string, boolean> = {};
     private going: boolean = false;
 
     private screenPos: Vector = {x: 0, y: 0};
@@ -56,7 +59,8 @@ export class Game {
                 lavaFlyInfo.team,
                 lavaFlyInfo.health,
                 lavaFlyInfo.momentum,
-                targetPlayer
+                targetPlayer,
+                lavaFlyInfo.homePosition
             ))
         });
     }
@@ -79,17 +83,20 @@ export class Game {
                             msg.id,
                             msg.position,
                             msg.team,
-                            10
+                            10,
                         ),
                     );
                     break;
                 case "changeServerLavaFlyTarget" :
                     this.lavaFlies.forEach(lavaFly => {
                         if (lavaFly.id == msg.id) {
+                            lavaFly.stutterCompensatePosition.x += -msg.position.x + lavaFly.position.x;
+                            lavaFly.stutterCompensatePosition.y += -msg.position.y + lavaFly.position.y;
+
                             lavaFly.position = msg.position;
                             lavaFly.momentum = msg.momentum;
                             let target: ClientPlayer | undefined = this.players.find(player => player.id == msg.playerid);
-                            lavaFly.setTargetPlayer(target);
+                            lavaFly.targetPlayer = target;
                         }
                     })
                     break;
@@ -231,14 +238,23 @@ export class Game {
         playerWithId.focusPosition.y = this.mousePos.y - this.screenPos.y;
         
         if (this.keyState[this.config.playerKeys.up]) {
+            //this.playerActor.actionsNextFrame.jump = true;//
             playerWithId.actionsNextFrame.jump = true;
             this.keyState[this.config.playerKeys.up] = false;
+        } else {
+            //this.playerActor.actionsNextFrame.jump = false;//
         }
         if (this.keyState[this.config.playerKeys.left]) {
+            //this.playerActor.actionsNextFrame.moveLeft = true;//
             playerWithId.actionsNextFrame.moveLeft = true;
+        } else {
+            //this.playerActor.actionsNextFrame.moveLeft = false;//
         }
         if (this.keyState[this.config.playerKeys.right]) {
+            //this.playerActor.actionsNextFrame.moveRight = true;//
             playerWithId.actionsNextFrame.moveRight = true;
+        } else {
+            //this.playerActor.actionsNextFrame.moveRight = false;//
         }
         
         this.updateObjects(elapsedTime);
@@ -271,7 +287,7 @@ export class Game {
         
         this.platforms.forEach((platform) => platform.render(Game.ctx));
         
-        renderActors(Game.ctx, this.lavaFlies);
+        //renderActors(Game.ctx, this.lavaFlies, this.playerActor);
     }
 
     private updateSliderX() {
@@ -338,5 +354,6 @@ export class Game {
         this.players.forEach((player) => player.update(elapsedTime, this.players, this.platforms, (player.id === this.id)));
         this.lavaFlies.forEach((lavaFly) => lavaFly.clientLavaFlyUpdate(elapsedTime, this.players, this.lavaFlies));
 
+        //this.playerActor.updatePlayerActor(elapsedTime, this.platforms, this.players);
     }
 }

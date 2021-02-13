@@ -1,14 +1,17 @@
 import { ClientPlayer } from "../player";
 import { ClientLavaFly } from "./clientMobs/clientAirMobs/clientLavaFly";
+import { ClientPlayerActor } from "./clientPlayers/clientPlayerActor";
 
-export function renderActors(ctx: CanvasRenderingContext2D, lavaFlies: ClientLavaFly[]) {
+export function renderActors(ctx: CanvasRenderingContext2D, lavaFlies: ClientLavaFly[], player: ClientPlayerActor) {
+
+    player.render(ctx);
 
     ctx.save();
     ctx.shadowBlur = 3;
     ctx.shadowColor = "orange";
+    ctx.fillStyle = "#ff3300";
     lavaFlies.forEach(fly => {
-        ctx.fillStyle = (fly.targetPlayer) ? "#ff3300" : "#ff7700";
-        ctx.fillRect(fly.position.x - fly.size.width / 2 + fly.buzzPosition.x, fly.position.y - fly.size.height / 2 + fly.buzzPosition.y, fly.size.width, fly.size.height)
+        ctx.fillRect(fly.position.x - fly.size.width / 2 + fly.buzzPosition.x + fly.stutterCompensatePosition.x, fly.position.y - fly.size.height / 2 + fly.buzzPosition.y + fly.stutterCompensatePosition.y, fly.size.width, fly.size.height)
     });
     ctx.restore();
 }

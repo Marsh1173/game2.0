@@ -24,6 +24,7 @@ export interface ChangeServerLavaFlyTarget {
 export class ServerLavaFly extends LavaFly {
 
     private updateTargetCounter: number = 0;
+    private updateTargetCooldown: number = 0.3 + Math.random() / 2;
 
     
     constructor(
@@ -33,9 +34,8 @@ export class ServerLavaFly extends LavaFly {
         public team: number,
         public health: number,
         public momentum: Vector = {x: 0, y: 0},
-        public targetPlayer: ServerPlayer | undefined = undefined,
     ) {
-        super(config, id, position, team, health, momentum, targetPlayer);
+        super(config, id, position, team, health, momentum);
 
     }
 
@@ -44,7 +44,7 @@ export class ServerLavaFly extends LavaFly {
         let ifChanged: boolean = false;
         
         if(this.targetPlayer && findDistance(this.position, this.targetPlayer.position) > 400) { // deaggro if they're out of range
-            this.setTargetPlayer(undefined);
+            this.targetPlayer = undefined;
             ifChanged = true;
         }
 
@@ -53,10 +53,10 @@ export class ServerLavaFly extends LavaFly {
                 continue;
             }
             if (this.targetPlayer == undefined) {
-                this.setTargetPlayer(players[i]);
+                this.targetPlayer = players[i];
                 ifChanged = true;
             } else if(findDistance(this.position, players[i].position) < findDistance(this.position, this.targetPlayer.position)) {
-                this.setTargetPlayer(players[i]);
+                this.targetPlayer = players[i];
                 ifChanged = true;
             }
         }
@@ -87,8 +87,8 @@ export class ServerLavaFly extends LavaFly {
     public serverLavaFlyUpdate(elapsedTime: number, players: ServerPlayer[], lavaFlies: ServerLavaFly[]) {
 
         this.updateTargetCounter += elapsedTime;
-        if (this.updateTargetCounter > 0.5) {
-            setTimeout(() => this.updateTargetPlayer(players), Math.random() * 300);
+        if (this.updateTargetCounter > this.updateTargetCooldown) {
+            this.updateTargetPlayer(players);
             this.updateTargetCounter = 0;
         }
 

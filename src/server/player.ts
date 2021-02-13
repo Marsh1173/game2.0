@@ -1,10 +1,11 @@
 import { Game } from "../server/game";
 import { Config } from "../config";
 import { Vector } from "../vector";
-import { Player, PlayerActions } from "../objects/player";
+import { Player } from "../objects/player";
+import { PlayerActionTypes } from "../objects/Actors/Players/playerActor";
 
 export class ServerPlayer extends Player {
-    public actionList: PlayerActions[] = [];
+    public actionList: PlayerActionTypes[] = [];
 
     constructor(
         config: Config,

@@ -7,6 +7,7 @@ import { Config } from "../config";
 import { moveEmitHelpers } from "typescript";
 import { ServerLavaFly } from "./serverActors/serverMobs/serverAirMobs/serverLavaFly";
 import { getNextActorId } from "../objects/Actors/actor";
+import { Player } from "../objects/player";
 
 export class Game {
     private intervalId?: NodeJS.Timeout;
@@ -114,13 +115,14 @@ export class Game {
     }
 
     private newLavaFlyLoop() {
-        for (let i: number = 0; i < 30; i++) {
+        for (let i: number = 0; i < 50; i++) {
             this.newLavaFly({x: Math.random() * 1700 + 1000, y: 700});
         }
         //setTimeout(() => this.newLavaFlyLoop(), 2000);
     }
 
     public removePlayer(id: number) {
+
         this.lavaFlies.forEach((lavaFly => {
             if(lavaFly.targetPlayer && lavaFly.targetPlayer.id == id) {
                 lavaFly.targetPlayer = undefined;

@@ -1,4 +1,4 @@
-import { PlayerActions } from "../objects/player";
+import { PlayerActionTypes } from "../objects/Actors/Players/playerActor";
 import { SerializedPlayer } from "../serialized/player";
 import { ChangeServerLavaFlyTarget, NewLavaFly } from "../server/serverActors/serverMobs/serverAirMobs/serverLavaFly";
 import { Vector } from "../vector";
@@ -54,7 +54,7 @@ export interface ClientPlayerActions {
 
 export interface ActionMessage { //NO LONGER USED
     type: "action";
-    actionType: PlayerActions;
+    actionType: PlayerActionTypes;
     id: number;
 }
 

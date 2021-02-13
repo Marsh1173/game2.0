@@ -2,9 +2,8 @@ import { Config } from "../config";
 import { SerializedPlayer } from "../serialized/player";
 import { Size } from "../size";
 import { Vector } from "../vector";
+import { PlayerActionTypes } from "./Actors/Players/playerActor";
 import { Platform } from "./platform";
-
-export type PlayerActions = "jump" | "moveLeft" | "moveRight" | "leftClick";
 
 export abstract class Player {
     private static nextId = 0;
@@ -12,11 +11,13 @@ export abstract class Player {
         return Player.nextId++;
     }
 
-    public readonly actionsNextFrame: Record<PlayerActions, boolean> = {
+    public readonly actionsNextFrame: Record<PlayerActionTypes, boolean> = {
         jump: false,
         moveLeft: false,
         moveRight: false,
         leftClick: false,
+        rightClick: false,
+        shift: false,
     };
 
     constructor(
@@ -273,6 +274,6 @@ export abstract class Player {
                 player2.id != this.id) this.checkCollisionWithPlayer({size: this.config.playerSize, position: player2.position}, elapsedTime);
         });
 
-        Object.keys(this.actionsNextFrame).forEach((key) => (this.actionsNextFrame[key as PlayerActions] = false));
+        Object.keys(this.actionsNextFrame).forEach((key) => (this.actionsNextFrame[key as PlayerActionTypes] = false));
     }
 }
