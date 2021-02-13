@@ -23,7 +23,7 @@ export class Game {
     public static readonly ctx = Game.canvas.getContext("2d")!; // should be private, I changed to public for testing purposes
     private slideContainer = safeGetElementById("slideContainer");
     
-    //public playerActor: ClientPlayerActor = new ClientPlayerActor(this.config, -10, {x: 500, y: 500}, 0, 100, "orange");
+    public playerActor: ClientPlayerActor = new ClientPlayerActor(this.config, -10, {x: 500, y: 500}, 0, 100, "orange");
     
     private players: ClientPlayer[] = [];
     private platforms: ClientPlatform[] = [];
@@ -238,23 +238,23 @@ export class Game {
         playerWithId.focusPosition.y = this.mousePos.y - this.screenPos.y;
         
         if (this.keyState[this.config.playerKeys.up]) {
-            //this.playerActor.actionsNextFrame.jump = true;//
+            this.playerActor.actionsNextFrame.jump = true;//
             playerWithId.actionsNextFrame.jump = true;
             this.keyState[this.config.playerKeys.up] = false;
         } else {
-            //this.playerActor.actionsNextFrame.jump = false;//
+            this.playerActor.actionsNextFrame.jump = false;//
         }
         if (this.keyState[this.config.playerKeys.left]) {
-            //this.playerActor.actionsNextFrame.moveLeft = true;//
+            this.playerActor.actionsNextFrame.moveLeft = true;//
             playerWithId.actionsNextFrame.moveLeft = true;
         } else {
-            //this.playerActor.actionsNextFrame.moveLeft = false;//
+            this.playerActor.actionsNextFrame.moveLeft = false;//
         }
         if (this.keyState[this.config.playerKeys.right]) {
-            //this.playerActor.actionsNextFrame.moveRight = true;//
+            this.playerActor.actionsNextFrame.moveRight = true;//
             playerWithId.actionsNextFrame.moveRight = true;
         } else {
-            //this.playerActor.actionsNextFrame.moveRight = false;//
+            this.playerActor.actionsNextFrame.moveRight = false;//
         }
         
         this.updateObjects(elapsedTime);
@@ -287,7 +287,7 @@ export class Game {
         
         this.platforms.forEach((platform) => platform.render(Game.ctx));
         
-        //renderActors(Game.ctx, this.lavaFlies, this.playerActor);
+        renderActors(Game.ctx, this.lavaFlies, this.playerActor);
     }
 
     private updateSliderX() {
@@ -354,6 +354,6 @@ export class Game {
         this.players.forEach((player) => player.update(elapsedTime, this.players, this.platforms, (player.id === this.id)));
         this.lavaFlies.forEach((lavaFly) => lavaFly.clientLavaFlyUpdate(elapsedTime, this.players, this.lavaFlies));
 
-        //this.playerActor.updatePlayerActor(elapsedTime, this.platforms, this.players);
+        this.playerActor.updatePlayerActor(elapsedTime, this.platforms, this.players);
     }
 }
