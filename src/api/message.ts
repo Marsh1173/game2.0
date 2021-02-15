@@ -1,6 +1,8 @@
+import { ClientPlayerJump, ClientPlayerMoveLeft, ClientPlayerMoveRight, ClientPlayerStopMoveLeft, ClientPlayerStopMoveRight } from "../client/clientActors/clientPlayers/ClientPlayerActorActionFunctions";
 import { PlayerActionTypes } from "../objects/Actors/Players/playerActor";
 import { SerializedPlayer } from "../serialized/player";
 import { ChangeServerLavaFlyTarget, NewLavaFly } from "../server/serverActors/serverMobs/serverAirMobs/serverLavaFly";
+import { NewPlayerActor, ServerPlayerJump, ServerPlayerMoveLeft, ServerPlayerMoveRight, ServerPlayerStopMoveLeft, ServerPlayerStopMoveRight } from "../server/serverActors/serverPlayers/serverPlayerActor";
 import { Vector } from "../vector";
 import { AllInfo } from "./allinfo";
 
@@ -20,37 +22,15 @@ export interface InfoMessage {
     info: AllInfo;
 }
 
-export interface ServerPlayerActions {
-    type: "serverPlayerActions",
-    id: number,
-    moveRight: boolean,
-    moveLeft: boolean,
-    jump: boolean,
-
-    focusPosition: Vector;
-    position: Vector;
-    momentum: Vector;
-    health: number;
-}
-
 export type ServerMessage = PlayerInfoMessage |
     PlayerLeavingMessage |
     InfoMessage |
-    ServerPlayerActions |
-    ChangeServerLavaFlyTarget | NewLavaFly;
+    ChangeServerLavaFlyTarget | NewLavaFly |
+    NewPlayerActor |
+    ServerPlayerJump |
+    ServerPlayerMoveLeft | ServerPlayerStopMoveLeft |
+    ServerPlayerMoveRight | ServerPlayerStopMoveRight;
 
-export interface ClientPlayerActions {
-    type: "clientPlayerActions",
-    id: number,
-    moveRight: boolean,
-    moveLeft: boolean,
-    jump: boolean,
-    
-    focusPosition: Vector,
-    position: Vector,
-    momentum: Vector;
-    health: number,
-}
 
 export interface ActionMessage { //NO LONGER USED
     type: "action";
@@ -58,4 +38,7 @@ export interface ActionMessage { //NO LONGER USED
     id: number;
 }
 
-export type ClientMessage = ActionMessage | ClientPlayerActions;
+export type ClientMessage = ActionMessage |
+    ClientPlayerJump |
+    ClientPlayerMoveLeft | ClientPlayerStopMoveLeft |
+    ClientPlayerMoveRight | ClientPlayerStopMoveRight;

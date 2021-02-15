@@ -1,6 +1,5 @@
 import { SerializedPlayer } from "../serialized/player";
 import { ServerTalker } from "./servertalker";
-import { Player } from "../objects/player";
 import { Vector } from "../vector";
 import { Config } from "../config";
 import { Platform } from "../objects/platform";
@@ -9,7 +8,7 @@ import { Size } from "../size";
 import { ids } from "webpack";
 import { Game } from "./game";
 
-export class ClientPlayer extends Player {
+/*export class ClientPlayer extends Player {
     constructor(
         config: Config,
         info: SerializedPlayer,
@@ -74,4 +73,4 @@ export class ClientPlayer extends Player {
 
         super.broadcastActions();
     }
-}
+}*/

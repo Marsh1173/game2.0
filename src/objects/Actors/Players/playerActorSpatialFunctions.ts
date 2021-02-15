@@ -1,12 +1,10 @@
-import { Platform } from "../../platform";
-import { Player } from "../../player";
 import { PlayerActor } from "./playerActor";
 
 
-export function checkPlayerActorCollision(this: PlayerActor, player: Player, elapsedTime: number) { //  PLAYER SHOULD BE PLAYER ACTOR
-    if (this.position.x < player.position.x + 75 && this.position.x > player.position.x - 25 &&
-        this.position.y < player.position.y + 75 && this.position.y > player.position.y - 25) {
-        if ((player.position.x + 25 - this.position.x) > 0) this.momentum.x -= 2000 * elapsedTime;
+export function checkPlayerActorCollision(this: PlayerActor, player: PlayerActor, elapsedTime: number) { //  PLAYER SHOULD BE PLAYER ACTOR
+    if (this.position.x < player.position.x + this.size.width && this.position.x > player.position.x - this.size.width &&
+        this.position.y < player.position.y + this.size.height && this.position.y > player.position.y - this.size.height) {
+        if ((player.position.x - this.position.x) > 0) this.momentum.x -= 2000 * elapsedTime;
         else this.momentum.x += 2000 * elapsedTime;
     }
 }

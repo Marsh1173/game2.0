@@ -1,10 +1,9 @@
 import { Game } from "../server/game";
 import { Config } from "../config";
 import { Vector } from "../vector";
-import { Player } from "../objects/player";
 import { PlayerActionTypes } from "../objects/Actors/Players/playerActor";
 
-export class ServerPlayer extends Player {
+/*class ServerPlayer extends Player {
     public actionList: PlayerActionTypes[] = [];
 
     constructor(
@@ -37,4 +36,4 @@ export class ServerPlayer extends Player {
             },
         );
     }
-}
+}*/

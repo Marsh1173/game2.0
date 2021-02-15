@@ -5,7 +5,7 @@ import { Vector } from "../vector";
 import { PlayerActionTypes } from "./Actors/Players/playerActor";
 import { Platform } from "./platform";
 
-export abstract class Player {
+abstract class Player {
     private static nextId = 0;
     public static getNextId() {
         return Player.nextId++;

@@ -1,10 +1,9 @@
 import { Config } from "../../../config";
 import { Vector } from "../../../vector";
 import { Platform } from "../../platform";
-import { Player } from "../../player";
 import { Actor, ActorEffects } from "../actor";
 import { checkPlayerActorCollision, dampenMomentum } from "./playerActorSpatialFunctions";
-import { attemptJump, attemptMoveLeft, attemptMoveRight, jump, moveLeft, moveRight } from "./playerActorActionFunctions";
+import { attemptJump, attemptMoveLeft, attemptMoveRight, jump, moveLeft, moveRight, performActions } from "./playerActorActionFunctions";
 
 export type PlayerActionTypes = "jump" | "moveLeft" | "moveRight" | "leftClick" | "rightClick" | "shift";
 export type PlayerEffectTypes = "stunned";
@@ -29,14 +28,16 @@ export abstract class PlayerActor extends Actor {
     protected fallingSidewaysAcceleration: number = 4000;
     protected jumpHeight: number = 1000;
     protected alreadyJumped: number = 0;
+    
 
     constructor(
         public readonly config: Config,
         public readonly id: number,
         public position: Vector,
         public team: number,
-        public health: number,
         protected color: string,
+        public name: string,
+        public health: number = 100,
     ) {
         super(config, id, position, team, health);
 
@@ -57,21 +58,11 @@ export abstract class PlayerActor extends Actor {
 
     }
 
+    private performActions = performActions;
 
-    public updatePlayerActor(elapsedTime: number, platforms: Platform[], players: Player[]) {
 
-        
-        this.registerGravity(elapsedTime);
-        players.forEach((player) => {
-            /*(if (player.id != this.id)*/ this.checkPlayerActorCollision(player, elapsedTime);
-        })
-        platforms.forEach((platform) => {
-            this.checkRectangleCollision(elapsedTime, platform);
-        })
-        this.checkSideCollision(elapsedTime);
-        
-        
-        
+    protected updatePlayerActor(elapsedTime: number, platforms: Platform[], players: PlayerActor[]) {
+
         this.dampenMomentum(elapsedTime); 
         if(this.standing){
             this.alreadyJumped = 0;
@@ -79,18 +70,27 @@ export abstract class PlayerActor extends Actor {
         //update abilites/effects
 
 
-        if (this.actionsNextFrame.jump) {
-            this.attemptJump();
-        }
-        if (this.actionsNextFrame.moveLeft) {
-            this.attemptMoveLeft(elapsedTime);
-        }
-        if (this.actionsNextFrame.moveRight) {
-            this.attemptMoveRight(elapsedTime);
-        }
+        this.performActions(elapsedTime);
+
+        this.standing = false;
+        
+        this.registerGravity(elapsedTime);
+        players.forEach((player) => {
+            if (player.id != this.id) this.checkPlayerActorCollision(player, elapsedTime);
+        })
+        platforms.forEach((platform) => {
+            this.checkRectangleCollision(elapsedTime, platform);
+        })
+        this.checkSideCollision(elapsedTime);
+        
+    
+
+        super.update(elapsedTime);
 
 
-        this.update(elapsedTime);
+        this.actionsNextFrame.jump = false;
+        //this.actionsNextFrame.leftClick = false;
+        //this.actionsNextFrame.rightClick = false;
     }
 
 }

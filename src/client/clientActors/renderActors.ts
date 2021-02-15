@@ -1,10 +1,12 @@
-import { ClientPlayer } from "../player";
 import { ClientLavaFly } from "./clientMobs/clientAirMobs/clientLavaFly";
 import { ClientPlayerActor } from "./clientPlayers/clientPlayerActor";
 
-export function renderActors(ctx: CanvasRenderingContext2D, lavaFlies: ClientLavaFly[], player: ClientPlayerActor) {
+export function renderActors(ctx: CanvasRenderingContext2D, lavaFlies: ClientLavaFly[], players: ClientPlayerActor[]) {
 
-    player.render(ctx);
+    players.forEach((player) => {
+        player.render(ctx);
+        player.renderName(ctx);
+    })
 
     ctx.save();
     ctx.shadowBlur = 3;
@@ -16,6 +18,6 @@ export function renderActors(ctx: CanvasRenderingContext2D, lavaFlies: ClientLav
     ctx.restore();
 }
 
-export function renderHealth(ctx: CanvasRenderingContext2D, players: ClientPlayer[]) {
+/*export function renderHealth(ctx: CanvasRenderingContext2D, players: ClientPlayer[]) {
 
-}
+}*/

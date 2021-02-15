@@ -56,10 +56,8 @@ export abstract class Actor {
     protected die = die;
     protected resurrect = resurrect;
 
-    public update(elapsedTime: number) {
+    protected update(elapsedTime: number) {
 
         this.updatePosition(elapsedTime);
-
-        this.standing = false;
     }
 }

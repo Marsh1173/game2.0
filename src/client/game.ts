@@ -1,10 +1,8 @@
 import { AllInfo } from "../api/allinfo";
 import { ServerMessage } from "../api/message";
 import { Config } from "../config";
-import { Player } from "../objects/player";
 import { Vector } from "../vector";
 import { ClientPlatform } from "./platform";
-import { ClientPlayer } from "./player";
 import { ServerTalker } from "./servertalker";
 import { safeGetElementById } from "./util";
 import { createTextChangeRange, moveEmitHelpers } from "typescript";
@@ -13,6 +11,8 @@ import { ClientLavaFly } from "./clientActors/clientMobs/clientAirMobs/clientLav
 import { renderActors } from "./clientActors/renderActors";
 import { getNextActorId } from "../objects/Actors/actor";
 import { ClientPlayerActor } from "./clientActors/clientPlayers/clientPlayerActor";
+import { PlayerActor } from "../objects/Actors/Players/playerActor";
+import { onKeyDown, onKeyUp, onMouseDown, onMouseUp } from "./clientActors/clientPlayers/ClientPlayerActorActionFunctions";
 
 export class Game {
 
@@ -23,14 +23,14 @@ export class Game {
     public static readonly ctx = Game.canvas.getContext("2d")!; // should be private, I changed to public for testing purposes
     private slideContainer = safeGetElementById("slideContainer");
     
-    public playerActor: ClientPlayerActor = new ClientPlayerActor(this.config, -10, {x: 500, y: 500}, 0, 100, "orange");
-    
-    private players: ClientPlayer[] = [];
+    protected gamePlayer: ClientPlayerActor;
+
+    private playerActors: ClientPlayerActor[] = [];
     private platforms: ClientPlatform[] = [];
     private lavaFlies: ClientLavaFly[] = [];
     
     public static particleAmount: number;
-    private readonly keyState: Record<string, boolean> = {};
+    protected readonly keyState: Record<string, boolean> = {};
     private going: boolean = false;
 
     private screenPos: Vector = {x: 0, y: 0};
@@ -38,18 +38,19 @@ export class Game {
 
     private constructGame(info: AllInfo) {
         this.platforms = info.platforms.map((platformInfo) => new ClientPlatform(this.config, platformInfo));
-        this.players = info.players.map(
+        this.playerActors = info.playerActors.map(
             (playerInfo) =>
-                new ClientPlayer(
+                new ClientPlayerActor(
                     this.config,
                     playerInfo,
-                    this.serverTalker,
-                    this.id,
+                    (this.id === playerInfo.id) ? true : false,
+                    this.serverTalker
                 ),
         );
+
         info.lavaFlies.forEach((lavaFlyInfo) => {
-            let targetPlayer: ClientPlayer | undefined = undefined;
-            this.players.forEach((player) => {
+            let targetPlayer: ClientPlayerActor | undefined = undefined;
+            this.playerActors.forEach((player) => {
                 if (lavaFlyInfo.targetPlayerId == player.id) targetPlayer = player;
             });
             this.lavaFlies.push(new ClientLavaFly(
@@ -73,10 +74,70 @@ export class Game {
         Game.particleAmount = particleAmount / 100;
 
         this.constructGame(info);
+        this.gamePlayer = this.findPlayer();
 
         this.serverTalker.messageHandler = (msg: ServerMessage) => {
             let player;
             switch (msg.type) {
+                case "newPlayerActor":
+                    this.playerActors.push(new ClientPlayerActor(
+                            this.config,
+                            msg.info,
+                            false,
+                            this.serverTalker
+                        ),
+                    );
+                    break;
+                case "serverPlayerJump" :
+                    player = this.playerActors.find((player) => player.id === msg.id);
+                    if (player && player !== this.gamePlayer) {
+                        player.momentum = msg.momentum;
+                        player.stutterCompensatePosition.x += -msg.position.x + player.position.x;
+                        player.stutterCompensatePosition.y += -msg.position.y + player.position.y;
+                        player.position = msg.position;
+                        player.actionsNextFrame.jump = true;
+                    }
+                    break;
+                case "serverPlayerMoveRight" :
+                    player = this.playerActors.find((player) => player.id === msg.id);
+                    if (player && player !== this.gamePlayer) {
+                        player.momentum = msg.momentum;
+                        player.stutterCompensatePosition.x += -msg.position.x + player.position.x;
+                        player.stutterCompensatePosition.y += -msg.position.y + player.position.y;
+                        player.position = msg.position;
+                        player.actionsNextFrame.moveRight = true;
+                    }
+                    break;
+                case "serverPlayerStopMoveRight" :
+                    player = this.playerActors.find((player) => player.id === msg.id);
+                    if (player && player !== this.gamePlayer) {
+                        player.momentum = msg.momentum;
+                        player.stutterCompensatePosition.x += -msg.position.x + player.position.x;
+                        player.stutterCompensatePosition.y += -msg.position.y + player.position.y;
+                        player.position = msg.position;
+                        player.actionsNextFrame.moveRight = false;
+                    }
+                    break;
+                case "serverPlayerMoveLeft" :
+                    player = this.playerActors.find((player) => player.id === msg.id);
+                    if (player && player !== this.gamePlayer) {
+                        player.momentum = msg.momentum;
+                        player.stutterCompensatePosition.x += -msg.position.x + player.position.x;
+                        player.stutterCompensatePosition.y += -msg.position.y + player.position.y;
+                        player.position = msg.position;
+                        player.actionsNextFrame.moveLeft = true;
+                    }
+                    break;
+                case "serverPlayerStopMoveLeft" :
+                    player = this.playerActors.find((player) => player.id === msg.id);
+                    if (player && player !== this.gamePlayer) {
+                        player.momentum = msg.momentum;
+                        player.stutterCompensatePosition.x += -msg.position.x + player.position.x;
+                        player.stutterCompensatePosition.y += -msg.position.y + player.position.y;
+                        player.position = msg.position;
+                        player.actionsNextFrame.moveLeft = false;
+                    }
+                    break;
                 case "newLavaFly":
                     this.lavaFlies.push(new ClientLavaFly(
                             this.config,
@@ -95,7 +156,7 @@ export class Game {
 
                             lavaFly.position = msg.position;
                             lavaFly.momentum = msg.momentum;
-                            let target: ClientPlayer | undefined = this.players.find(player => player.id == msg.playerid);
+                            let target: PlayerActor | undefined = this.playerActors.find(player => player.id == msg.playerid);
                             lavaFly.targetPlayer = target;
                         }
                     })
@@ -103,7 +164,7 @@ export class Game {
                 case "info":
                     this.constructGame(msg.info);
                     break;
-                case "serverPlayerActions":
+                /*case "serverPlayerActions":
                     player = this.players.find((player) => player.id === msg.id)!;
                     if (player && msg.id != this.id) {
                         player.actionsNextFrame.moveRight = msg.moveRight;
@@ -115,18 +176,9 @@ export class Game {
                         player.health = msg.health;
                     }
 
-                    break;
-                case "playerInfo":
-                    this.players.push(new ClientPlayer(
-                                this.config,
-                                msg.info,
-                                this.serverTalker,
-                                this.id,
-                            ),
-                    );
-                    break;
+                    break;*/
                 case "playerLeaving":
-                    this.players = this.players.filter((player) => player.id !== msg.id);
+                    this.playerActors = this.playerActors.filter((player) => player.id !== msg.id);
                     break;
                 default:
                     throw new Error("Unrecognized message from server");
@@ -138,61 +190,19 @@ export class Game {
 
         // use onkeydown and onkeyup instead of addEventListener because it's possible to add multiple event listeners per event
         // This would cause a bug where each time you press a key it creates multiple blasts or jumps
-        window.onmousedown = (e: MouseEvent) => {
-            const playerWithId = this.findPlayer();
+        window.onmousedown = (e: MouseEvent) => this.onMouseDown(e);
+        window.onmouseup = (e: MouseEvent) => this.onMouseUp(e);
+        window.onkeydown = (e: KeyboardEvent) => this.onKeyDown(e);
+        window.onkeyup = (e: KeyboardEvent) => this.onKeyUp(e);
 
-            if (e.button === 0) {
-                //left mouse button click
-                /*cancelAbilites(playerWithId);
-                playerWithId.playerAbilities[0].isCharging = true;*/
-                playerWithId.actionsNextFrame.leftClick = true;
-
-            } else if (e.button === 2) {
-                /*cancelAbilites(playerWithId);
-                playerWithId.playerAbilities[1].isCharging = true;*/
-            }
-        };
-        window.onmouseup = (e: MouseEvent) => {
-            const playerWithId = this.findPlayer();
-
-            if (e.button === 0) {
-                // left mouse release
-                //playerWithId.playerAbilities[0].isCharging = false;
-            } else if (e.button === 2) {
-                //playerWithId.playerAbilities[1].isCharging = false;
-            }
-        };
         window.onmousemove = (e: MouseEvent) => {
             this.mousePos.x = e.clientX;
             this.mousePos.y = e.clientY;
         };
-        window.onkeydown = (e: KeyboardEvent) => {
-            /*const playerWithId = this.findPlayer();
-
-            if (e.code === this.config.playerKeys.firstAbility && !playerWithId.playerAbilities[2].isCharging) {
-                cancelAbilites(playerWithId);
-                playerWithId.playerAbilities[2].isCharging = true;
-            } else if (e.code === this.config.playerKeys.secondAbility && !playerWithId.playerAbilities[3].isCharging) {
-                cancelAbilites(playerWithId);
-                playerWithId.playerAbilities[3].isCharging = true;
-            } else if (e.code === this.config.playerKeys.thirdAbility && !playerWithId.playerAbilities[4].isCharging) {
-                cancelAbilites(playerWithId);
-                playerWithId.playerAbilities[4].isCharging = true;
-            } else */this.keyState[e.code] = true;
-        };
-        window.onkeyup = (e: KeyboardEvent) => {
-            /*const playerWithId = this.findPlayer();
-            if (e.code === this.config.playerKeys.firstAbility) {
-                playerWithId.playerAbilities[2].isCharging = false;
-            } else if (e.code === this.config.playerKeys.secondAbility) {
-                playerWithId.playerAbilities[3].isCharging = false;
-            } else if (e.code === this.config.playerKeys.thirdAbility) {
-                playerWithId.playerAbilities[4].isCharging = false;
-            } else */this.keyState[e.code] = false;
-        };
     }
 
     public start() {
+
         Game.menuDiv.style.display = "none";
         Game.gameDiv.style.display = "block";
 
@@ -225,37 +235,14 @@ export class Game {
     }
 
     private update(elapsedTime: number) {
-        elapsedTime = Math.min(0.03, elapsedTime);//fix to make sure sudden lag spikes dont clip them through the floors
-
-        const playerWithId = this.findPlayer();
+        elapsedTime = Math.min(0.03, elapsedTime);//fix to make sure sudden lag spikes dont clip them through the floors\
         
-        this.updateHTML(elapsedTime, playerWithId);
+        this.updateHTML();
         
         this.updateSliderX();
         this.updateSliderY();
 
-        playerWithId.focusPosition.x = this.mousePos.x - this.screenPos.x;
-        playerWithId.focusPosition.y = this.mousePos.y - this.screenPos.y;
-        
-        if (this.keyState[this.config.playerKeys.up]) {
-            this.playerActor.actionsNextFrame.jump = true;//
-            playerWithId.actionsNextFrame.jump = true;
-            this.keyState[this.config.playerKeys.up] = false;
-        } else {
-            this.playerActor.actionsNextFrame.jump = false;//
-        }
-        if (this.keyState[this.config.playerKeys.left]) {
-            this.playerActor.actionsNextFrame.moveLeft = true;//
-            playerWithId.actionsNextFrame.moveLeft = true;
-        } else {
-            this.playerActor.actionsNextFrame.moveLeft = false;//
-        }
-        if (this.keyState[this.config.playerKeys.right]) {
-            this.playerActor.actionsNextFrame.moveRight = true;//
-            playerWithId.actionsNextFrame.moveRight = true;
-        } else {
-            this.playerActor.actionsNextFrame.moveRight = false;//
-        }
+        this.updateGamePlayerActions();
         
         this.updateObjects(elapsedTime);
         
@@ -263,7 +250,7 @@ export class Game {
     }
 
     private findPlayer() {
-        const playerWithId = this.players.find((player) => player.id === this.id);
+        const playerWithId = this.playerActors.find((player) => player.id === this.id);
         if (!playerWithId) {
             throw new Error("Player with my id does not exist in data from server");
         }
@@ -274,31 +261,20 @@ export class Game {
         Game.ctx.clearRect(0, 0, this.config.xSize, this.config.ySize);
         Game.ctx.fillStyle = "#2e3133";
         Game.ctx.fillRect(0, 0, this.config.xSize, this.config.ySize);
-
         Game.ctx.setTransform(1, 0, 0, 1, this.screenPos.x, this.screenPos.y);
-
-        
-        const playerWithId = this.findPlayer();
-        
-        this.players.forEach((player) => {
-            player.render(Game.ctx);
-        });
-        
         
         this.platforms.forEach((platform) => platform.render(Game.ctx));
-        
-        renderActors(Game.ctx, this.lavaFlies, this.playerActor);
+        renderActors(Game.ctx, this.lavaFlies, this.playerActors);
     }
 
     private updateSliderX() {
-        const playerWithId = this.findPlayer();
         const windowWidth: number = window.innerWidth;
 
         //check if screen is bigger than field
         if (this.config.xSize < windowWidth) {
             this.screenPos.x = 0;
         } else {
-            let temp = this.screenPos.x + (-playerWithId.position.x + windowWidth / 2 - this.screenPos.x) / 10;
+            let temp = this.screenPos.x + (-this.gamePlayer.position.x + windowWidth / 2 - this.screenPos.x) / 10;
             //make a temp position to check where it would be updated to
             if (this.screenPos.x < temp + 0.1 && this.screenPos.x > temp - 0.1) {
                 return; //so it's not updating even while idle
@@ -319,14 +295,13 @@ export class Game {
     }
 
     private updateSliderY() {
-        const playerWithId = this.findPlayer();
         const windowHeight: number = window.innerHeight;
 
         //check if screen is bigger than field
         if (this.config.ySize < windowHeight) {
             this.screenPos.y = 0;//window.innerHeight - this.config.ySize;
         } else {
-            let temp = this.screenPos.y + (-playerWithId.position.y + windowHeight / 2 - this.screenPos.y) / 10;
+            let temp = this.screenPos.y + (-this.gamePlayer.position.y + windowHeight / 2 - this.screenPos.y) / 10;
             //make a temp position to check where it would be updated to
             if (this.screenPos.y < temp + 0.1 && this.screenPos.y > temp - 0.1) {
                 return; //so it's not updating even while idle
@@ -346,14 +321,41 @@ export class Game {
         }
     }
 
-    private updateHTML(elapsedTime: number, player: Player) {
+    private updateHTML() {
         if (parseInt(this.slideContainer.style.height, 10) != window.innerHeight) this.slideContainer.style.height = (window.innerHeight) + "px";
     }
 
     private updateObjects(elapsedTime: number) {
-        this.players.forEach((player) => player.update(elapsedTime, this.players, this.platforms, (player.id === this.id)));
-        this.lavaFlies.forEach((lavaFly) => lavaFly.clientLavaFlyUpdate(elapsedTime, this.players, this.lavaFlies));
-
-        this.playerActor.updatePlayerActor(elapsedTime, this.platforms, this.players);
+        this.lavaFlies.forEach((lavaFly) => lavaFly.clientLavaFlyUpdate(elapsedTime, this.playerActors, this.lavaFlies));
+        this.playerActors.forEach((player) => player.updateClientPlayerActor(elapsedTime, this.platforms, this.playerActors));
     }
+
+    private updateGamePlayerActions() {
+
+        //playerWithId.focusPosition.x = this.mousePos.x - this.screenPos.x;
+        //playerWithId.focusPosition.y = this.mousePos.y - this.screenPos.y;
+
+
+        if (this.keyState[this.config.playerKeys.up]) {
+            this.gamePlayer.actionsNextFrame.jump = true;
+            this.keyState[this.config.playerKeys.up] = false;//
+        } else {
+            this.gamePlayer.actionsNextFrame.jump = false;//
+        }
+        if (this.keyState[this.config.playerKeys.left]) {
+            this.gamePlayer.actionsNextFrame.moveLeft = true;//
+        } else {
+            this.gamePlayer.actionsNextFrame.moveLeft = false;//
+        }
+        if (this.keyState[this.config.playerKeys.right]) {
+            this.gamePlayer.actionsNextFrame.moveRight = true;//
+        } else {
+            this.gamePlayer.actionsNextFrame.moveRight = false;//
+        }
+    }
+
+    private onMouseDown = onMouseDown;
+    private onMouseUp = onMouseUp;
+    private onKeyDown = onKeyDown;
+    private onKeyUp = onKeyUp;
 }

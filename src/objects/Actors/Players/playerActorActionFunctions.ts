@@ -26,3 +26,18 @@ export function moveRight(this: PlayerActor, elapsedTime: number) {
     
     if (this.momentum.x > this.maxSidewaysMomentum) this.momentum.x = this.maxSidewaysMomentum;
 }
+
+
+
+
+export function performActions(this: PlayerActor, elapsedTime: number) {
+    if (this.actionsNextFrame.jump) {
+        this.attemptJump();
+    }
+    if (this.actionsNextFrame.moveLeft) {
+        this.attemptMoveLeft(elapsedTime);
+    }
+    if (this.actionsNextFrame.moveRight) {
+        this.attemptMoveRight(elapsedTime);
+    }
+}

@@ -1,9 +1,9 @@
 import { SerializedLavaFly } from "../serialized/lavaFly";
 import { SerializedPlatform } from "../serialized/platform";
-import { SerializedPlayer } from "../serialized/player";
+import { SerializedPlayerActor } from "../serialized/playerActor";
 
 export interface AllInfo {
     lavaFlies: SerializedLavaFly[];
-    players: SerializedPlayer[];
+    playerActors: SerializedPlayerActor[];
     platforms: SerializedPlatform[];
 }

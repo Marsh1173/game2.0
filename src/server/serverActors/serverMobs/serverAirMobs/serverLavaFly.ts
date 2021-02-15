@@ -2,9 +2,10 @@ import { createTextChangeRange } from "typescript";
 import { SingleEntryPlugin } from "webpack";
 import { Config } from "../../../../config";
 import { LavaFly } from "../../../../objects/Actors/Mobs/airMob/lavaFly";
+import { serialize } from "../../../../serialized/lavaFly";
 import { findDistance, Vector } from "../../../../vector";
 import { Game } from "../../../game";
-import { ServerPlayer } from "../../../player";
+import { ServerPlayerActor } from "../../serverPlayers/serverPlayerActor";
 
 export interface NewLavaFly {
     type: "newLavaFly";
@@ -39,7 +40,9 @@ export class ServerLavaFly extends LavaFly {
 
     }
 
-    private updateTargetPlayer(players: ServerPlayer[]) {
+    public serialize = serialize;
+
+    private updateTargetPlayer(players: ServerPlayerActor[]) {
 
         let ifChanged: boolean = false;
         
@@ -84,7 +87,7 @@ export class ServerLavaFly extends LavaFly {
 
     }
     
-    public serverLavaFlyUpdate(elapsedTime: number, players: ServerPlayer[], lavaFlies: ServerLavaFly[]) {
+    public serverLavaFlyUpdate(elapsedTime: number, players: ServerPlayerActor[], lavaFlies: ServerLavaFly[]) {
 
         this.updateTargetCounter += elapsedTime;
         if (this.updateTargetCounter > this.updateTargetCooldown) {

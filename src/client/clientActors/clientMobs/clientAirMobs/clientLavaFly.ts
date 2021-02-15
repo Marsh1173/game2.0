@@ -2,9 +2,10 @@ import { createTextChangeRange } from "typescript";
 import { SingleEntryPlugin } from "webpack";
 import { Config } from "../../../../config";
 import { LavaFly } from "../../../../objects/Actors/Mobs/airMob/lavaFly";
+import { PlayerActor } from "../../../../objects/Actors/Players/playerActor";
 import { findDistance, Vector } from "../../../../vector";
 import { Game } from "../../../game";
-import { ClientPlayer } from "../../../player";
+import { ClientPlayerActor } from "../../clientPlayers/clientPlayerActor";
 
 
 export class ClientLavaFly extends LavaFly {
@@ -20,7 +21,7 @@ export class ClientLavaFly extends LavaFly {
         public team: number,
         public health: number,
         public momentum: Vector = {x: 0, y: 0},
-        targetPlayer?: ClientPlayer,
+        targetPlayer?: PlayerActor,
         homePosition?: Vector
     ) {
         super(config, id, position, team, health, momentum);
@@ -34,7 +35,7 @@ export class ClientLavaFly extends LavaFly {
         //ctx.fillRect(this.position.x - this.size.width / 2 + this.buzzPosition.x, this.position.y - this.size.height / 2 + this.buzzPosition.y, this.size.width, this.size.height);
     }
 
-    public clientLavaFlyUpdate(elapsedTime: number, players: ClientPlayer[], lavaFlies: ClientLavaFly[]) {
+    public clientLavaFlyUpdate(elapsedTime: number, players: ClientPlayerActor[], lavaFlies: ClientLavaFly[]) {
 
         this.time = (this.time + elapsedTime);
         this.buzzPosition.x += Math.sin(this.time * 10) * 2;

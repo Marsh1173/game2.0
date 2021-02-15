@@ -1,20 +1,19 @@
 import { AllInfo } from "../api/allinfo";
 import { getDefaultPlatformList, ServerPlatform } from "./platform";
-import { ServerPlayer } from "./player";
 import { ClientMessage, InfoMessage, PlayerLeavingMessage, ServerMessage } from "../api/message";
 import { Vector } from "../vector";
 import { Config } from "../config";
 import { moveEmitHelpers } from "typescript";
 import { ServerLavaFly } from "./serverActors/serverMobs/serverAirMobs/serverLavaFly";
 import { getNextActorId } from "../objects/Actors/actor";
-import { Player } from "../objects/player";
+import { ServerPlayerActor } from "./serverActors/serverPlayers/serverPlayerActor";
 
 export class Game {
     private intervalId?: NodeJS.Timeout;
     private static readonly REFRESH_RATE = 16;
 
     private lavaFlies: ServerLavaFly[] = [];
-    private players: ServerPlayer[] = [];
+    private playerActors: ServerPlayerActor[] = [];
     private readonly platforms: ServerPlatform[] = getDefaultPlatformList(this.config);
     public static readonly clientMap: Record<number, (message: ServerMessage) => void> = {};
     public static broadcastMessage(msg: ServerMessage) {
@@ -44,7 +43,7 @@ export class Game {
     public allInfo(): AllInfo {
         return {
             lavaFlies: this.lavaFlies.map((lavaFly) => lavaFly.serialize()),
-            players: this.players.map((player) => player.serialize()),
+            playerActors: this.playerActors.map((player) => player.serialize()),
             platforms: this.platforms.map((platform) => platform.serialize()),
         };
     }
@@ -65,30 +64,27 @@ export class Game {
     }
 
     private updateObjects(elapsedTime: number) {
-        this.players.forEach((player) => player.update(elapsedTime, this.players, this.platforms, false));
-
-        this.platforms.forEach((platform) => platform.update());
+        this.playerActors.forEach((player) => player.updateServerPlayerActor(elapsedTime, this.platforms, this.playerActors));
     }
 
     private updateObjectsSecondary(elapsedTime: number) {
-        this.lavaFlies.forEach(lavaFly => lavaFly.serverLavaFlyUpdate(elapsedTime, this.players, this.lavaFlies));
+        this.lavaFlies.forEach(lavaFly => lavaFly.serverLavaFlyUpdate(elapsedTime, this.playerActors, this.lavaFlies));
     }
 
     public newPlayer(id: number, name: string, color: string, position: Vector, team: number) {
-        const newPlayer = new ServerPlayer(
+
+        const newPlayer = new ServerPlayerActor(
             this.config,
             id,
-            team,
-            name,
-            color,
             position,
+            team,
+            color,
+            name,
         );
-        this.players.push(newPlayer);
-        newPlayer.position.x = (newPlayer.team === 1) ? newPlayer.config.playerStart.x : newPlayer.config.playerStart.x + 3300;
-        newPlayer.position.y = newPlayer.config.playerStart.y;
+        this.playerActors.push(newPlayer);
 
         Game.broadcastMessage({
-            type: "playerInfo",
+            type: "newPlayerActor",
             id: newPlayer.id,
             info: newPlayer.serialize()
         });
@@ -115,7 +111,7 @@ export class Game {
     }
 
     private newLavaFlyLoop() {
-        for (let i: number = 0; i < 10; i++) {
+        for (let i: number = 0; i < 100; i++) {
             this.newLavaFly({x: Math.random() * 1700 + 1000, y: 700});
         }
         //setTimeout(() => this.newLavaFlyLoop(), 2000);
@@ -135,7 +131,7 @@ export class Game {
                 });
             }
         }));
-        this.players = this.players.filter((player) => player.id !== id);
+        this.playerActors = this.playerActors.filter((player) => player.id !== id);
         const leavingMessage: PlayerLeavingMessage = {
             type: "playerLeaving",
             id,
@@ -146,7 +142,77 @@ export class Game {
     public handleMessage(id: number, data: ClientMessage) {
         var player;
         switch (data.type) {
-            case "clientPlayerActions" :
+            case "clientPlayerJump" :
+                Game.broadcastMessage({
+                    type: "serverPlayerJump",
+                    id: data.id,
+                    position: data.position,
+                    momentum: data.momentum
+                });
+                player = this.playerActors.find((player) => player.id === data.id);
+                if (player) {
+                    player.position = data.position;
+                    player.momentum = data.momentum;
+                    player.actionsNextFrame.jump = true;
+                }
+                break;
+            case "clientPlayerMoveRight" :
+                Game.broadcastMessage({
+                    type: "serverPlayerMoveRight",
+                    id: data.id,
+                    position: data.position,
+                    momentum: data.momentum
+                });
+                player = this.playerActors.find((player) => player.id === data.id);
+                if (player) {
+                    player.position = data.position;
+                    player.momentum = data.momentum;
+                    player.actionsNextFrame.moveRight = true;
+                }
+                break;
+            case "clientPlayerStopMoveRight" :
+                Game.broadcastMessage({
+                    type: "serverPlayerStopMoveRight",
+                    id: data.id,
+                    position: data.position,
+                    momentum: data.momentum
+                });
+                player = this.playerActors.find((player) => player.id === data.id);
+                if (player) {
+                    player.position = data.position;
+                    player.momentum = data.momentum;
+                    player.actionsNextFrame.moveRight = false;
+                }
+                break;
+            case "clientPlayerMoveLeft" :
+                Game.broadcastMessage({
+                    type: "serverPlayerMoveLeft",
+                    id: data.id,
+                    position: data.position,
+                    momentum: data.momentum
+                });
+                player = this.playerActors.find((player) => player.id === data.id);
+                if (player) {
+                    player.position = data.position;
+                    player.momentum = data.momentum;
+                    player.actionsNextFrame.moveLeft = true;
+                }
+                break;
+            case "clientPlayerStopMoveLeft" :
+                Game.broadcastMessage({
+                    type: "serverPlayerStopMoveLeft",
+                    id: data.id,
+                    position: data.position,
+                    momentum: data.momentum
+                });
+                player = this.playerActors.find((player) => player.id === data.id);
+                if (player) {
+                    player.position = data.position;
+                    player.momentum = data.momentum;
+                    player.actionsNextFrame.moveLeft = false;
+                }
+                break;
+            /*case "clientPlayerActions" :
                 Game.broadcastMessage({
                     type: "serverPlayerActions",
                     id: data.id,
@@ -169,7 +235,7 @@ export class Game {
                     player.position = data.position;
                     player.health = data.health;
                 }
-                break;
+                break;*/
             default:
                 throw new Error(`Invalid client message type`);
             }

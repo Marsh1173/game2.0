@@ -7,8 +7,6 @@ export class ServerPlatform extends Platform {
     constructor(size: Size, position: Vector, config: Config) {
         super(size, position, config);
     }
-
-    public update() {}
 }
 
 export const getDefaultPlatformList = (config: Config) => {

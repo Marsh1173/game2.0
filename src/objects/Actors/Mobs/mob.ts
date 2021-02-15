@@ -1,13 +1,13 @@
 import { Config } from "../../../config";
 import { Vector } from "../../../vector";
-import { Player } from "../../player";
 import { Actor } from "../actor";
+import { PlayerActor } from "../Players/playerActor";
 
 
 export abstract class Mob extends Actor {
 
     protected homePosition: Vector;
-    public targetPlayer: Player | undefined = undefined;
+    public targetPlayer: PlayerActor | undefined = undefined;
 
 
     constructor(
