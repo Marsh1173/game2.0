@@ -1,26 +1,26 @@
 import { Config } from "../../../config";
 import { Vector } from "../../../vector";
 import { Platform } from "../../platform";
-import { Actor, ActorEffects } from "../actor";
+import { Actor, ActorType } from "../actor";
 import { checkPlayerActorCollision, dampenMomentum } from "./playerActorSpatialFunctions";
-import { attemptJump, attemptMoveLeft, attemptMoveRight, jump, moveLeft, moveRight, performActions } from "./playerActorActionFunctions";
+import { attemptJump, attemptLeftClick, attemptMoveLeft, attemptMoveRight, jump, moveLeft, moveRight, performActions } from "./playerActorActionFunctions";
+import { findAngle } from "../../../findAngle";
+import { GroundPlatform } from "../../groundPlatform";
+import { basicDistanceHitBox, basicOneDHitBox, basicThreeDHitBox, basicTwoDHitBox } from "../actorSpatialFunctions";
+import e = require("express");
 
-export type PlayerActionTypes = "jump" | "moveLeft" | "moveRight" | "leftClick" | "rightClick" | "shift";
-export type PlayerEffectTypes = "stunned";
+export type WeaponType = "sword" | "none";
+export type PlayerActionType = "jump" | "moveLeft" | "moveRight" | "leftClick" | "rightClick" | "shift";
+export type PlayerEffectType = "stunned";
 
 export abstract class PlayerActor extends Actor {
-
-    protected playerEffects: Record<PlayerEffectTypes, number> = {
-        stunned: 0,
-    }
-
-    public actionsNextFrame: Record<PlayerActionTypes, boolean> = {
+    public actionsNextFrame: Record<PlayerActionType, boolean> = {
         jump: false,
         moveLeft: false,
         moveRight: false,
         leftClick: false,
         rightClick: false,
-        shift: false
+        shift: false,
     };
 
     protected maxSidewaysMomentum: number = 600;
@@ -28,22 +28,21 @@ export abstract class PlayerActor extends Actor {
     protected fallingSidewaysAcceleration: number = 4000;
     protected jumpHeight: number = 1000;
     protected alreadyJumped: number = 0;
-    
 
     constructor(
         public readonly config: Config,
         public readonly id: number,
         public position: Vector,
         public team: number,
-        protected color: string,
+        public color: string,
         public name: string,
-        public health: number = 100,
+        protected health: number,
+        public focusAngle: number,
+        protected weapon: WeaponType,
     ) {
-        super(config, id, position, team, health);
-
-        this.size = {"width": 46, "height": 50};
+        //config, id, position, team, health, maxHealth, deathTime, mass, size
+        super(config, id, position, team, health, 100, 3, 1, { width: 46, height: 50 });
     }
-
 
     protected attemptJump = attemptJump;
     protected jump = jump;
@@ -52,45 +51,78 @@ export abstract class PlayerActor extends Actor {
     protected attemptMoveRight = attemptMoveRight;
     protected moveRight = moveRight;
 
-    private checkPlayerActorCollision = checkPlayerActorCollision;
-    private dampenMomentum = dampenMomentum;
-    protected updateAbilities() {
+    protected attemptLeftClick = attemptLeftClick;
 
+    protected abstract leftClick(players: PlayerActor[]): void;
+
+    public getActorType(): ActorType {
+        return "player";
     }
 
+    protected die() {
+        //implement stopActions
+        this.actionsNextFrame.jump = false;
+        this.actionsNextFrame.moveLeft = false;
+        this.actionsNextFrame.moveRight = false;
+        super.die();
+    }
+
+    public resurrect(position: Vector) {
+        this.health = this.maxHealth + 0;
+        this.position.x = position.x + 0;
+        this.position.y = position.y + 0;
+        this.actorDeathData.isDead = false;
+        this.actorDeathData.counter = 0;
+    }
+
+    private attemptPlayerCollision(players: PlayerActor[], elapsedTime: number) {
+        if (this.checkIfAlive()) {
+            players.forEach((player) => {
+                if (player.id != this.id && player.checkIfAlive()) this.checkPlayerActorCollision(player, elapsedTime);
+            });
+        }
+    }
+
+    protected attemptGroundCollision(groundPlatform: GroundPlatform, elapsedTime: number) {
+        if (this.updateStats.ifGroundCollision) groundPlatform.checkActorGroundCollision(this, elapsedTime);
+    }
+
+    private checkPlayerActorCollision = checkPlayerActorCollision;
+    private dampenMomentum = dampenMomentum;
+    protected updateAbilities() {}
+
+    public changeFocusPositionAngle(angle: number) {
+        this.focusAngle = angle + 0;
+    }
+
+    private attemptPerformActions(elapsedTime: number, players: PlayerActor[]) {
+        if (this.checkIfAlive()) {
+            this.performActions(elapsedTime, players);
+        }
+    }
     private performActions = performActions;
 
+    protected updatePlayerActor(elapsedTime: number, platforms: Platform[], groundPlatform: GroundPlatform, players: PlayerActor[]) {
+        this.resetUpdateStats();
+        this.updateEffects(elapsedTime);
 
-    protected updatePlayerActor(elapsedTime: number, platforms: Platform[], players: PlayerActor[]) {
-
-        this.dampenMomentum(elapsedTime); 
-        if(this.standing){
+        this.dampenMomentum(elapsedTime);
+        if (this.standing) {
             this.alreadyJumped = 0;
         }
         //update abilites/effects
 
-
-        this.performActions(elapsedTime);
+        this.attemptPerformActions(elapsedTime, players);
 
         this.standing = false;
-        
-        this.registerGravity(elapsedTime);
-        players.forEach((player) => {
-            if (player.id != this.id) this.checkPlayerActorCollision(player, elapsedTime);
-        })
-        platforms.forEach((platform) => {
-            this.checkRectangleCollision(elapsedTime, platform);
-        })
+
+        this.attemptRegisterGravity(elapsedTime);
+        this.attemptPlayerCollision(players, elapsedTime);
+        this.attemptCheckRectangleCollision(elapsedTime, platforms);
+        this.attemptGroundCollision(groundPlatform, elapsedTime);
         this.checkSideCollision(elapsedTime);
-        
-    
 
+        this.updatePosition(elapsedTime);
         super.update(elapsedTime);
-
-
-        this.actionsNextFrame.jump = false;
-        //this.actionsNextFrame.leftClick = false;
-        //this.actionsNextFrame.rightClick = false;
     }
-
 }

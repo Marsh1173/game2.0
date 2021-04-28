@@ -1,47 +1,50 @@
 import { getRandomColor } from "../getrandomcolor";
+import { ClassType } from "../object/newActors/serverActors/serverPlayer/serverPlayer";
 import { Game } from "./game";
 import { ServerTalker } from "./servertalker";
 import { safeGetElementById } from "./util";
 
-const instructionDiv = safeGetElementById("instructionMenu");
-const instructionButton = safeGetElementById("instructions");
-const settingsDiv = safeGetElementById("settingsMenu");
-const settingsButton = safeGetElementById("settings");
-const clearStorageButton = safeGetElementById("clearStorage");
-
-const particleSlider = safeGetElementById("particles");
+/*const particleSlider = safeGetElementById("particles");
 const particleAmount = safeGetElementById("particleAmount");
 
-particleSlider.oninput = function() {
+particleSlider.oninput = function () {
     particleAmount.innerHTML = (particleSlider as HTMLInputElement).value + "%";
-}
-
+};*/
 
 safeGetElementById("gameDiv").style.display = "none";
-instructionDiv.style.display = "none";
-settingsDiv.style.display = "none";
 
-const savedFields = [
-    'name',
-    'team',
-    'color',
-    'particles'
-];
-savedFields.forEach(id => {
-    const field = safeGetElementById(id) as HTMLInputElement;
-    const value = localStorage.getItem(id)
+var classType: ClassType = "sword";
+var team: number = 1;
+safeGetElementById("teamMenu").onclick = () => toggleTeam();
+
+const savedFields = ["name", "team", "color", "classType" /*, "particles"*/];
+savedFields.forEach((id, index) => {
+    const value = localStorage.getItem(id);
     if (value) {
-        field.value = value
+        switch (index) {
+            case 0:
+            case 2:
+                (safeGetElementById(id) as HTMLInputElement).value = value;
+                break;
+            case 1:
+                if (2 === parseInt(value)) {
+                    toggleTeam();
+                }
+                break;
+            case 3:
+                if (value === "daggers") changeClass("daggers");
+                else if (value === "hammer") changeClass("hammer");
+                else changeClass("sword");
+                break;
+            default:
+                throw new Error("too many saved fields");
+        }
     }
 });
-particleAmount.innerHTML = (particleSlider as HTMLInputElement).value + "%";
+//particleAmount.innerHTML = (particleSlider as HTMLInputElement).value + "%";
 
-
-safeGetElementById("start").onclick = async () => {
-    savedFields.forEach(id => {
-        const field = safeGetElementById(id) as HTMLInputElement;
-        localStorage.setItem(id, field.value);
-    });
+safeGetElementById("startGame").onmouseup = async () => {
+    saveLocalData();
 
     let name: string = (safeGetElementById("name") as HTMLInputElement).value;
     if (name === "") name = "Player";
@@ -50,35 +53,78 @@ safeGetElementById("start").onclick = async () => {
     const serverTalker = new ServerTalker({
         name,
         color: (safeGetElementById("color") as HTMLInputElement).value,
-        team: parseInt((safeGetElementById("team") as HTMLInputElement).value),
+        team,
+        class: classType,
     });
     const { id, info, config } = await serverTalker.serverTalkerReady;
-    const game = new Game(info, config, id, serverTalker, parseInt((particleSlider as HTMLInputElement).value));
+    const game = new Game(info, config, id, serverTalker, 50);
     game.start();
-    safeGetElementById("end").onclick = () => {
+    //document.documentElement.requestFullscreen();
+    hideMenuElements();
+    safeGetElementById("end").onclick = async () => {
         game.end();
+        showMenuElements();
+        //document.exitFullscreen();
     };
 };
-instructionButton.onclick = () => {
-    if (instructionDiv.style.display === "none") {
-        instructionDiv.style.display = "block";
-        instructionButton.classList.add("selected");
-    } else {
-        instructionDiv.style.display = "none";
-        instructionButton.classList.remove("selected");
-    }
-};
 
-settingsButton.onclick = () => {
-    if (settingsDiv.style.display != "none") {
-        settingsDiv.style.display = "none";
-        settingsButton.classList.remove("selected");
-    } else {
-        settingsDiv.style.display = "block";
-        settingsButton.classList.add("selected");
-    }
-};
+function hideMenuElements() {
+    safeGetElementById("menuDiv").style.display = "none";
+    safeGetElementById("optionsDiv").style.display = "none";
+    safeGetElementById("gameDiv").style.display = "block";
+}
+function showMenuElements() {
+    safeGetElementById("gameDiv").style.display = "none";
+    safeGetElementById("menuDiv").style.display = "block";
+    safeGetElementById("optionsDiv").style.display = "flex";
+}
 
-clearStorageButton.onclick = () => {
+function toggleTeam() {
+    if (team === 1) {
+        safeGetElementById("team1").classList.remove("selectedTeam");
+        safeGetElementById("team2").classList.add("selectedTeam");
+        team = 2;
+    } else if (team === 2) {
+        safeGetElementById("team1").classList.add("selectedTeam");
+        safeGetElementById("team2").classList.remove("selectedTeam");
+        team = 1;
+    }
+}
+
+safeGetElementById("sword").onclick = () => changeClass("sword");
+safeGetElementById("daggers").onclick = () => changeClass("daggers");
+safeGetElementById("hammer").onclick = () => changeClass("hammer");
+function changeClass(classArg: ClassType) {
+    safeGetElementById("sword").classList.remove("selected");
+    safeGetElementById("daggers").classList.remove("selected");
+    safeGetElementById("hammer").classList.remove("selected");
+
+    safeGetElementById(classArg).classList.add("selected");
+
+    classType = classArg;
+}
+
+function saveLocalData() {
+    let locallyStoredName: string = (safeGetElementById("name") as HTMLInputElement).value;
+    localStorage.setItem("name", locallyStoredName);
+
+    let locallyStoredTeam: number = team;
+    localStorage.setItem("team", String(locallyStoredTeam));
+
+    let locallyStoredColor: string = (safeGetElementById("color") as HTMLInputElement).value;
+    localStorage.setItem("color", locallyStoredColor);
+
+    /*let locallyStoredParticles: string = (safeGetElementById("id") as HTMLInputElement).value;
+    localStorage.setItem("particles", field.value);*/
+
+    let locallyStoredClass: string;
+    if (classType === "sword") locallyStoredClass = "sword";
+    else if (classType === "daggers") locallyStoredClass = "daggers";
+    else if (classType === "hammer") locallyStoredClass = "hammer";
+    else throw new Error("unknown class type input ${classType}");
+    localStorage.setItem("classType", locallyStoredClass);
+}
+
+/*clearStorageButton.onclick = () => {
     localStorage.clear();
-};
+};*/

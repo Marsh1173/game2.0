@@ -1,38 +1,47 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Block Game</title>
         <link rel="stylesheet" href="style.css" />
         <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet" />
     </head>
 
     <body oncontextmenu="return false;">
+        <div id="backgroundGradient"></div><!--#1c262c is underground color-->
         <div id="gameDiv">
             <div id='slideContainer'>
                 <!--<img id='slideBackground' src='images/testBackground.jpg'/>-->
                 <div id='slider'><canvas id="canvas"></canvas></div>
             </div>
+            <div id="canvasDiv">
+                <canvas id="backgroundCanvas"></canvas>
+                <canvas id="buildingLayerOneCanvas"></canvas>
+                <canvas id="actorCanvas"></canvas>
+            </div>
+            <img id="moon" src="images/nate's moon.png"/>
+            <div id="groundExcess"></div>
             <button id="end">Exit Game</button>
         </div>
+        <div id="optionsDiv">
+            <img id="settingsOption" src="images/options.png"/>
+            <p id="infoOption">ⓘ</p>
+        </div>
         <div id="menuDiv">
-            <div id="menu">
-                <button id="start" class="big">Enter Game</button>
-                <div id='namePicker'><input type="text" id='name' placeholder="Name..." autocomplete="off" maxlength="15"></input></div>
-                <div id='classPicker'>
-                    <button id='ninja' class='classButton classSelected'>Ninja</button>
-                    <button id='wizard' class='classButton'>Wizard</button>
-                    <button id='warrior' class='classButton'>Warrior</button>
-                </div>
-                <button id="settings" class="big">Settings</button>
-                <button id="instructions" class="big">Instructions</button>
+            <div id="startGameDiv">
+                <button id="startGame">Enter Game</button>
             </div>
-            <div id="instructionMenu">
-                <div class='instruction'><h2>Win</h2></div>
+            <div id ="nameInputDiv">
+                <input id="name" placeholder="Name..." type="text" autocomplete="off" maxlength="15" value="Player">
             </div>
-            <div id="settingsMenu">
-                <div id='colorPicker'><p>Pick your color:</p><input type="color" id='color' value="#32a852"></input></div>
-                <div id='teamPicker'><p>Team:</p><input type="number" id='team' value="1" min='1' max='2'></input></div>
-                <div id="particlePicker"><p>Particles: <span id="particleAmount">50%</span></p><input type="range" min="0" max="100" value="50" step='5' class="slider" id="particles"></div>
-                <button id="clearStorage" class="classButton">Clear Storage</button>
+            <div id="colorMenuDiv"><input type="color" id='color' value="#32a852"></input></div>
+            <div id="teamMenu">
+                <div class="teamOption selectedTeam" id="team1">1</div>
+                <div class="teamOption" id="team2">2</div>
+            </div>
+            <div id="classMenuDiv">
+                <div class="classOptionBorder selected" id="sword"><div class="classOption">S</div></div>
+                <div class="classOptionBorder" id="daggers"><div class="classOption">D</div></div>
+                <div class="classOptionBorder" id="hammer"><div class="classOption">H</div></div>
             </div>
         </div>
 

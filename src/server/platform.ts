@@ -11,16 +11,16 @@ export class ServerPlatform extends Platform {
 
 export const getDefaultPlatformList = (config: Config) => {
     return [
-        new ServerPlatform(
+        /*new ServerPlatform(
             {
                 height: 50,
                 width: 3500,
             },
             {
                 x: 250,
-                y: 750,
+                y: 800,
             },
             config,
-        )
+        ),*/
     ];
 };

@@ -1,7 +1,7 @@
 import { Size } from "./size";
 import { Vector } from "./vector";
 
-const xSize: number = 4000;
+const xSize: number = 5000;
 const ySize: number = 1000;
 
 export interface Config {
@@ -18,12 +18,12 @@ export interface Config {
         down: string;
         left: string;
         right: string;
-        basicAttack: string,
-        secondAttack: string,
-        firstAbility: string,
-        secondAbility: string,
-        thirdAbility: string,
-        fourthAbility: string,
+        basicAttack: string;
+        secondAttack: string;
+        firstAbility: string;
+        secondAbility: string;
+        thirdAbility: string;
+        fourthAbility: string;
     };
     platformColor: string;
     fallingAcceleration: number;
@@ -31,13 +31,14 @@ export interface Config {
     nonStandingSidewaysAcceleration: number;
     maxSidewaysMomentum: number;
     gameSpeed: number;
+    updatePlayerFocusSpeed: number;
 }
 
 export const defaultConfig: Config = {
-    playerSize: {width: 48, height: 50},
+    playerSize: { width: 48, height: 50 },
     playerStart: {
         x: 300,
-        y: 650
+        y: 650,
     },
     playerJumpHeight: 1200,
     xSize,
@@ -60,4 +61,5 @@ export const defaultConfig: Config = {
     nonStandingSidewaysAcceleration: 4000,
     maxSidewaysMomentum: 600,
     gameSpeed: 1,
+    updatePlayerFocusSpeed: 0.05,
 };

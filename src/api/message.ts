@@ -1,16 +1,6 @@
-import { ClientPlayerJump, ClientPlayerMoveLeft, ClientPlayerMoveRight, ClientPlayerStopMoveLeft, ClientPlayerStopMoveRight } from "../client/clientActors/clientPlayers/ClientPlayerActorActionFunctions";
-import { PlayerActionTypes } from "../objects/Actors/Players/playerActor";
-import { SerializedPlayer } from "../serialized/player";
-import { ChangeServerLavaFlyTarget, NewLavaFly } from "../server/serverActors/serverMobs/serverAirMobs/serverLavaFly";
-import { NewPlayerActor, ServerPlayerJump, ServerPlayerMoveLeft, ServerPlayerMoveRight, ServerPlayerStopMoveLeft, ServerPlayerStopMoveRight } from "../server/serverActors/serverPlayers/serverPlayerActor";
-import { Vector } from "../vector";
+import { ClientPlayerAction } from "../object/newActors/clientActors/clientPlayer/clientPlayer";
+import { PlayerJoin, PlayerLeave, ServerPlayerAction } from "../object/newActors/serverActors/serverPlayer/serverPlayer";
 import { AllInfo } from "./allinfo";
-
-export interface PlayerInfoMessage {
-    type: "playerInfo";
-    id: number;
-    info: SerializedPlayer;
-}
 
 export interface PlayerLeavingMessage {
     type: "playerLeaving";
@@ -22,23 +12,6 @@ export interface InfoMessage {
     info: AllInfo;
 }
 
-export type ServerMessage = PlayerInfoMessage |
-    PlayerLeavingMessage |
-    InfoMessage |
-    ChangeServerLavaFlyTarget | NewLavaFly |
-    NewPlayerActor |
-    ServerPlayerJump |
-    ServerPlayerMoveLeft | ServerPlayerStopMoveLeft |
-    ServerPlayerMoveRight | ServerPlayerStopMoveRight;
+export type ServerMessage = PlayerLeave | PlayerJoin | InfoMessage | ServerPlayerAction;
 
-
-export interface ActionMessage { //NO LONGER USED
-    type: "action";
-    actionType: PlayerActionTypes;
-    id: number;
-}
-
-export type ClientMessage = ActionMessage |
-    ClientPlayerJump |
-    ClientPlayerMoveLeft | ClientPlayerStopMoveLeft |
-    ClientPlayerMoveRight | ClientPlayerStopMoveRight;
+export type ClientMessage = ClientPlayerAction;

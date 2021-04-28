@@ -5,11 +5,25 @@
     user-select: none;
 }
 body {
-    background: #1c262c;
+    overflow: hidden;
+    /*background: #1c262c;*/
+}
+#backgroundGradient {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(19, 34, 73, 1) 15%, rgba(27, 48, 103, 1) 49%);
+    border: none;
 }
 #canvas {
     background: black;
     border-bottom: 7px solid darkgray;
+}
+#moon {
+    position: absolute;
+    transform: translateX(-150px);
+    height: 400px;
+    width: 400px;
 }
 /*#slideBackground {
     position: absolute;
@@ -20,37 +34,259 @@ body {
     height: 900px;
     top: -300px;
 }*/
-#menu {
+#menuDiv {
     position: absolute;
     left: 50%;
-    transform: translateX(-102px) translateY(100px);
-    width: 204px;
-    padding: 10px;
-    border-radius: 10px;
-    border: 2px solid rgb(124, 125, 138);
-    background-color: #778288;
+    top: 30%;
+    transform: translateX(-150px);
 }
-#instructionMenu,
-#settingsMenu {
+#startGameDiv {
     position: absolute;
-    left: 50%;
-    transform: translateX(150px) translateY(100px);
+    transform: skew(-5deg);
+    width: 300px;
+    background: none;
+    border-radius: 6px;
+    overflow: hidden;
+
+    transition: transform 0.1s;
+}
+#startGame {
+    --angle: 0deg;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    margin: 0px;
+    border-radius: 4px;
+    background-color: rgb(61, 201, 43);
+    color: #1f2a31;
+    font-size: 25pt;
+    box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.315);
+
+    border: 4px solid;
+    border-image: linear-gradient(var(--angle), rgb(45, 139, 29), rgb(187, 255, 178), rgb(45, 139, 29)) 1;
+    animation: 3s rotate linear infinite;
+}
+@keyframes rotate {
+    0% {
+        --angle: 0deg;
+    }
+    20% {
+        --angle: 30deg;
+    }
+    30% {
+        --angle: 150deg;
+    }
+    50% {
+        --angle: 180deg;
+    }
+    70% {
+        --angle: 210deg;
+    }
+    80% {
+        --angle: 330deg;
+    }
+    100% {
+        --angle: 360deg;
+    }
+}
+@property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+#startGameDiv:hover #startGame:active {
+    background-color: rgb(190, 255, 179);
+}
+#startGameDiv:hover #startGame {
+    background-color: rgb(39, 160, 23);
+}
+#startGameDiv:hover {
+    transform: translateX(3px) skew(-5deg);
+    background: rgb(126, 255, 109);
+}
+#nameInputDiv {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    transform: translateX(50px) translateY(105px);
     width: 200px;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: #778288;
-    text-align: center;
-    color: #33424d;
+    background-image: linear-gradient(to bottom, rgb(149, 150, 163), rgb(84, 84, 95));
+    border-radius: 5px;
+    padding: 3px;
 }
-#settingsMenu {
-    transform: translateX(-350px) translateY(100px);
+#nameInputDiv:hover,
+#nameInputDiv:focus-within,
+#colorMenuDiv:hover,
+#colorMenuDiv:focus-within,
+#teamMenu:hover {
+    background-image: linear-gradient(to bottom, rgb(184, 175, 135), rgb(141, 98, 35));
+}
+#nameInputDiv:hover #name,
+#name:focus {
+    background: rgb(112, 111, 100);
+}
+#name {
+    width: 100%;
+    outline: none;
+    border: none;
+    border-radius: 3px;
+    background: rgb(100, 101, 112);
+    font-size: 15pt;
+    text-align: center;
+    box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.315);
+}
+#teamMenu,
+#colorMenuDiv {
+    position: absolute;
+    border-radius: 4px;
+    border: none;
+}
+#colorMenuDiv {
+    transform: translateX(50px) translateY(140px);
+    width: 60px;
+    height: 30px;
+    background-image: linear-gradient(to bottom, rgb(123, 124, 133), rgb(84, 84, 95));
+}
+#color {
+    width: 90%;
+    margin-left: 3px;
+    height: 100%;
+    padding: 0px;
+    border: none;
+    background: content-box;
+    overflow: hidden;
+}
+#color:focus {
+    outline: none;
+}
+#teamMenu {
+    display: flex;
+    flex-direction: row;
+    transform: translateX(161px) translateY(140px);
+    width: 90px;
+    background-image: linear-gradient(to bottom, rgb(123, 124, 133), rgb(84, 84, 95));
+    padding: 3px;
+    height: 25px;
+}
+.teamOption {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background: rgb(100, 101, 112);
+    font-size: 15pt;
+    border: none;
+    border-radius: 1px;
+}
+#team1 {
+    color: rgb(0, 37, 92);
+}
+#team2 {
+    color: rgb(92, 0, 0);
+}
+.selectedTeam {
+    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.548);
+}
+#optionsDiv {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    position: absolute;
+    transform: translateX(10px) translateY(10px);
+    width: 30px;
+    border-radius: 20px;
+    border: 1px solid rgb(51, 55, 97);
+    padding: 3px;
+}
+#infoOption {
+    color: rgb(124, 125, 138);
+    font-size: 22.5pt;
+    font-weight: bold;
+}
+#infoOption:hover {
+    color: rgb(225, 226, 235);
+}
+#settingsOption {
+    filter: invert(51%) sepia(18%) saturate(187%) hue-rotate(198deg) brightness(93%) contrast(96%);
+    width: 30px;
+    height: 30px;
+}
+#settingsOption:hover {
+    filter: invert(99%) sepia(1%) saturate(212%) hue-rotate(14deg) brightness(115%) contrast(100%);
+}
+#classMenuDiv {
+    display: flex;
+    justify-content: space-evenly;
+    position: absolute;
+    transform: translateY(200px);
+    width: 300px;
+}
+.classOptionBorder {
+    width: 50px;
+    height: 50px;
+    padding: 3px;
+    border: none;
+    border-radius: 100px;
+    background-image: linear-gradient(to bottom, rgb(149, 150, 163), rgb(84, 84, 95));
+}
+.classOptionBorder:hover,
+.selected {
+    background-image: linear-gradient(to bottom, rgb(250, 234, 165), rgb(160, 101, 13));
+}
+.selected {
+    box-shadow: 0px 0px 10px rgba(223, 220, 201, 0.514);
+}
+.classOption {
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(to bottom, rgb(94, 96, 107), rgb(126, 127, 139));
+    border: none;
+    border-radius: 100px;
+    text-align: center;
+}
+.selected .classOption {
+    background-image: linear-gradient(to top, rgb(136, 135, 127), rgb(117, 114, 93));
+}
+
+/* game layers*/
+#actorCanvas,
+#backgroundCanvas,
+#buildingLayerOneCanvas {
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    border: none;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+#canvasDiv {
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    border: none;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+#groundExcess {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #1c262c;
 }
 #gameDiv {
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
+
 #slideContainer {
     width: 100%;
+    height: 100%;
     position: relative;
     overflow: hidden;
 }
@@ -68,123 +304,10 @@ body {
     width: 80px;
     font-size: 10pt;
     padding: 3px;
+    border: none;
+    border-radius: 3px;
 }
 #end:hover {
-    background-color: brown;
+    background-color: rgb(255, 68, 68);
     color: white;
-}
-
-button {
-    margin-bottom: 10px;
-    padding: 5px;
-    font-size: 20pt;
-    border-radius: 10px;
-    border: none;
-    background-color: #eee;
-    color: #33424d;
-
-    transition: background-color 0.1s;
-}
-button:hover {
-    background-color: #c1c6c9;
-    box-shadow: 0px 0px 3px black;
-}
-button:active {
-    background-color: #b5bdc2;
-}
-button:focus {
-    outline: 0;
-}
-.big {
-    width: 100%;
-}
-.small {
-    width: 38px;
-}
-#start {
-    background-color: rgb(61, 201, 43);
-    color: #33424d;
-}
-#start:hover {
-    background-color: rgb(50, 170, 30);
-    color: #000000;
-}
-#color {
-    width: 30px;
-    height: 30px;
-    padding: 0px;
-    border: none;
-    background: content-box;
-    overflow: hidden;
-}
-#color:focus,
-#name:focus,
-#team:focus {
-    outline: none;
-}
-#colorPicker,
-#name,
-#teamPicker,
-#particlePicker,
-.instruction {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px;
-    margin: 5px;
-    font-size: 13pt;
-    border-radius: 10px;
-    border: 1px solid #aaa;
-    background-color: rgb(221, 221, 221);
-}
-#particlePicker {
-    flex-direction: column;
-}
-#name {
-    margin: 0px;
-    width: 93.5%;
-    font-size: 16pt;
-    text-align: center;
-    border: 1px solid rgb(66, 66, 66);
-    background-color: #889399;
-    color: "gray";
-}
-#menuDiv h1,
-p {
-    text-align: center;
-    margin: 0px;
-    color: #33424d;
-}
-.selected,
-.selected:hover {
-    background: #9ba1a3;
-}
-#width {
-    width: 98%;
-}
-
-#classPicker {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-}
-.classButton {
-    width: 33%;
-    border: none;
-    margin: 1px;
-    margin-bottom: 10px;
-    background-color: #929ca1;
-    overflow: hidden;
-    font-size: small;
-}
-.classSelected {
-    background-color: #eee;
-}
-
-#clearStorage {
-    width: 50%;
-    background-color: #9da6ac;
-}
-#clearStorage:active {
-    background-color: #78828a;
 }

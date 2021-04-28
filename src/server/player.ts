@@ -1,7 +1,7 @@
 import { Game } from "../server/game";
 import { Config } from "../config";
 import { Vector } from "../vector";
-import { PlayerActionTypes } from "../objects/Actors/Players/playerActor";
+import { PlayerActionType } from "../objects/Actors/Players/playerActor";
 
 /*class ServerPlayer extends Player {
     public actionList: PlayerActionTypes[] = [];
