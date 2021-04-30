@@ -8,6 +8,7 @@ import { ServerFloor } from "../object/terrain/floor/serverFloor";
 import { ClassType, ServerPlayer } from "../object/newActors/serverActors/serverPlayer/serverPlayer";
 import { ServerSword } from "../object/newActors/serverActors/serverPlayer/serverClasses/serverSword";
 import { defaultActorConfig } from "../object/newActors/actorConfig";
+import { ServerDoodad } from "../object/terrain/doodads/serverDoodad";
 
 export class Game {
     private intervalId?: NodeJS.Timeout;
@@ -15,6 +16,7 @@ export class Game {
 
     public players: ServerPlayer[] = [];
     private floor: ServerFloor = new ServerFloor(this.config.xSize, this.config.ySize);
+    private doodads: ServerDoodad[] = [];
 
     public static readonly clientMap: Record<number, (message: ServerMessage) => void> = {};
     public static broadcastMessage(msg: ServerMessage) {
@@ -23,7 +25,12 @@ export class Game {
         });
     }
 
-    constructor(public readonly config: Config) {}
+    constructor(public readonly config: Config) {
+        this.doodads.push(new ServerDoodad({ x: 1000, y: this.floor.getYCoordAndAngle(1000).yCoord }, 0, "rockLarge"));
+        this.doodads.push(new ServerDoodad({ x: 1800, y: this.floor.getYCoordAndAngle(1800).yCoord }, 0, "rockLarge"));
+        this.doodads.push(new ServerDoodad({ x: 2700, y: this.floor.getYCoordAndAngle(2700).yCoord }, 0, "rockLarge"));
+        this.doodads.push(new ServerDoodad({ x: 3500, y: this.floor.getYCoordAndAngle(3500).yCoord }, 0, "rockLarge"));
+    }
 
     public start() {
         this.intervalId = setInterval(() => {
@@ -43,6 +50,7 @@ export class Game {
         return {
             players: this.players.map((player) => player.serialize()),
             floor: this.floor.serialize(),
+            doodads: this.doodads.map((doodad) => doodad.serialize()),
         };
     }
 
@@ -69,7 +77,7 @@ export class Game {
     }
 
     public newPlayer(id: number, name: string, color: string, team: number, classType: ClassType) {
-        let newPlayer = this.createNewPlayer(id, name, color, team, classType, this.floor);
+        let newPlayer = this.createNewPlayer(id, name, color, team, classType);
         this.players.push(newPlayer);
 
         Game.broadcastMessage({
@@ -86,14 +94,14 @@ export class Game {
         });
     }
 
-    public createNewPlayer(id: number, name: string, color: string, team: number, classType: ClassType, floorPtr: ServerFloor): ServerPlayer {
+    public createNewPlayer(id: number, name: string, color: string, team: number, classType: ClassType): ServerPlayer {
         switch (classType) {
             case "sword":
-                return new ServerSword(id, floorPtr, color, name);
+                return new ServerSword(id, this.floor, this.doodads, color, name);
             case "daggers":
-                return new ServerSword(id, floorPtr, color, name); // SHOULD BE CHANGED TO DAGGERS
+                return new ServerSword(id, this.floor, this.doodads, color, name); // SHOULD BE CHANGED TO DAGGERS
             case "hammer":
-                return new ServerSword(id, floorPtr, color, name); // SHOULD BE CHANGED TO HAMMER
+                return new ServerSword(id, this.floor, this.doodads, color, name); // SHOULD BE CHANGED TO HAMMER
             default:
                 throw new Error("unknown player class type " + classType);
         }

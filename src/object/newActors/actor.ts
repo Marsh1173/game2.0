@@ -11,8 +11,8 @@ export abstract class Actor {
     constructor(
         protected actorType: ActorType,
         protected id: number,
-        public position: Vector,
-        public momentum: Vector,
+        public readonly position: Vector,
+        public readonly momentum: Vector,
         protected health: number,
         protected maxHealth: number,
         protected floor: Floor,

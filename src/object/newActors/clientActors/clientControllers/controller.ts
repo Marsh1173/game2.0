@@ -3,7 +3,7 @@ import { defaultConfig } from "../../../../config";
 import { ClientPlayer } from "../clientPlayer/clientPlayer";
 
 export class Controller {
-    protected readonly keyState: Record<string, boolean> = {};
+    public readonly keyState: Record<string, boolean> = {};
     protected config = defaultConfig;
 
     protected jumpCount: number = 0;
@@ -16,13 +16,11 @@ export class Controller {
 
     public registerMouseDown(e: MouseEvent) {
         if (e.button === 0) {
-            this.player.crouch();
         } else if (e.button === 2) {
         }
     }
     public registerMouseUp(e: MouseEvent) {
         if (e.button === 0) {
-            this.player.unCrouch();
         } else if (e.button === 2) {
         }
     }

@@ -1,5 +1,6 @@
 import { ActorType } from "../../../../objects/Actors/actor";
 import { Vector } from "../../../../vector";
+import { ServerDoodad } from "../../../terrain/doodads/serverDoodad";
 import { ServerFloor } from "../../../terrain/floor/serverFloor";
 import { defaultActorConfig } from "../../actorConfig";
 import { ActorObject } from "../../actorObjects/actorObject";
@@ -14,10 +15,7 @@ export abstract class ServerPlayer extends ServerActor {
     protected crouching: boolean = false;
     public abstract classType: ClassType;
 
-    actorObject: PlayerObject = new PlayerObject(this, this.position, this.momentum, this.floor, {
-        width: defaultActorConfig.playerSize.width,
-        height: defaultActorConfig.playerSize.height,
-    });
+    actorObject: PlayerObject;
 
     public actionsNextFrame: Record<PlayerActionType, boolean> = {
         jump: false,
@@ -26,8 +24,19 @@ export abstract class ServerPlayer extends ServerActor {
         crouch: false,
     };
 
-    constructor(id: number, floor: ServerFloor, protected color: string, protected name: string) {
+    constructor(id: number, floor: ServerFloor, doodads: ServerDoodad[], protected color: string, protected name: string) {
         super("serverPlayer", id, { x: defaultActorConfig.playerStart.x, y: defaultActorConfig.playerStart.y }, defaultActorConfig.playerMaxHealth + 0, floor);
+        this.actorObject = new PlayerObject(
+            this,
+            this.position,
+            this.momentum,
+            this.floor,
+            {
+                width: defaultActorConfig.playerSize.width,
+                height: defaultActorConfig.playerSize.height,
+            },
+            doodads,
+        );
     }
 
     public crouch() {

@@ -218,7 +218,7 @@ body {
     justify-content: space-evenly;
     position: absolute;
     transform: translateY(200px);
-    width: 300px;
+    width: 306px;
 }
 .classOptionBorder {
     width: 50px;
@@ -233,7 +233,7 @@ body {
     background-image: linear-gradient(to bottom, rgb(250, 234, 165), rgb(160, 101, 13));
 }
 .selected {
-    box-shadow: 0px 0px 10px rgba(223, 220, 201, 0.514);
+    box-shadow: 0px -3px 8px rgba(223, 220, 201, 0.295);
 }
 .classOption {
     width: 100%;
@@ -245,6 +245,11 @@ body {
 }
 .selected .classOption {
     background-image: linear-gradient(to top, rgb(136, 135, 127), rgb(117, 114, 93));
+}
+.classIcon {
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    margin: 5px;
 }
 
 /* game layers*/

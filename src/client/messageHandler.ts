@@ -26,7 +26,7 @@ export function handleMessage(this: Game, msg: ServerMessage) {
             this.players = this.players.filter((player) => player.getActorId() !== msg.id);
             break;
         case "playerJoin":
-            this.players.push(this.newClientPlayer(msg.playerInfo, this.gameRenderer.actorCtx, this.floor));
+            this.players.push(this.newClientPlayer(msg.playerInfo, this.gameRenderer.actorCtx));
             break;
         default:
             throw new Error("Unrecognized message from server");

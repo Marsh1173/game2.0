@@ -1,6 +1,7 @@
 import { defaultConfig } from "../../../config";
 import { Size } from "../../../size";
-import { rotateVector, Vector } from "../../../vector";
+import { rotateVector, Shape, Vector } from "../../../vector";
+import { Doodad } from "../../terrain/doodads/doodad";
 import { Floor } from "../../terrain/floor/floor";
 import { Actor } from "../actor";
 import { defaultActorConfig } from "../actorConfig";
@@ -24,13 +25,18 @@ export abstract class ActorObject {
     };
 
     constructor(
-        protected baseActor: Actor,
-        protected position: Vector,
-        protected momentum: Vector,
+        protected readonly baseActor: Actor,
+        protected readonly position: Vector,
+        protected readonly momentum: Vector,
         protected size: Size,
         protected mass: number,
         protected floor: Floor,
+        protected doodads: Doodad[],
     ) {}
+
+    public abstract getGlobalShape(): Shape;
+    public abstract getCollisionRange(): number;
+    public abstract registerGroundAngle(angle: number, standing: boolean): void;
 
     protected registerGravity(elapsedTime: number) {
         this.momentum.y += defaultActorConfig.fallingAcceleration * elapsedTime * this.mass;
@@ -94,6 +100,33 @@ export abstract class ActorObject {
             ifHit = true;
         }
         return { hit: ifHit, angle: data.angle };
+    }
+
+    protected checkDoodads() {
+        let actorShape: Shape = this.getGlobalShape();
+        this.doodads.forEach((doodad) => {
+            this.checkDoodadCollision(actorShape, doodad);
+        });
+    }
+
+    protected checkDoodadCollision(actorShape: Shape, doodad: Doodad) {
+        if (doodad.checkCollisionRange(this.position, this.getCollisionRange())) {
+            if (doodad.checkObjectIntersection(actorShape)) {
+                let results: { positionChange: Vector; momentumChange: Vector | undefined; angle: number | undefined } = doodad.registerCollision(
+                    actorShape,
+                    this.momentum,
+                );
+                this.position.x += results.positionChange.x;
+                this.position.y += results.positionChange.y;
+                if (results.momentumChange) {
+                    this.momentum.x = results.momentumChange.x + 0;
+                    this.momentum.y = results.momentumChange.y + 0;
+                }
+                if (results.angle) {
+                    this.registerGroundAngle(results.angle, true);
+                }
+            }
+        }
     }
 
     public startTranslation(angle: number, translationName: TranslationName) {

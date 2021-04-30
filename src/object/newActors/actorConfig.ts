@@ -26,7 +26,7 @@ export const defaultActorConfig: ActorConfig = {
         height: 50,
     },
     playerCrouchSize: {
-        width: 50,
+        width: 48,
         height: 30,
     },
     playerMass: 10,

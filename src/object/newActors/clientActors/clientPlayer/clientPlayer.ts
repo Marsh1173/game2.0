@@ -1,5 +1,6 @@
 import { Size } from "../../../../size";
 import { Vector } from "../../../../vector";
+import { ClientDoodad } from "../../../terrain/doodads/clientDoodad";
 import { ClientFloor } from "../../../terrain/floor/clientFloor";
 import { defaultActorConfig } from "../../actorConfig";
 import { PlayerObject } from "../../actorObjects/playerObject";
@@ -26,6 +27,7 @@ export abstract class ClientPlayer extends ClientActor {
         health: number,
         ctx: CanvasRenderingContext2D,
         floor: ClientFloor,
+        doodads: ClientDoodad[],
         protected color: string,
         protected name: string,
     ) {
@@ -34,7 +36,7 @@ export abstract class ClientPlayer extends ClientActor {
         let playerSizePointer: Size = { width: defaultActorConfig.playerSize.width + 0, height: defaultActorConfig.playerSize.height + 0 };
 
         this.model = new PlayerModel(this, ctx, position, momentum, playerSizePointer, this.color);
-        this.actorObject = new PlayerObject(this, this.position, this.momentum, this.floor, playerSizePointer);
+        this.actorObject = new PlayerObject(this, this.position, this.momentum, this.floor, playerSizePointer, doodads);
     }
 
     public attemptJumpAction(): boolean {

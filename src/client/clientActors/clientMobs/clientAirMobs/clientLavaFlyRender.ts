@@ -3,7 +3,7 @@ import { assetManager } from "../../../gameRender/assetmanager";
 import { ClientLavaFly, LavaFlyAnimationState } from "./clientLavaFly";
 
 export function renderLavaFlies(lavaFlies: ClientLavaFly[], ctx: CanvasRenderingContext2D) {
-    let img: HTMLImageElement = assetManager.images["lavafly"];
+    //let img: HTMLImageElement = assetManager.images["lavafly"];
 
     ctx.shadowColor = "none";
     ctx.shadowBlur = 0;
@@ -18,7 +18,7 @@ export function renderLavaFlies(lavaFlies: ClientLavaFly[], ctx: CanvasRendering
         let posY: number = fly.position.y - fly.size.height / 2 + fly.buzzPosition.y + fly.stutterCompensatePosition.y;
 
         //ctx.globalAlpha = ifIsDead ? 0.5 - fly.action.isDead / 2 : 1;
-        ctx.drawImage(img, posX, posY, fly.size.width, fly.size.height);
+        //ctx.drawImage(img, posX, posY, fly.size.width, fly.size.height);
         /*ctx.fillRect(posX,
             posY,
             fly.size.width,

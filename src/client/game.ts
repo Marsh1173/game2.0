@@ -1,7 +1,7 @@
 import { AllInfo } from "../api/allinfo";
 import { ServerMessage } from "../api/message";
 import { Config } from "../config";
-import { Vector } from "../vector";
+import { Shape, Vector } from "../vector";
 import { ClientPlatform } from "./platforms/platform";
 import { ServerTalker } from "./servertalker";
 import { safeGetElementById } from "./util";
@@ -16,6 +16,9 @@ import { ClientSword } from "../object/newActors/clientActors/clientPlayer/clien
 import { ClientFloor } from "../object/terrain/floor/clientFloor";
 import { SerializedPlayer } from "../object/newActors/serverActors/serverPlayer/serverPlayer";
 import { Controller } from "../object/newActors/clientActors/clientControllers/controller";
+import { ifInside } from "../ifInside";
+import { ClientDoodad } from "../object/terrain/doodads/clientDoodad";
+import { Doodad } from "../object/terrain/doodads/doodad";
 
 export class Game {
     private static readonly menuDiv = safeGetElementById("menuDiv");
@@ -37,6 +40,7 @@ export class Game {
     private handleMessage = handleMessage;
 
     protected floor: ClientFloor;
+    private doodads: ClientDoodad[] = [];
 
     protected constructGame(info: AllInfo) {
         /*this.groundPlatform = new ClientGroundPlatform(info.groundPlatform);
@@ -61,7 +65,11 @@ export class Game {
 
         this.floor = new ClientFloor(info.floor.pointsAndAngles, info.floor.pointCount, info.floor.resultWidth, actorCtx);
 
-        this.players = info.players.map((playerInfo) => this.newClientPlayer(playerInfo, actorCtx, this.floor));
+        info.doodads.forEach((doodad) => {
+            this.doodads.push(new ClientDoodad(doodad.position, doodad.rotation, doodad.type, actorCtx));
+        });
+
+        this.players = info.players.map((playerInfo) => this.newClientPlayer(playerInfo, actorCtx));
         this.gamePlayer = this.findPlayer();
         this.gamePlayerController = new Controller(this.gamePlayer, this);
 
@@ -71,7 +79,17 @@ export class Game {
 
         // use onkeydown and onkeyup instead of addEventListener because it's possible to add multiple event listeners per event
         // This would cause a bug where each time you press a key it creates multiple blasts or jumps
-        window.onmousedown = (e: MouseEvent) => this.gamePlayerController.registerMouseDown(e);
+        let positionDifference: Vector = { x: 300, y: 800 };
+        window.onmousedown = (e: MouseEvent) => {
+            console.log(
+                "{x: " +
+                    (-this.screenPos.x + this.mousePos.x - positionDifference.x) +
+                    ", y: " +
+                    (-this.screenPos.y + this.mousePos.y - positionDifference.y) +
+                    "},",
+            );
+            this.gamePlayerController.registerMouseDown(e);
+        };
         window.onmouseup = (e: MouseEvent) => this.gamePlayerController.registerMouseUp(e);
         window.onkeydown = (e: KeyboardEvent) => this.gamePlayerController.registerKeyDown(e);
         window.onkeyup = (e: KeyboardEvent) => this.gamePlayerController.registerKeyUp(e);
@@ -114,7 +132,9 @@ export class Game {
 
         this.gameRenderer.updateAndRender(elapsedTime);
 
+        this.doodads.forEach((doodad) => doodad.render());
         this.floor.render();
+        this.players.forEach((player) => player.render());
     }
 
     private findPlayer() {
@@ -129,8 +149,10 @@ export class Game {
         this.players.forEach((player) => player.update(elapsedTime));
     }
 
-    protected newClientPlayer(playerInfo: SerializedPlayer, actorCtx: CanvasRenderingContext2D, floor: ClientFloor): ClientPlayer {
+    protected newClientPlayer(playerInfo: SerializedPlayer, actorCtx: CanvasRenderingContext2D): ClientPlayer {
         switch (playerInfo.class) {
+            case "daggers":
+            case "hammer":
             case "sword":
                 return new ClientSword(
                     playerInfo.id,
@@ -138,12 +160,31 @@ export class Game {
                     playerInfo.momentum,
                     playerInfo.health,
                     actorCtx,
-                    floor,
+                    this.floor,
+                    this.doodads,
                     playerInfo.color,
                     playerInfo.name,
                 );
             default:
-                throw new Error("unknown class type");
+                throw new Error("unknown class type " + playerInfo.class);
         }
+    }
+
+    protected getMouseShape(): Shape {
+        let p1: Vector = { x: this.mousePos.x - this.screenPos.x, y: this.mousePos.y - 40 - this.screenPos.y };
+        let p2: Vector = { x: this.mousePos.x - 30 - this.screenPos.x, y: this.mousePos.y + 20 - this.screenPos.y };
+        let p3: Vector = { x: this.mousePos.x + 30 - this.screenPos.x, y: this.mousePos.y + 20 - this.screenPos.y };
+        return {
+            center: { x: this.mousePos.x - this.screenPos.x, y: this.mousePos.y - this.screenPos.y },
+            points: [p1, p2, p3],
+            edges: [
+                { p1, p2 },
+                { p1: p2, p2: p3 },
+                { p1: p3, p2: p1 },
+            ],
+        };
+    }
+    protected getGlobalMousePos(): Vector {
+        return { x: this.mousePos.x - this.screenPos.x, y: this.mousePos.y - this.screenPos.y };
     }
 }

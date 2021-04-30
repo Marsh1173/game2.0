@@ -1,4 +1,5 @@
 import { Vector } from "../../../../vector";
+import { ServerDoodad } from "../../../terrain/doodads/serverDoodad";
 import { ServerFloor } from "../../../terrain/floor/serverFloor";
 import { TestMobObject } from "../../actorObjects/mobObjects/testMobObject";
 import { ServerActor } from "../serverActor";
@@ -6,10 +7,11 @@ import { ServerActor } from "../serverActor";
 export type SerializedMob = SerializedTestMob;
 
 export class ServerMob extends ServerActor {
-    actorObject: TestMobObject = new TestMobObject(this, this.position, this.momentum, this.floor);
+    actorObject: TestMobObject;
 
-    constructor(id: number, floor: ServerFloor) {
+    constructor(id: number, floor: ServerFloor, doodads: ServerDoodad[]) {
         super("serverTestMob", id, { x: 700, y: 500 }, 10, floor);
+        this.actorObject = new TestMobObject(this, this.position, this.momentum, this.floor, doodads);
     }
 
     update(elapsedTime: number) {

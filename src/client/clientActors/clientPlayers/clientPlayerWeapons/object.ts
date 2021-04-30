@@ -78,7 +78,7 @@ export class ClientModelWeapon {
     private changeClientPlayerModelWeaponImage(weapon: WeaponType) {
         // sets the stats of the image
         let imgScale: number;
-        switch (weapon) {
+        /*switch (weapon) {
             case "none":
                 this.img = undefined;
                 break;
@@ -90,7 +90,7 @@ export class ClientModelWeapon {
                     y: 0.8 * assetManager.images["sword"].height * imgScale,
                 };
                 this.clientPlayerModel.clientModelWeapon.imgScale = imgScale;
-        }
+        }*/
     }
 
     public changeClientPlayerModelWeapon(weapon: WeaponType) {

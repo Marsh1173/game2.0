@@ -127,11 +127,11 @@ export class GameRenderer {
     private drawBackgroundCanvases() {
         this.renderBackground();
 
-        let img1 = assetManager.images["pillars"];
+        /*let img1 = assetManager.images["pillars"];
         this.buildingLayerOneCtx.drawImage(img1, 600, this.config.ySize - (img1.height * 2) / 3, (img1.width * 2) / 3, (img1.height * 2) / 3);
 
         let img2 = assetManager.images["pillarSpiral"];
-        this.buildingLayerOneCtx.drawImage(img2, 1500, this.config.ySize - img2.height - 50, img2.width, img2.height);
+        this.buildingLayerOneCtx.drawImage(img2, 1500, this.config.ySize - img2.height - 50, img2.width, img2.height);*/
     }
 
     private renderBackground(this: GameRenderer) {
@@ -141,7 +141,7 @@ export class GameRenderer {
 
 function renderActors(this: GameRenderer) {
     this.game.players.forEach((player) => {
-        player.render();
+        //player.render();
     });
 }
 
