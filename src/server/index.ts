@@ -7,7 +7,12 @@ import { defaultConfig } from "../config";
 import { JoinRequest, JoinResponse } from "../api/join";
 import { ClientMessage, ServerMessage } from "../api/message";
 import { Vector } from "../vector";
-import { getNextActorId } from "../objects/Actors/actor";
+
+var actorId: number = 0;
+export function getNextActorId(): number {
+    actorId++;
+    return actorId;
+}
 
 const game = new Game(defaultConfig);
 game.start();

@@ -1,4 +1,3 @@
-import { ActorType } from "../../../../objects/Actors/actor";
 import { Vector } from "../../../../vector";
 import { ServerDoodad } from "../../../terrain/doodads/serverDoodad";
 import { ServerFloor } from "../../../terrain/floor/serverFloor";

@@ -1,12 +1,8 @@
 import { ModuleFilenameHelpers } from "webpack";
 import { Config, defaultConfig } from "../../config";
-import { ActorType } from "../../objects/Actors/actor";
 import { Vector } from "../../vector";
 import { assetManager } from "./assetmanager";
-import { ClientPlayerActor } from "../clientActors/clientPlayers/clientPlayerActor";
 import { Game } from "../game";
-import { ClientGroundPlatform } from "../platforms/groundPlatform";
-import { ClientPlatform } from "../platforms/platform";
 import { safeGetElementById } from "../util";
 import { ClientPlayer } from "../../object/newActors/clientActors/clientPlayer/clientPlayer";
 import { convertCompilerOptionsFromJson } from "typescript";

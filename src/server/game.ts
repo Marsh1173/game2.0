@@ -2,8 +2,6 @@ import { AllInfo } from "../api/allinfo";
 import { ClientMessage, InfoMessage, PlayerLeavingMessage, ServerMessage } from "../api/message";
 import { Vector } from "../vector";
 import { Config } from "../config";
-import { ActorType, getNextActorId } from "../objects/Actors/actor";
-import { getDefaultGroundPlatform, ServerGroundPlatform } from "./groundPlatform";
 import { ServerFloor } from "../object/terrain/floor/serverFloor";
 import { ClassType, ServerPlayer } from "../object/newActors/serverActors/serverPlayer/serverPlayer";
 import { ServerSword } from "../object/newActors/serverActors/serverPlayer/serverClasses/serverSword";
