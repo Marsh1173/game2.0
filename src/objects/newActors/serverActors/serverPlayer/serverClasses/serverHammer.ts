@@ -3,11 +3,11 @@ import { ServerDoodad } from "../../../../terrain/doodads/serverDoodad";
 import { ServerFloor } from "../../../../terrain/floor/serverFloor";
 import { ClassType, ServerPlayer } from "../serverPlayer";
 
-export class ServerSword extends ServerPlayer {
-    classType: ClassType = "sword";
+export class ServerHammer extends ServerPlayer {
+    classType: ClassType = "hammer";
 
-    constructor(id: number, floor: ServerFloor, doodads: ServerDoodad[], color: string, name: string) {
-        super(id, floor, doodads, color, name);
+    constructor(id: number, floor: ServerFloor, doodads: ServerDoodad[], color: string, name: string, level: number, spec: number) {
+        super(id, floor, doodads, color, name, level, spec);
     }
 
     updateInput(elapsedTime: number) {}

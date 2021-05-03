@@ -13,6 +13,9 @@ export abstract class ClientActor extends Actor {
     public render() {
         this.model.render();
     }
+    public renderHealth() {
+        this.model.renderHealth();
+    }
 
     public updatePositionAndMomentumFromServer(position: Vector, momentum: Vector) {
         this.model.processPositionUpdateDifference({ x: position.x - this.position.x, y: position.y - this.position.y });

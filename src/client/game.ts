@@ -7,14 +7,16 @@ import { safeGetElementById } from "./util";
 import { GameRenderer } from "./gameRender/gameRenderer";
 import { findAngle } from "../findAngle";
 import { handleMessage } from "./messageHandler";
-import { ClientPlayer } from "../object/newActors/clientActors/clientPlayer/clientPlayer";
-import { ClientSword } from "../object/newActors/clientActors/clientPlayer/clientClasses/clientSword";
-import { ClientFloor } from "../object/terrain/floor/clientFloor";
-import { SerializedPlayer } from "../object/newActors/serverActors/serverPlayer/serverPlayer";
-import { Controller } from "../object/newActors/clientActors/clientControllers/controller";
+import { ClientPlayer } from "../objects/newActors/clientActors/clientPlayer/clientPlayer";
+import { ClientSword } from "../objects/newActors/clientActors/clientPlayer/clientClasses/clientSword";
+import { ClientFloor } from "../objects/terrain/floor/clientFloor";
+import { SerializedPlayer } from "../objects/newActors/serverActors/serverPlayer/serverPlayer";
+import { Controller } from "../objects/newActors/clientActors/clientControllers/controller";
 import { ifInside } from "../ifInside";
-import { ClientDoodad } from "../object/terrain/doodads/clientDoodad";
-import { Doodad } from "../object/terrain/doodads/doodad";
+import { ClientDoodad } from "../objects/terrain/doodads/clientDoodad";
+import { Doodad } from "../objects/terrain/doodads/doodad";
+import { ClientHammer } from "../objects/newActors/clientActors/clientPlayer/clientClasses/clientHammer";
+import { ClientDaggers } from "../objects/newActors/clientActors/clientPlayer/clientClasses/clientDaggers";
 
 export class Game {
     private static readonly menuDiv = safeGetElementById("menuDiv");
@@ -27,7 +29,6 @@ export class Game {
     public players: ClientPlayer[] = [];
 
     public static particleAmount: number;
-    protected readonly keyState: Record<string, boolean> = {};
     private going: boolean = false;
 
     private screenPos: Vector = { x: 0, y: 0 };
@@ -72,6 +73,10 @@ export class Game {
         this.gameRenderer = new GameRenderer(this.config, this, this.gamePlayer, this.screenPos);
 
         this.serverTalker.messageHandler = (msg: ServerMessage) => this.handleMessage(msg);
+    }
+
+    public start() {
+        this.going = true;
 
         // use onkeydown and onkeyup instead of addEventListener because it's possible to add multiple event listeners per event
         // This would cause a bug where each time you press a key it creates multiple blasts or jumps
@@ -94,16 +99,19 @@ export class Game {
             this.mousePos.x = e.clientX;
             this.mousePos.y = e.clientY;
         };
-    }
 
-    public start() {
-        this.going = true;
         window.requestAnimationFrame((timestamp) => this.loop(timestamp));
     }
 
     public end() {
         this.going = false;
         this.serverTalker.leave();
+
+        window.onmousedown = () => {};
+        window.onmouseup = () => {};
+        window.onkeydown = () => {};
+        window.onkeyup = () => {};
+        window.onmousemove = () => {};
     }
 
     private lastFrame?: number;
@@ -131,6 +139,7 @@ export class Game {
         this.doodads.forEach((doodad) => doodad.render());
         this.floor.render();
         this.players.forEach((player) => player.render());
+        this.players.forEach((player) => player.renderHealth());
     }
 
     private findPlayer() {
@@ -148,7 +157,33 @@ export class Game {
     protected newClientPlayer(playerInfo: SerializedPlayer, actorCtx: CanvasRenderingContext2D): ClientPlayer {
         switch (playerInfo.class) {
             case "daggers":
+                return new ClientDaggers(
+                    playerInfo.id,
+                    playerInfo.position,
+                    playerInfo.momentum,
+                    playerInfo.health,
+                    actorCtx,
+                    this.floor,
+                    this.doodads,
+                    playerInfo.color,
+                    playerInfo.name,
+                    playerInfo.classLevel,
+                    playerInfo.classSpec,
+                );
             case "hammer":
+                return new ClientHammer(
+                    playerInfo.id,
+                    playerInfo.position,
+                    playerInfo.momentum,
+                    playerInfo.health,
+                    actorCtx,
+                    this.floor,
+                    this.doodads,
+                    playerInfo.color,
+                    playerInfo.name,
+                    playerInfo.classLevel,
+                    playerInfo.classSpec,
+                );
             case "sword":
                 return new ClientSword(
                     playerInfo.id,
@@ -160,6 +195,8 @@ export class Game {
                     this.doodads,
                     playerInfo.color,
                     playerInfo.name,
+                    playerInfo.classLevel,
+                    playerInfo.classSpec,
                 );
             default:
                 throw new Error("unknown class type " + playerInfo.class);

@@ -1,9 +1,10 @@
 import { getRandomColor } from "../getrandomcolor";
-import { ClassType } from "../object/newActors/serverActors/serverPlayer/serverPlayer";
+import { DaggersSpec, HammerSpec, SwordSpec } from "../objects/newActors/actor";
+import { ClassType } from "../objects/newActors/serverActors/serverPlayer/serverPlayer";
 import { Game } from "./game";
+import { assetManager } from "./gameRender/assetmanager";
 import { ServerTalker } from "./servertalker";
 import { safeGetElementById } from "./util";
-
 /*const particleSlider = safeGetElementById("particles");
 const particleAmount = safeGetElementById("particleAmount");
 
@@ -11,50 +12,82 @@ particleSlider.oninput = function () {
     particleAmount.innerHTML = (particleSlider as HTMLInputElement).value + "%";
 };*/
 
-safeGetElementById("gameDiv").style.display = "none";
+var classInfo = {
+    sword: { level: 1, spec: 2 },
+    daggers: { level: 3, spec: 4 },
+    hammer: { level: 5, spec: 6 },
+};
 
 var classType: ClassType = "sword";
 var team: number = 1;
 safeGetElementById("teamMenu").onclick = () => toggleTeam();
 
-const savedFields = ["name", "team", "color", "classType" /*, "particles"*/];
-savedFields.forEach((id, index) => {
-    const value = localStorage.getItem(id);
-    if (value) {
-        switch (index) {
-            case 0:
-            case 2:
-                (safeGetElementById(id) as HTMLInputElement).value = value;
-                break;
-            case 1:
-                if (2 === parseInt(value)) {
-                    toggleTeam();
-                }
-                break;
-            case 3:
-                if (value === "daggers") changeClass("daggers");
-                else if (value === "hammer") changeClass("hammer");
-                else changeClass("sword");
-                break;
-            default:
-                throw new Error("too many saved fields");
-        }
-    }
-});
-//particleAmount.innerHTML = (particleSlider as HTMLInputElement).value + "%";
+var value: string | null = localStorage.getItem("name");
+if (value) (safeGetElementById("name") as HTMLInputElement).value = value;
+var value: string | null = localStorage.getItem("color");
+if (value) (safeGetElementById("color") as HTMLInputElement).value = value;
+var value: string | null = localStorage.getItem("team");
+if (value && parseInt(value) === 2) toggleTeam();
+var value: string | null = localStorage.getItem("classType");
+if (value) {
+    if (value === "daggers") changeClass("daggers");
+    else if (value === "hammer") changeClass("hammer");
+    else changeClass("sword");
+}
+updateClassLevels();
 
+function updateClassLevels() {
+    value = localStorage.getItem("swordLevel");
+    if (value) classInfo.sword.level = parseInt(value);
+    value = localStorage.getItem("swordSpec");
+    if (value) classInfo.sword.spec = parseInt(value);
+    value = localStorage.getItem("daggersLevel");
+    if (value) classInfo.daggers.level = parseInt(value);
+    value = localStorage.getItem("daggersSpec");
+    if (value) classInfo.daggers.spec = parseInt(value);
+    value = localStorage.getItem("hammerLevel");
+    if (value) classInfo.hammer.level = parseInt(value);
+    value = localStorage.getItem("hammerSpec");
+    if (value) classInfo.hammer.spec = parseInt(value);
+
+    safeGetElementById("swordClassLevel").innerHTML = String(classInfo.sword.level);
+    safeGetElementById("daggersClassLevel").innerHTML = String(classInfo.daggers.level);
+    safeGetElementById("hammerClassLevel").innerHTML = String(classInfo.hammer.level);
+}
+
+var ifImagesHaveBeenLoaded: boolean = false;
 safeGetElementById("startGame").onmouseup = async () => {
     saveLocalData();
 
-    let name: string = (safeGetElementById("name") as HTMLInputElement).value;
-    if (name === "") name = "Player";
-    else if (name.split(" ").join("") === "") name = "Poop";
+    var name: string = (safeGetElementById("name") as HTMLInputElement).value;
+    if (name === "" || name.split(" ").join("") === "") name = "Player";
 
+    let level: number, spec: number;
+    switch (classType) {
+        case "daggers":
+            level = classInfo.daggers.level;
+            spec = classInfo.daggers.spec;
+            break;
+        case "hammer":
+            level = classInfo.hammer.level;
+            spec = classInfo.hammer.spec;
+            break;
+        default:
+            level = classInfo.sword.level;
+            spec = classInfo.sword.spec;
+    }
+
+    if (!ifImagesHaveBeenLoaded) {
+        assetManager.loadAllNecessaryImages();
+        ifImagesHaveBeenLoaded = true;
+    }
     const serverTalker = new ServerTalker({
         name,
         color: (safeGetElementById("color") as HTMLInputElement).value,
         team,
         class: classType,
+        classLevel: level,
+        classSpec: spec,
     });
     const { id, info, config } = await serverTalker.serverTalkerReady;
     const game = new Game(info, config, id, serverTalker, 50);
@@ -64,19 +97,26 @@ safeGetElementById("startGame").onmouseup = async () => {
     safeGetElementById("end").onclick = async () => {
         game.end();
         showMenuElements();
+        updateClassLevels();
         //document.exitFullscreen();
+        return;
     };
 };
 
+var menuDiv: HTMLElement = safeGetElementById("menuDiv");
+var optionsDiv: HTMLElement = safeGetElementById("optionsDiv");
+var gameDiv: HTMLElement = safeGetElementById("gameDiv");
+gameDiv.style.display = "none";
+
 function hideMenuElements() {
-    safeGetElementById("menuDiv").style.display = "none";
-    safeGetElementById("optionsDiv").style.display = "none";
-    safeGetElementById("gameDiv").style.display = "block";
+    menuDiv.style.display = "none";
+    optionsDiv.style.display = "none";
+    gameDiv.style.display = "block";
 }
 function showMenuElements() {
-    safeGetElementById("gameDiv").style.display = "none";
-    safeGetElementById("menuDiv").style.display = "block";
-    safeGetElementById("optionsDiv").style.display = "flex";
+    gameDiv.style.display = "none";
+    menuDiv.style.display = "flex";
+    optionsDiv.style.display = "flex";
 }
 
 function toggleTeam() {
@@ -115,7 +155,7 @@ function saveLocalData() {
     localStorage.setItem("color", locallyStoredColor);
 
     /*let locallyStoredParticles: string = (safeGetElementById("id") as HTMLInputElement).value;
-    localStorage.setItem("particles", field.value);*/
+                        localStorage.setItem("particles", field.value);*/
 
     let locallyStoredClass: string;
     if (classType === "sword") locallyStoredClass = "sword";
@@ -128,3 +168,53 @@ function saveLocalData() {
 /*clearStorageButton.onclick = () => {
     localStorage.clear();
 };*/
+
+var screenCover: HTMLElement = safeGetElementById("screenCover");
+
+var settingsButtonToggled: boolean = false;
+safeGetElementById("settingsButton").onclick = () => {
+    if (settingsButtonToggled) {
+        //hide settings
+    } else {
+        //show settings
+    }
+};
+
+var commentDiv: HTMLElement = safeGetElementById("commentDiv");
+var emailOption: HTMLElement = safeGetElementById("emailOption");
+
+safeGetElementById("commentButton").onclick = () => {
+    emailOption.classList.add("selected");
+    commentDiv.style.display = "flex";
+    screenCover.style.display = "block";
+
+    screenCover.addEventListener("click", closeCommentDiv);
+
+    function closeCommentDiv() {
+        screenCover.removeEventListener("click", closeCommentDiv);
+
+        commentDiv.style.display = "none";
+        screenCover.style.display = "none";
+        emailOption.classList.remove("selected");
+    }
+};
+
+var informationDiv: HTMLElement = safeGetElementById("informationDiv");
+var infoOption: HTMLElement = safeGetElementById("infoOption");
+safeGetElementById("informationButton").onclick = () => {
+    infoOption.classList.add("selected");
+    informationDiv.style.display = "flex";
+    screenCover.style.display = "block";
+
+    screenCover.addEventListener("click", closeInfoDiv);
+
+    function closeInfoDiv() {
+        screenCover.removeEventListener("click", closeInfoDiv);
+
+        informationDiv.style.display = "none";
+        screenCover.style.display = "none";
+        infoOption.classList.remove("selected");
+    }
+};
+var tipsButtonToggled: boolean = false;
+safeGetElementById("toggleTipsButton").onclick = () => {};

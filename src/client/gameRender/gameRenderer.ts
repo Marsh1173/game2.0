@@ -4,7 +4,7 @@ import { Vector } from "../../vector";
 import { assetManager } from "./assetmanager";
 import { Game } from "../game";
 import { safeGetElementById } from "../util";
-import { ClientPlayer } from "../../object/newActors/clientActors/clientPlayer/clientPlayer";
+import { ClientPlayer } from "../../objects/newActors/clientActors/clientPlayer/clientPlayer";
 import { convertCompilerOptionsFromJson } from "typescript";
 
 export class GameRenderer {
@@ -39,7 +39,7 @@ export class GameRenderer {
     public updateAndRender(elapsedTime: number) {
         this.updateSliderX();
         this.updateSliderY();
-        this.attemptUpdateHTML();
+        //this.attemptUpdateHTML();
 
         this.renderBackground();
 

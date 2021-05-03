@@ -4,7 +4,7 @@ import { ClientDoodad } from "../../../terrain/doodads/clientDoodad";
 import { ClientFloor } from "../../../terrain/floor/clientFloor";
 import { defaultActorConfig } from "../../actorConfig";
 import { PlayerObject } from "../../actorObjects/playerObject";
-import { PlayerActionType, SerializedPlayer } from "../../serverActors/serverPlayer/serverPlayer";
+import { ClassType, PlayerActionType, SerializedPlayer } from "../../serverActors/serverPlayer/serverPlayer";
 import { ClientActor } from "../clientActor";
 import { PlayerModel } from "../models/playerModel";
 import { ClientSword } from "./clientClasses/clientSword";
@@ -12,6 +12,8 @@ import { ClientSword } from "./clientClasses/clientSword";
 export abstract class ClientPlayer extends ClientActor {
     actorObject: PlayerObject;
     model: PlayerModel;
+
+    public abstract classType: ClassType;
 
     public actionsNextFrame: Record<PlayerActionType, boolean> = {
         jump: false,
@@ -28,15 +30,33 @@ export abstract class ClientPlayer extends ClientActor {
         ctx: CanvasRenderingContext2D,
         floor: ClientFloor,
         doodads: ClientDoodad[],
-        protected color: string,
-        protected name: string,
+        protected readonly color: string,
+        protected readonly name: string,
+        protected level: number,
+        protected spec: number,
     ) {
         super("clientPlayer", id, position, momentum, health, 100, floor);
 
         let playerSizePointer: Size = { width: defaultActorConfig.playerSize.width + 0, height: defaultActorConfig.playerSize.height + 0 };
 
-        this.model = new PlayerModel(this, ctx, position, momentum, playerSizePointer, this.color);
+        this.model = new PlayerModel(this, ctx, position, momentum, playerSizePointer, this.color, "ally");
         this.actorObject = new PlayerObject(this, this.position, this.momentum, this.floor, playerSizePointer, doodads);
+    }
+
+    public getLevel(): number {
+        return this.level;
+    }
+
+    public getSpec(): number {
+        return this.spec;
+    }
+
+    public changeSpec(spec: number) {
+        this.spec = spec;
+    }
+
+    public getClassType(): ClassType {
+        return this.classType;
     }
 
     public attemptJumpAction(): boolean {

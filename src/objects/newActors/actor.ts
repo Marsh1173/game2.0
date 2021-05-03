@@ -4,6 +4,9 @@ import { ActorObject } from "./actorObjects/actorObject";
 import { TranslationName } from "./actorObjects/translations";
 
 export type ActorType = "clientTestMob" | "clientPlayer" | "serverTestMob" | "serverPlayer";
+export type SwordSpec = "heavy" | "light";
+export type DaggersSpec = "outlaw" | "assassination";
+export type HammerSpec = "warden" | "paladin";
 
 export abstract class Actor {
     protected abstract actorObject: ActorObject;

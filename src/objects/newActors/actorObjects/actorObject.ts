@@ -52,25 +52,21 @@ export abstract class ActorObject {
         this.momentum.y *= Math.pow(0.9, elapsedTime * this.mass);
     }
 
-    protected checkXBoundaryCollision(elapsedTime: number) {
-        let futureXPos: number = this.position.x + this.momentum.x * elapsedTime;
-
-        if (futureXPos - this.size.width / 2 < 0) {
+    protected checkXBoundaryCollision() {
+        if (this.position.x - this.size.width / 2 < 0) {
             this.position.x = this.size.width / 2;
             this.momentum.x = Math.max(this.momentum.x, 0);
-        } else if (futureXPos + this.size.width / 2 > this.xSize) {
+        } else if (this.position.x + this.size.width / 2 > this.xSize) {
             this.position.x = this.xSize - this.size.width / 2;
             this.momentum.x = Math.min(this.momentum.x, 0);
         }
     }
 
-    protected checkYBoundaryCollision(elapsedTime: number): boolean {
-        let futureYPos: number = this.position.y + this.momentum.y * elapsedTime;
-
-        if (futureYPos - this.size.height / 2 < 1) {
+    protected checkYBoundaryCollision(): boolean {
+        if (this.position.y - this.size.height / 2 < 1) {
             this.position.y = this.size.height / 2 + 1;
             this.momentum.y = Math.max(this.momentum.y, 0);
-        } else if (futureYPos + this.size.height / 2 > this.ySize) {
+        } else if (this.position.y + this.size.height / 2 > this.ySize) {
             this.position.y = this.ySize - this.size.height / 2;
             this.momentum.y = Math.min(this.momentum.y, 0);
             return true;

@@ -3,14 +3,14 @@ import { Vector } from "../../../vector";
 import { Doodad, DoodadType } from "./doodad";
 
 export class ClientDoodad extends Doodad {
-    protected img: HTMLImageElement = assetManager.images[this.doodadType];
+    protected readonly img: HTMLImageElement = assetManager.images[this.doodadType];
 
-    constructor(position: Vector, rotation: number, doodadType: DoodadType, protected ctx: CanvasRenderingContext2D) {
+    constructor(position: Vector, rotation: number, doodadType: DoodadType, protected readonly ctx: CanvasRenderingContext2D) {
         super(position, rotation, doodadType);
     }
 
     public render() {
-        this.ctx.translate(this.position.x, this.position.y);
+        this.ctx.translate(Math.floor(this.position.x), Math.floor(this.position.y));
         this.ctx.rotate(this.rotation);
         this.ctx.drawImage(this.img, -200, -140);
         this.ctx.rotate(-this.rotation);

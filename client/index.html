@@ -20,11 +20,64 @@
                 <canvas id="actorCanvas"></canvas>
             </div>
             <div id="groundExcess"></div>
+            <div id="UserInterfaceDiv">
+                <div id="mainBarDiv">
+                    <div id="abilityDiv">
+                        <div class="abilityIcon" id="ability1Div">
+                            <img class="abilityImage" id="ability1Img" src="images/nate's moon.png"/>
+                            <canvas class="abilityIconCanvas" id=ability1Canvas></canvas>
+                            <div class="abilityKeyToolTip">LMB</div>
+                        </div>
+                        <div class="abilityIcon" id="ability2Div">
+                            <img class="abilityImage" id="ability2Img" src="images/nate's moon.png"/>
+                            <canvas class="abilityIconCanvas" id=ability2Canvas></canvas>
+                            <div class="abilityKeyToolTip">RMB</div>
+                    </div>
+                        <div class="abilityIcon" id="ability3Div">
+                            <img class="abilityImage" id="ability3Img" src="images/nate's moon.png"/>
+                            <canvas class="abilityIconCanvas" id=ability3Canvas></canvas>
+                            <div class="abilityKeyToolTip">Shift</div>
+                    </div>
+                        <div class="abilityIcon" id="ability4Div">
+                            <img class="abilityImage" id="ability4Img" src="images/nate's moon.png"/>
+                            <canvas class="abilityIconCanvas" id=ability4Canvas></canvas>
+                            <div class="abilityKeyToolTip">Space</div>
+                    </div>
+                        <div class="abilityIcon" id="ability5Div">
+                            <img class="abilityImage" id="ability5Img" src="images/nate's moon.png"/>
+                            <canvas class="abilityIconCanvas" id=ability5Canvas></canvas>
+                            <div class="abilityKeyToolTip">E</div>
+                    </div>
+                    </div>
+                    <div id="statusDiv">
+                        <div id="healthDiv">
+                            <canvas id="healthCanvas"></canvas>
+                        </div>
+                        <div id="levelDiv">
+                            <div id="currentXp"></div>
+                            <div id="currentLevel">10</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <button id="end">Exit Game</button>
         </div>
         <div id="optionsDiv">
-            <img id="settingsOption" src="images/options.png"/>
-            <p id="infoOption">ⓘ</p>
+            <div id="optionIcons">
+                <div id="settingsOption" ><img id="settingsOptionImage" src="images/options.png"/></div>
+                <hr/>
+                <div id="emailOption" ><img id="emailOptionImage" src="images/emailIcon.png"/></div>
+                <hr/>
+                <div id="infoOption" ><p id="infoOptionIcon">ⓘ</p></div>
+                <hr/>
+                <div id="tipsOption"><p id="tipsOptionIcon">?</p></div>
+            </div>
+            <div id="optionsTooltip">
+                <p id="settingsButton">Settings</p>
+                <p id="commentButton">Submit a Comment</p>
+                <p id="informationButton">Website Information</p>
+                <p id="toggleTipsButton">Toggle Tips</p>
+            </div>
         </div>
         <div id="menuDiv">
             <div id="startGameDiv">
@@ -33,18 +86,70 @@
             <div id ="nameInputDiv">
                 <input id="name" placeholder="Name..." type="text" autocomplete="off" maxlength="15" value="Player">
             </div>
-            <div id="colorMenuDiv"><input type="color" id='color' value="#32a852"></input></div>
-            <div id="teamMenu">
-                <div class="teamOption selectedTeam" id="team1">1</div>
-                <div class="teamOption" id="team2">2</div>
+            <div id="personalization" >
+                <div id="colorMenuDiv"><input type="color" id='color' value="#32a852"></input></div>
+                <div id="teamMenu">
+                    <div class="teamOption selectedTeam" id="team1">1</div>
+                    <div class="teamOption" id="team2">2</div>
+                </div>
             </div>
             <div id="classMenuDiv">
-                <div class="classOptionBorder selected" id="sword"><div class="classOption"><img class="classIcon" id="swordIcon" src="images/swordIcon.png"></div></div>
-                <div class="classOptionBorder" id="daggers"><div class="classOption"><img class="classIcon" id="daggersIcon" src="images/daggersIcon.png"></div></div>
-                <div class="classOptionBorder" id="hammer"><div class="classOption"><img class="classIcon" id="hammerIcon" src="images/hammerIcon.png"></div></div>
+                <div class="classOptionBorder selected" id="sword">
+                    <div class="classOption">
+                        <img class="classIcon" id="swordIcon" src="images/swordIcon.png">
+                    </div>
+                    <div class="classLevel" id="swordClassLevel"></div>
+                </div>
+                <div class="classOptionBorder" id="daggers">
+                    <div class="classOption">
+                        <img class="classIcon" id="daggersIcon" src="images/daggersIcon.png">
+                    </div>
+                    <div class="classLevel" id="daggersClassLevel"></div>
+                </div>
+                <div class="classOptionBorder" id="hammer">
+                    <div class="classOption">
+                        <img class="classIcon" id="hammerIcon" src="images/hammerIcon.png">
+                    </div>
+                    <div class="classLevel" id="hammerClassLevel"></div>
+                </div>
             </div>
+            
         </div>
-
+        <div id="screenCover"></div>
+        <div id="commentDiv">
+            <textarea id="comment" placeholder="Type a comment to submit to the website's owner..."></textarea>
+            <button id="submitComment" onclick="sendEmail()">Submit Comment</button>
+        </div>
+        <div id="informationDiv">
+            <h3>Creator</h3>
+            <h1>Nate Roylance</h1>
+            <h3>Lead Expert On Everything</h3>
+            <h2>Mark Roylance</h2>
+            <h3>Lead Unpaid Artist</h3>
+            <h2>Kate Roylance</h2>
+            <h3>Playtest Team</h3>
+            <h2>John Roylance</h2>
+            <hr/>
+            <a href='https://natehroylance.com/'>Home Website</a>
+            <a href="https://github.com/Marsh1173/game2.0">Github</a>
+        </div>
         <script src="bundle.js"></script>
+        <script src="https://smtpjs.com/v3/smtp.js"></script>
+        <script type="text/javascript">
+            function sendEmail() {
+                let comment = document.getElementById("comment").value;
+                document.getElementById("comment").value = "";
+                Email.send({
+                    SecureToken : "0b59bfa1-14a8-4272-a4ed-fef2f51ab32b",
+                    To : 'natehroylance@gmail.com',
+                    From : "dalinar1173@gmail.com",
+                    Subject: "Block Game Comment",
+                    Body: comment,
+                })
+                .then(function (message) {
+                    alert("Thank you!");
+                });
+            }
+        </script>
     </body>
 </html>

@@ -1,6 +1,6 @@
 import { findAngle } from "../../../findAngle";
 import { ifIntersect } from "../../../ifIntersect";
-import { DoodadEdge, findDifference, findDistance, findLength, rotateVector, Shape, Vector, vectorProject } from "../../../vector";
+import { DoodadEdge, dotProduct, findDifference, findDistance, findLength, rotateVector, Shape, Vector, vectorProject } from "../../../vector";
 
 const doodadPointInformation: Record<DoodadType, Vector[]> = {
     rockLarge: [
@@ -27,7 +27,7 @@ export abstract class Doodad {
     protected readonly edges: DoodadEdge[] = [];
     protected collisionRange: number = 0;
 
-    constructor(protected position: Vector, protected readonly rotation: number, protected doodadType: DoodadType) {
+    constructor(protected readonly position: Vector, protected readonly rotation: number, protected readonly doodadType: DoodadType) {
         let doodadPoints: Vector[] = doodadPointInformation[doodadType];
         //rotate base shape and store it in this.points
         doodadPoints.forEach((point) => {
@@ -65,30 +65,30 @@ export abstract class Doodad {
         return findDistance(this.position, position) <= this.collisionRange + objectCollisionRange;
     }
     public checkObjectIntersection(objectShape: Shape): boolean {
-        /*for (let i1: number = 0; i1 < this.edges.length; i1++) {
+        //if objects intersect (line intersect -> or ifPointIsBehindEdge method)
+        for (let i1: number = 0; i1 < this.edges.length; i1++) {
             let ifPointExistsBehind: boolean = false;
             for (let i2: number = 0; i2 < objectShape.points.length; i2++) {
                 if (
                     dotProduct(
-                        { x: objectShape.points[i2].x - this.globalPoints[i1].x, y: objectShape.points[i2].y - this.globalPoints[i1].y },
-                        rockEdgeOrthonormals[i1],
+                        { x: objectShape.points[i2].x - this.edges[i1].p1.x, y: objectShape.points[i2].y - this.edges[i1].p1.y },
+                        this.edges[i1].orthogonalVector,
                     ) <= 0
                 )
                     ifPointExistsBehind = true;
             }
             if (!ifPointExistsBehind) return false;
         }
-        return true;*/
+        return true;
 
-        //if objects intersect (line intersect <- or ifPointInside method)
-        for (let i1: number = 0; i1 < this.edges.length; i1++) {
+        /*for (let i1: number = 0; i1 < this.edges.length; i1++) {
             for (let i2: number = 0; i2 < objectShape.edges.length; i2++) {
                 if (ifIntersect(this.edges[i1].p1, this.edges[i1].p2, objectShape.edges[i2].p1, objectShape.edges[i2].p2)) {
                     return true;
                 }
             }
         }
-        return false;
+        return false;*/
     }
     public registerCollision(objectShape: Shape, momentum: Vector): { positionChange: Vector; momentumChange: Vector | undefined; angle: number | undefined } {
         let lowestEdge: DoodadEdge = this.edges[0];
@@ -129,7 +129,13 @@ export abstract class Doodad {
         let momentumChange: Vector = vectorProject(momentum, lowestEdge.slope);
 
         //return angle if the edge is a "standing" edge
-        let angle: number | undefined = lowestEdge.isGround ? lowestEdge.angle : undefined;
+        let angle: number | undefined = undefined;
+        if (lowestEdge.isGround) {
+            angle = lowestEdge.angle;
+            //and make the positionchange vertical
+            positionChange = rotateVector(-lowestEdge.angle, positionChange);
+        }
+
         return { positionChange, momentumChange, angle };
     }
 }

@@ -2,7 +2,7 @@ import { Size } from "../../../../size";
 import { Vector } from "../../../../vector";
 import { defaultActorConfig } from "../../actorConfig";
 import { ClientPlayer } from "../clientPlayer/clientPlayer";
-import { Model } from "./model";
+import { HealthBarType, Model } from "./model";
 
 export class PlayerModel extends Model {
     constructor(
@@ -12,8 +12,9 @@ export class PlayerModel extends Model {
         momentum: Vector,
         public size: Size,
         protected color: string,
+        healthBarType: HealthBarType,
     ) {
-        super(ctx, position, momentum);
+        super(ctx, position, momentum, healthBarType);
     }
 
     render() {

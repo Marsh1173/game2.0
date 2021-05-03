@@ -23,7 +23,15 @@ export abstract class ServerPlayer extends ServerActor {
         crouch: false,
     };
 
-    constructor(id: number, floor: ServerFloor, doodads: ServerDoodad[], protected color: string, protected name: string) {
+    constructor(
+        id: number,
+        floor: ServerFloor,
+        doodads: ServerDoodad[],
+        protected color: string,
+        protected name: string,
+        protected level: number,
+        protected spec: number,
+    ) {
         super("serverPlayer", id, { x: defaultActorConfig.playerStart.x, y: defaultActorConfig.playerStart.y }, defaultActorConfig.playerMaxHealth + 0, floor);
         this.actorObject = new PlayerObject(
             this,
@@ -36,6 +44,22 @@ export abstract class ServerPlayer extends ServerActor {
             },
             doodads,
         );
+    }
+
+    public getLevel(): number {
+        return this.level;
+    }
+
+    public getSpec(): number {
+        return this.spec;
+    }
+
+    public changeSpec(spec: number) {
+        this.spec = spec;
+    }
+
+    public getClassType(): ClassType {
+        return this.classType;
     }
 
     public crouch() {
@@ -80,24 +104,28 @@ export abstract class ServerPlayer extends ServerActor {
     serialize(): SerializedPlayer {
         return {
             id: this.id,
-            class: this.classType,
             position: this.position,
             momentum: this.momentum,
             health: this.health,
             name: this.name,
             color: this.color,
+            class: this.classType,
+            classLevel: this.level,
+            classSpec: this.spec,
         };
     }
 }
 
 export interface SerializedPlayer {
     id: number;
-    class: ClassType;
     position: Vector;
     momentum: Vector;
     health: number;
     name: string;
     color: string;
+    class: ClassType;
+    classLevel: number;
+    classSpec: number;
 }
 
 export interface ServerPlayerAction {
@@ -117,4 +145,26 @@ export interface PlayerLeave {
 export interface PlayerJoin {
     type: "playerJoin";
     playerInfo: SerializedPlayer;
+}
+
+export interface PlayerChangeSpec {
+    type: "playerChangeSpec";
+    playerId: number;
+    spec: number;
+}
+
+export interface PlayerLevelSet {
+    type: "playerLevelSet";
+    playerId: number;
+    playerLevel: number;
+    levelUp: boolean;
+}
+
+export interface PlayerSetXP {
+    type: "playerSetXP";
+    amount: number;
+}
+
+export interface PlayerAllowChooseSpec {
+    type: "playerAllowChooseSpec";
 }

@@ -1,31 +1,18 @@
-import { DoodadType } from "../../object/terrain/doodads/doodad";
+import { DoodadType } from "../../objects/terrain/doodads/doodad";
 import { ServerTalker } from "../servertalker";
 
-export type abilityImageName =
-    | "chainsIcon"
-    | "fireballIcon"
-    | "meteorStrikeIcon"
-    | "hammerIcon"
-    | "iceIcon"
-    | "shieldslamIcon"
-    | "shurikenIcon"
-    | "staffIcon"
-    | "stealthIcon"
-    | "poisonedSwordIcon"
-    | "axeIcon"
-    | "bowIcon"
-    | "fistIcon"
-    | "blizzardIcon"
-    | "healingAuraIcon"
-    | "chargeIcon";
+export type AbilityImageName = "swordBasicAttackIcon" | "nullLevel3" | "nullLevel6" | "nullLevel10";
 
-export type ImageName = DoodadType;
+export type ImageName = DoodadType | AbilityImageName;
 
 //let img: HTMLImageElement = assetManager.images["lavafly"];
 
-const imageInformation: Record<ImageName, string> = {
+export const imageInformation: Record<ImageName, string> = {
     rockLarge: `http://${ServerTalker.hostName}/images/rockDoodad.png`,
-    /*sword: `http://${ServerTalker.hostName}/images/sword.png`,*/
+    swordBasicAttackIcon: `http://${ServerTalker.hostName}/images/swordIcon.png`,
+    nullLevel3: `http://${ServerTalker.hostName}/images/hammerIcon.png`,
+    nullLevel6: `http://${ServerTalker.hostName}/images/daggersIcon.png`,
+    nullLevel10: `http://${ServerTalker.hostName}/images/emailIcon.png`,
 };
 
 class AssetManager {
@@ -34,10 +21,12 @@ class AssetManager {
 
     constructor() {
         this.images = {} as Record<ImageName, HTMLImageElement>;
-        Object.keys(imageInformation).forEach((imageName) => {
-            this.addImage(imageName as ImageName, imageInformation[imageName as ImageName]);
-        });
     }
+
+    public async loadAllNecessaryImages() {
+        await Promise.all(Object.keys(imageInformation).map((imageName) => this.addImage(imageName as ImageName, imageInformation[imageName as ImageName])));
+    }
+
     public async addImage(name: ImageName, source: string) {
         return new Promise<void>((resolve, reject) => {
             let xhr = new XMLHttpRequest();

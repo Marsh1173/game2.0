@@ -131,12 +131,14 @@ export class PlayerObject extends ActorObject {
         this.registerGravity(elapsedTime);
         this.updateTranslation(elapsedTime);
 
+        this.finalPositionUpdate(elapsedTime);
+
+        //registerTranslation or debuffs etc
+
         this.standing = false;
 
-        this.checkXBoundaryCollision(elapsedTime);
-        if (this.checkYBoundaryCollision(elapsedTime)) this.standing = true;
-
-        this.finalPositionUpdate(elapsedTime);
+        this.checkXBoundaryCollision();
+        if (this.checkYBoundaryCollision()) this.standing = true;
 
         this.checkDoodads();
 

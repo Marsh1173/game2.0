@@ -36,33 +36,43 @@ body {
 }*/
 #menuDiv {
     position: absolute;
-    left: 50%;
-    top: 30%;
-    transform: translateX(-150px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    left: calc(50% - 150px);
+    top: 20%;
+    width: 300px;
 }
 #startGameDiv {
-    position: absolute;
-    transform: skew(-5deg);
-    width: 300px;
+    transform: skew(-3deg);
     background: none;
-    border-radius: 6px;
     overflow: hidden;
+    border-radius: 6px;
+    width: 100%;
+    margin: 40px 0px;
 
     transition: transform 0.1s;
+}
+#startGameDiv:hover #startGame:active {
+    background-color: rgb(190, 255, 179);
+}
+#startGameDiv:hover #startGame {
+    background-color: rgb(39, 160, 23);
+}
+#startGameDiv:hover {
+    transform: translateX(5px) skew(-3deg);
+    background: rgb(126, 255, 109);
 }
 #startGame {
     --angle: 0deg;
     width: 100%;
-    height: 100%;
-    padding: 10px;
-    margin: 0px;
-    border-radius: 4px;
+    height: 80px;
     background-color: rgb(61, 201, 43);
     color: #1f2a31;
     font-size: 25pt;
-    box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.315);
+    box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.466);
 
-    border: 4px solid;
+    border: 5px solid;
     border-image: linear-gradient(var(--angle), rgb(45, 139, 29), rgb(187, 255, 178), rgb(45, 139, 29)) 1;
     animation: 3s rotate linear infinite;
 }
@@ -94,25 +104,10 @@ body {
     initial-value: 0deg;
     inherits: false;
 }
-#startGameDiv:hover #startGame:active {
-    background-color: rgb(190, 255, 179);
-}
-#startGameDiv:hover #startGame {
-    background-color: rgb(39, 160, 23);
-}
-#startGameDiv:hover {
-    transform: translateX(3px) skew(-5deg);
-    background: rgb(126, 255, 109);
-}
 #nameInputDiv {
-    display: flex;
-    flex-direction: row;
-    position: absolute;
-    transform: translateX(50px) translateY(105px);
-    width: 200px;
+    width: 220px;
     background-image: linear-gradient(to bottom, rgb(149, 150, 163), rgb(84, 84, 95));
     border-radius: 5px;
-    padding: 3px;
 }
 #nameInputDiv:hover,
 #nameInputDiv:focus-within,
@@ -126,23 +121,28 @@ body {
     background: rgb(112, 111, 100);
 }
 #name {
-    width: 100%;
+    margin: 3px;
+    width: calc(100% - 10px);
     outline: none;
     border: none;
     border-radius: 3px;
     background: rgb(100, 101, 112);
-    font-size: 15pt;
+    font-size: 18pt;
     text-align: center;
     box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.315);
 }
+#personalization {
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    width: 220px;
+}
 #teamMenu,
 #colorMenuDiv {
-    position: absolute;
     border-radius: 4px;
     border: none;
 }
 #colorMenuDiv {
-    transform: translateX(50px) translateY(140px);
     width: 60px;
     height: 30px;
     background-image: linear-gradient(to bottom, rgb(123, 124, 133), rgb(84, 84, 95));
@@ -162,7 +162,6 @@ body {
 #teamMenu {
     display: flex;
     flex-direction: row;
-    transform: translateX(161px) translateY(140px);
     width: 90px;
     background-image: linear-gradient(to bottom, rgb(123, 124, 133), rgb(84, 84, 95));
     padding: 3px;
@@ -186,70 +185,223 @@ body {
 .selectedTeam {
     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.548);
 }
-#optionsDiv {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    position: absolute;
-    transform: translateX(10px) translateY(10px);
-    width: 30px;
-    border-radius: 20px;
-    border: 1px solid rgb(51, 55, 97);
-    padding: 3px;
-}
-#infoOption {
-    color: rgb(124, 125, 138);
-    font-size: 22.5pt;
-    font-weight: bold;
-}
-#infoOption:hover {
-    color: rgb(225, 226, 235);
-}
-#settingsOption {
-    filter: invert(51%) sepia(18%) saturate(187%) hue-rotate(198deg) brightness(93%) contrast(96%);
-    width: 30px;
-    height: 30px;
-}
-#settingsOption:hover {
-    filter: invert(99%) sepia(1%) saturate(212%) hue-rotate(14deg) brightness(115%) contrast(100%);
-}
+
+/*CLASS ELEMENT STYLES*/
+
 #classMenuDiv {
+    margin-top: 20px;
     display: flex;
     justify-content: space-evenly;
-    position: absolute;
-    transform: translateY(200px);
-    width: 306px;
+    width: 100%;
 }
 .classOptionBorder {
-    width: 50px;
-    height: 50px;
-    padding: 3px;
+    padding: 5px;
+    width: 72px;
+    height: 72px;
     border: none;
     border-radius: 100px;
     background-image: linear-gradient(to bottom, rgb(149, 150, 163), rgb(84, 84, 95));
 }
 .classOptionBorder:hover,
-.selected {
+#classMenuDiv .selected {
     background-image: linear-gradient(to bottom, rgb(250, 234, 165), rgb(160, 101, 13));
 }
-.selected {
-    box-shadow: 0px -3px 8px rgba(223, 220, 201, 0.295);
+#classMenuDiv .selected {
+    box-shadow: 0px -3px 8px rgba(223, 220, 201, 0.397);
+}
+.classOption:active {
+    background-image: linear-gradient(to bottom, rgb(69, 70, 77), rgb(126, 127, 139));
 }
 .classOption {
-    width: 100%;
-    height: 100%;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
     background-image: linear-gradient(to bottom, rgb(94, 96, 107), rgb(126, 127, 139));
     border: none;
     border-radius: 100px;
-    text-align: center;
+    padding: 5px;
 }
 .selected .classOption {
     background-image: linear-gradient(to top, rgb(136, 135, 127), rgb(117, 114, 93));
 }
 .classIcon {
-    width: calc(100% - 10px);
-    height: calc(100% - 10px);
-    margin: 5px;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+.classLevel {
+    transform: translateX(25px) translateY(-9px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.514);
+    border-radius: 30px;
+    background-image: linear-gradient(to bottom, rgb(94, 96, 107), rgb(126, 127, 139));
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    color: rgb(209, 186, 81);
+}
+
+/*OPTION MENU ELEMENT STYLES*/
+
+#optionsDiv {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    transform: translateX(10px) translateY(10px);
+}
+#optionIcons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30px;
+    padding: 10px;
+}
+#optionIcons hr {
+    width: 100%;
+    background-color: rgb(97, 97, 105);
+    height: 1px;
+    border: none;
+}
+#infoOption,
+#tipsOption {
+    color: rgb(124, 125, 138);
+    font-size: 22pt;
+    font-weight: bold;
+    text-align: center;
+}
+#infoOption.selected,
+#tipsOption.selected {
+    color: rgb(225, 226, 235);
+}
+#settingsOption.selected #settingsOptionImage,
+#emailOption.selected #emailOptionImage {
+    filter: invert(99%) sepia(1%) saturate(212%) hue-rotate(14deg) brightness(115%) contrast(100%);
+}
+#settingsOptionImage,
+#emailOptionImage {
+    filter: invert(51%) sepia(18%) saturate(187%) hue-rotate(198deg) brightness(93%) contrast(96%);
+    width: 30px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+#emailOptionImage {
+    margin-top: 4px;
+}
+#optionsTooltip {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    height: 150px;
+    transform: translateX(-40px);
+    border-radius: 5px;
+
+    transition: transform 0.3s;
+}
+#optionsDiv:hover #optionsTooltip {
+    transform: translateX(-5px);
+    border-left: 2px solid rgb(122, 122, 122);
+}
+#optionsTooltip p {
+    font-size: 15pt;
+    font-weight: 300;
+    color: rgba(0, 0, 0, 0);
+    padding: 3px;
+
+    transition: color 0.1s;
+}
+#optionsDiv:hover #optionsTooltip p {
+    color: rgb(122, 122, 122);
+}
+#optionsDiv:hover #optionsTooltip p:hover {
+    color: white;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+#screenCover {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.336);
+    display: none;
+}
+
+/*COMMENT DIV ELEMENT STYLES*/
+
+#commentDiv,
+#informationDiv {
+    display: none;
+    position: absolute;
+    left: calc(50% - 250px);
+    top: 30%;
+    width: 500px;
+    height: 300px;
+    border: none;
+    border-radius: 6px;
+    background-image: linear-gradient(rgb(148, 148, 148), rgb(112, 112, 112));
+    flex-direction: column;
+    align-items: center;
+}
+#comment {
+    width: 90%;
+    height: 70%;
+    resize: none;
+    margin-top: 20px;
+    padding: 5px;
+    outline: none;
+    border-radius: 5px;
+    border: none;
+    font-size: 14pt;
+    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.466);
+}
+#comment:focus::placeholder {
+    color: transparent;
+}
+#submitComment {
+    width: 50%;
+    border: 2px solid rgb(78, 78, 78);
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 14pt;
+    background-image: linear-gradient(rgb(45, 173, 23), rgb(45, 139, 29));
+}
+#submitComment:hover {
+    background-image: linear-gradient(rgb(50, 150, 32), rgb(51, 128, 37));
+}
+#emailSender {
+    position: absolute;
+    top: 20%;
+    left: 500px;
+    height: 100px;
+    width: 300px;
+}
+
+/*INFORMATION DIV ELEMENT STYLES*/
+
+#informationDiv {
+    color: rgb(208, 230, 255);
+    top: 10%;
+    height: 600px;
+    background-image: linear-gradient(rgb(54, 54, 54), rgb(34, 34, 34));
+}
+#informationDiv h3 {
+    margin-top: 20px;
+    font-weight: 100;
+}
+#informationDiv a {
+    color: rgb(0, 102, 255);
+}
+#informationDiv hr {
+    width: 80%;
+    margin-top: 45%;
+    background-color: rgb(97, 97, 105);
+    height: 3px;
+    border: none;
 }
 
 /* game layers*/
@@ -315,4 +467,97 @@ body {
 #end:hover {
     background-color: rgb(255, 68, 68);
     color: white;
+}
+
+/*USER INTERFACE STYLES*/
+
+#UserInterfaceDiv {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+#mainBarDiv {
+    position: absolute;
+    width: 400px;
+    height: 105px;
+    bottom: 0%;
+    left: calc(50% - 200px);
+}
+#abilityDiv {
+    width: 100%;
+    height: 72%;
+    display: flex;
+    justify-content: space-between;
+}
+.abilityIcon {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 6px);
+    border-radius: 5px;
+    background-image: linear-gradient(to bottom, rgb(124, 124, 124), rgb(70, 70, 70));
+    margin: 1px;
+    padding: 3px;
+}
+.abilityKeyToolTip {
+    position: absolute;
+    top: 0px;
+    left: calc(100% - 30px);
+    width: 30px;
+    height: 13px;
+    background-color: rgba(80, 80, 80, 0.452);
+    color: rgb(0, 0, 0);
+    font-size: 8pt;
+    text-align: center;
+    border: none;
+    border-radius: 0px 0px 0px 4px;
+}
+.abilityIconCanvas,
+.abilityImage {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 89%;
+    background-color: rgba(39, 39, 39, 0.452);
+    border-radius: 5px;
+}
+#statusDiv {
+    width: 100%;
+    height: 28%;
+}
+#healthDiv {
+    width: 100%;
+    height: 85%;
+    background-color: rgb(36, 36, 36);
+    border-radius: 5px;
+    overflow: hidden;
+}
+#healthCanvas {
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border-radius: 5px;
+    margin: 2px;
+    background: rgba(3, 82, 0, 0.411);
+}
+#levelDiv {
+    width: 100%;
+    height: 15%;
+    background-color: rgb(36, 36, 36);
+}
+#currentXp {
+    width: 80%;
+    height: 100%;
+    background-image: linear-gradient(to bottom, rgb(194, 174, 0), rgb(110, 70, 9));
+    border-radius: 0px 5px 5px 0px;
+}
+#currentLevel {
+    position: absolute;
+    transform: translateX(-26px) translateY(-26px);
+    background-color: rgba(0, 0, 0, 0.562);
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(179, 168, 65, 0.678);
+    border-radius: 7px 7px 0px 7px;
+    color: rgb(160, 160, 160);
+    text-align: center;
 }

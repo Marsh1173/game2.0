@@ -2,11 +2,13 @@ import { AllInfo } from "../api/allinfo";
 import { ClientMessage, InfoMessage, PlayerLeavingMessage, ServerMessage } from "../api/message";
 import { Vector } from "../vector";
 import { Config } from "../config";
-import { ServerFloor } from "../object/terrain/floor/serverFloor";
-import { ClassType, ServerPlayer } from "../object/newActors/serverActors/serverPlayer/serverPlayer";
-import { ServerSword } from "../object/newActors/serverActors/serverPlayer/serverClasses/serverSword";
-import { defaultActorConfig } from "../object/newActors/actorConfig";
-import { ServerDoodad } from "../object/terrain/doodads/serverDoodad";
+import { ServerFloor } from "../objects/terrain/floor/serverFloor";
+import { ClassType, ServerPlayer } from "../objects/newActors/serverActors/serverPlayer/serverPlayer";
+import { ServerSword } from "../objects/newActors/serverActors/serverPlayer/serverClasses/serverSword";
+import { defaultActorConfig } from "../objects/newActors/actorConfig";
+import { ServerDoodad } from "../objects/terrain/doodads/serverDoodad";
+import { ServerDaggers } from "../objects/newActors/serverActors/serverPlayer/serverClasses/serverDaggers";
+import { ServerHammer } from "../objects/newActors/serverActors/serverPlayer/serverClasses/serverHammer";
 
 export class Game {
     private intervalId?: NodeJS.Timeout;
@@ -21,6 +23,9 @@ export class Game {
         Object.values(Game.clientMap).forEach((sendFunction) => {
             sendFunction(msg);
         });
+    }
+    public static privateMessage(msg: ServerMessage, clientId: number) {
+        Game.clientMap[clientId](msg);
     }
 
     constructor(public readonly config: Config) {
@@ -74,8 +79,12 @@ export class Game {
         this.players.forEach((player) => player.update(elapsedTime));
     }
 
-    public newPlayer(id: number, name: string, color: string, team: number, classType: ClassType) {
-        let newPlayer = this.createNewPlayer(id, name, color, team, classType);
+    public newPlayer(id: number, name: string, color: string, team: number, classType: ClassType, classLevel: number, classSpec: number) {
+        if (classLevel < 3 || classSpec > 2) {
+            classSpec = 0;
+        }
+
+        let newPlayer = this.createNewPlayer(id, name, color, team, classType, classLevel, classSpec);
         this.players.push(newPlayer);
 
         Game.broadcastMessage({
@@ -88,18 +97,20 @@ export class Game {
                 health: defaultActorConfig.playerMaxHealth,
                 name,
                 color,
+                classLevel,
+                classSpec,
             },
         });
     }
 
-    public createNewPlayer(id: number, name: string, color: string, team: number, classType: ClassType): ServerPlayer {
+    public createNewPlayer(id: number, name: string, color: string, team: number, classType: ClassType, classLevel: number, classSpec: number): ServerPlayer {
         switch (classType) {
             case "sword":
-                return new ServerSword(id, this.floor, this.doodads, color, name);
+                return new ServerSword(id, this.floor, this.doodads, color, name, classLevel, classSpec);
             case "daggers":
-                return new ServerSword(id, this.floor, this.doodads, color, name); // SHOULD BE CHANGED TO DAGGERS
+                return new ServerDaggers(id, this.floor, this.doodads, color, name, classLevel, classSpec); // SHOULD BE CHANGED TO DAGGERS
             case "hammer":
-                return new ServerSword(id, this.floor, this.doodads, color, name); // SHOULD BE CHANGED TO HAMMER
+                return new ServerHammer(id, this.floor, this.doodads, color, name, classLevel, classSpec); // SHOULD BE CHANGED TO HAMMER
             default:
                 throw new Error("unknown player class type " + classType);
         }
@@ -129,6 +140,12 @@ export class Game {
                 if (player) {
                     player.updatePositionAndMomentum(data.momentum, data.position);
                     player.actionsNextFrame[data.actionType] = data.starting;
+                }
+                if (data.actionType === "crouch") {
+                    //private message testing
+                    /*Game.privateMessage({
+                        type: ""
+                    }, data.playerId);*/
                 }
                 break;
             default:
