@@ -476,88 +476,25 @@ body {
     width: 100%;
     height: 100%;
 }
-#mainBarDiv {
+#portraitCanvas {
     position: absolute;
+    height: 50px;
+    bottom: 40px;
+    width: 50px;
+    left: 20px;
+}
+#abilityCanvas {
+    position: absolute;
+    height: 120px;
+    bottom: 25px;
     width: 400px;
-    height: 105px;
-    bottom: 0%;
-    left: calc(50% - 200px);
-}
-#abilityDiv {
-    width: 100%;
-    height: 72%;
-    display: flex;
-    justify-content: space-between;
-}
-.abilityIcon {
-    position: relative;
-    width: 100%;
-    height: calc(100% - 6px);
-    border-radius: 5px;
-    background-image: linear-gradient(to bottom, rgb(124, 124, 124), rgb(70, 70, 70));
-    margin: 1px;
-    padding: 3px;
-}
-.abilityKeyToolTip {
-    position: absolute;
-    top: 0px;
-    left: calc(100% - 30px);
-    width: 30px;
-    height: 13px;
-    background-color: rgba(80, 80, 80, 0.452);
-    color: rgb(0, 0, 0);
-    font-size: 8pt;
-    text-align: center;
-    border: none;
-    border-radius: 0px 0px 0px 4px;
-}
-.abilityIconCanvas,
-.abilityImage {
-    position: absolute;
-    top: 5%;
-    left: 5%;
-    width: 90%;
-    height: 89%;
-    background-color: rgba(39, 39, 39, 0.452);
-    border-radius: 5px;
-}
-#statusDiv {
-    width: 100%;
-    height: 28%;
-}
-#healthDiv {
-    width: 100%;
-    height: 85%;
-    background-color: rgb(36, 36, 36);
-    border-radius: 5px;
-    overflow: hidden;
+    left: calc(50% - 150px);
 }
 #healthCanvas {
-    width: calc(100% - 4px);
-    height: calc(100% - 4px);
-    border-radius: 5px;
-    margin: 2px;
-    background: rgba(3, 82, 0, 0.411);
-}
-#levelDiv {
-    width: 100%;
-    height: 15%;
-    background-color: rgb(36, 36, 36);
-}
-#currentXp {
-    width: 80%;
-    height: 100%;
-    background-image: linear-gradient(to bottom, rgb(194, 174, 0), rgb(110, 70, 9));
-    border-radius: 0px 5px 5px 0px;
-}
-#currentLevel {
     position: absolute;
-    transform: translateX(-26px) translateY(-26px);
-    background-color: rgba(0, 0, 0, 0.562);
-    width: 22px;
-    height: 22px;
-    border: 2px solid rgba(179, 168, 65, 0.678);
-    border-radius: 7px 7px 0px 7px;
-    color: rgb(160, 160, 160);
-    text-align: center;
+    transform: skewX(-5deg);
+    height: 75px;
+    bottom: 40px;
+    width: 250px;
+    left: 80px;
 }

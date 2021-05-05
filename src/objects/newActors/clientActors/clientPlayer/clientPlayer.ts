@@ -1,7 +1,9 @@
+import { Game } from "../../../../client/game";
 import { Size } from "../../../../size";
 import { Vector } from "../../../../vector";
 import { ClientDoodad } from "../../../terrain/doodads/clientDoodad";
 import { ClientFloor } from "../../../terrain/floor/clientFloor";
+import { ActorType } from "../../actor";
 import { defaultActorConfig } from "../../actorConfig";
 import { PlayerObject } from "../../actorObjects/playerObject";
 import { ClassType, PlayerActionType, SerializedPlayer } from "../../serverActors/serverPlayer/serverPlayer";
@@ -14,7 +16,10 @@ export abstract class ClientPlayer extends ClientActor {
     model: PlayerModel;
 
     public abstract classType: ClassType;
-
+    protected readonly color: string;
+    protected readonly name: string;
+    protected level: number;
+    protected spec: number;
     public actionsNextFrame: Record<PlayerActionType, boolean> = {
         jump: false,
         moveRight: false,
@@ -22,25 +27,27 @@ export abstract class ClientPlayer extends ClientActor {
         crouch: false,
     };
 
-    constructor(
-        id: number,
-        position: Vector,
-        momentum: Vector,
-        health: number,
-        ctx: CanvasRenderingContext2D,
-        floor: ClientFloor,
-        doodads: ClientDoodad[],
-        protected readonly color: string,
-        protected readonly name: string,
-        protected level: number,
-        protected spec: number,
-    ) {
-        super("clientPlayer", id, position, momentum, health, 100, floor);
+    constructor(game: Game, playerInfo: SerializedPlayer, actorType: ActorType) {
+        super(game, actorType, playerInfo.id, playerInfo.position, playerInfo.momentum, playerInfo.healthInfo);
+
+        this.color = playerInfo.color;
+        this.name = playerInfo.name;
+        this.level = playerInfo.classLevel;
+        this.spec = playerInfo.classSpec;
 
         let playerSizePointer: Size = { width: defaultActorConfig.playerSize.width + 0, height: defaultActorConfig.playerSize.height + 0 };
 
-        this.model = new PlayerModel(this, ctx, position, momentum, playerSizePointer, this.color, "ally");
-        this.actorObject = new PlayerObject(this, this.position, this.momentum, this.floor, playerSizePointer, doodads);
+        this.model = new PlayerModel(
+            this,
+            game.getActorCtx(),
+            playerInfo.position,
+            playerInfo.momentum,
+            playerSizePointer,
+            this.color,
+            this.healthInfo,
+            game.getActorSide(this.id),
+        );
+        this.actorObject = new PlayerObject(game.getGlobalObjects(), this, this.position, this.momentum, playerSizePointer);
     }
 
     public getLevel(): number {
@@ -136,4 +143,10 @@ export interface ClientPlayerAction {
     starting: boolean;
     position: Vector;
     momentum: Vector;
+}
+
+export interface ClientPlayerClick {
+    type: "clientPlayerClick";
+    playerId: number;
+    leftClick: boolean;
 }

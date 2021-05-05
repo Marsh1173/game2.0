@@ -1,3 +1,4 @@
+import { GlobalObjects } from "../../../client/game";
 import { defaultConfig } from "../../../config";
 import { Size } from "../../../size";
 import { rotateVector, Shape, Vector } from "../../../vector";
@@ -25,13 +26,12 @@ export abstract class ActorObject {
     };
 
     constructor(
+        protected globalObjects: GlobalObjects,
         protected readonly baseActor: Actor,
         protected readonly position: Vector,
         protected readonly momentum: Vector,
         protected size: Size,
         protected mass: number,
-        protected floor: Floor,
-        protected doodads: Doodad[],
     ) {}
 
     public abstract getGlobalShape(): Shape;
@@ -50,6 +50,11 @@ export abstract class ActorObject {
     protected registerAirResistance(elapsedTime: number) {
         this.momentum.x *= Math.pow(0.9, elapsedTime * this.mass);
         this.momentum.y *= Math.pow(0.9, elapsedTime * this.mass);
+    }
+
+    public registerKnockback(force: Vector) {
+        this.momentum.x = (force.x * 3 + this.momentum.x) / 4;
+        this.momentum.y = (force.y * 3 + this.momentum.y) / 4;
     }
 
     protected checkXBoundaryCollision() {
@@ -87,7 +92,7 @@ export abstract class ActorObject {
     private checkPlatformCollision(elapsedTime: number) {}
 
     protected checkGroundCollision(elapsedTime: number): { hit: boolean; angle: number } {
-        let data: { yCoord: number; angle: number } = this.floor.getYCoordAndAngle(this.position.x);
+        let data: { yCoord: number; angle: number } = this.globalObjects.floor.getYCoordAndAngle(this.position.x);
         let feetPos: number = this.position.y + this.size.height / 2;
         let ifHit: boolean = false;
         if (data.yCoord < feetPos) {
@@ -100,7 +105,7 @@ export abstract class ActorObject {
 
     protected checkDoodads() {
         let actorShape: Shape = this.getGlobalShape();
-        this.doodads.forEach((doodad) => {
+        this.globalObjects.doodads.forEach((doodad) => {
             this.checkDoodadCollision(actorShape, doodad);
         });
     }

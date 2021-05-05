@@ -5,13 +5,10 @@ import { defaultConfig } from "../../../../config";
 import { defaultActorConfig } from "../../actorConfig";
 import { ClassType } from "../../serverActors/serverPlayer/serverPlayer";
 import { ClientPlayer } from "../clientPlayer/clientPlayer";
+import { UserInterface } from "./userInterface";
 
 export class Controller {
     public readonly keyState: Record<string, boolean> = {};
-
-    protected XPtoNextLevel: number;
-    protected currentXP: number = 0;
-    protected currentLevel: number;
 
     protected config = defaultConfig;
 
@@ -21,110 +18,38 @@ export class Controller {
     protected wasMovingLeft: boolean = false;
     protected wasCrouching: boolean = false;
 
-    protected readonly XPbarElement: HTMLElement = safeGetElementById("currentXp");
-    protected readonly levelCountElement: HTMLElement = safeGetElementById("currentLevel");
-
-    protected readonly abilityImageElements: HTMLImageElement[] = [
-        safeGetElementById("ability1Img") as HTMLImageElement,
-        safeGetElementById("ability2Img") as HTMLImageElement,
-        safeGetElementById("ability3Img") as HTMLImageElement,
-        safeGetElementById("ability4Img") as HTMLImageElement,
-        safeGetElementById("ability5Img") as HTMLImageElement,
-    ];
-    protected readonly abilityIconCanvases: CanvasRenderingContext2D[] = [
-        (safeGetElementById("ability1Canvas") as HTMLCanvasElement).getContext("2d")!,
-        (safeGetElementById("ability2Canvas") as HTMLCanvasElement).getContext("2d")!,
-        (safeGetElementById("ability3Canvas") as HTMLCanvasElement).getContext("2d")!,
-        (safeGetElementById("ability4Canvas") as HTMLCanvasElement).getContext("2d")!,
-        (safeGetElementById("ability5Canvas") as HTMLCanvasElement).getContext("2d")!,
-    ];
-    protected readonly abilityIconBorders: HTMLElement[] = [
-        safeGetElementById("ability1Div"),
-        safeGetElementById("ability2Div"),
-        safeGetElementById("ability3Div"),
-        safeGetElementById("ability4Div"),
-        safeGetElementById("ability5Div"),
-    ];
+    protected userInterface: UserInterface;
 
     constructor(protected player: ClientPlayer, protected game: Game) {
-        this.currentLevel = this.player.getLevel();
-        this.XPtoNextLevel = defaultActorConfig.XPPerLevel * Math.pow(defaultActorConfig.LevelXPMultiplier, this.currentLevel);
-        this.levelCountElement.innerText = String(this.currentLevel);
-        this.updateXPbar(0);
-        //this.updateAbilityImages();
+        this.userInterface = new UserInterface(player);
+        this.updateAbilityImages();
     }
 
     public updateXPbar(xpAmount: number) {
-        this.currentXP = xpAmount;
-        this.XPbarElement.style.width = String(Math.min(Math.floor((this.currentXP * 100) / this.XPtoNextLevel), 100)) + "%";
+        this.userInterface.updateXPbar(xpAmount);
     }
 
     public levelUp(level: number) {
-        this.currentLevel = level;
-        this.XPtoNextLevel = defaultActorConfig.XPPerLevel * Math.pow(defaultActorConfig.LevelXPMultiplier, this.currentLevel);
-        this.levelCountElement.innerText = String(this.currentLevel);
-
-        this.updateXPbar(0);
+        this.userInterface.levelUp(level);
     }
 
-    protected updateAbilityImages() {
-        var classType: ClassType = this.player.getClassType();
-        var images: AbilityImageName[] = ["swordBasicAttackIcon", "nullLevel3", "nullLevel6", "nullLevel6", "nullLevel10"];
-        switch (classType) {
-            case "sword":
-                images[0] = "swordBasicAttackIcon";
-                if (this.currentLevel >= 3) {
-                    images[1] = "nullLevel3";
-                    if (this.currentLevel >= 6) {
-                        images[2] = "nullLevel6";
-                        images[3] = "nullLevel6";
-                        if (this.currentLevel >= 10) {
-                            images[4] = "nullLevel10";
-                        }
-                    }
-                }
-                break;
-            case "daggers":
-                images[0] = "swordBasicAttackIcon";
-                if (this.currentLevel >= 3) {
-                    images[1] = "nullLevel3";
-                    if (this.currentLevel >= 6) {
-                        images[2] = "nullLevel6";
-                        images[3] = "nullLevel6";
-                        if (this.currentLevel >= 10) {
-                            images[4] = "nullLevel10";
-                        }
-                    }
-                }
-                break;
-            case "hammer":
-                images[0] = "swordBasicAttackIcon";
-                if (this.currentLevel >= 3) {
-                    images[1] = "nullLevel3";
-                    if (this.currentLevel >= 6) {
-                        images[2] = "nullLevel6";
-                        images[3] = "nullLevel6";
-                        if (this.currentLevel >= 10) {
-                            images[4] = "nullLevel10";
-                        }
-                    }
-                }
-                break;
-            default:
-                throw new Error("unknown class type " + classType);
-        }
-
-        for (let i: number = 0; i < 5; i++) {
-            this.abilityImageElements[i].src = imageInformation[images[i]];
-        }
-    }
+    protected updateAbilityImages() {}
 
     public registerMouseDown(e: MouseEvent) {
         if (e.button === 0) {
-            let dmg: number = Math.random() * 20;
-            this.player.model.health -= dmg;
-            this.player.model.registerDamage(dmg);
+            this.game.serverTalker.sendMessage({
+                type: "clientPlayerClick",
+                playerId: this.player.getActorId(),
+                leftClick: true,
+            });
+            //broadcast send message damage
         } else if (e.button === 2) {
+            this.game.serverTalker.sendMessage({
+                type: "clientPlayerClick",
+                playerId: this.player.getActorId(),
+                leftClick: false,
+            });
+            //broadcast send message heal
         }
     }
     public registerMouseUp(e: MouseEvent) {
@@ -219,5 +144,9 @@ export class Controller {
             }
             this.keyState[this.config.playerKeys.up] = false;
         }
+    }
+
+    public update(elapsedTime: number) {
+        this.userInterface.updateAndRender();
     }
 }

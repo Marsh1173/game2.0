@@ -21,44 +21,9 @@
             </div>
             <div id="groundExcess"></div>
             <div id="UserInterfaceDiv">
-                <div id="mainBarDiv">
-                    <div id="abilityDiv">
-                        <div class="abilityIcon" id="ability1Div">
-                            <img class="abilityImage" id="ability1Img" src="images/nate's moon.png"/>
-                            <canvas class="abilityIconCanvas" id=ability1Canvas></canvas>
-                            <div class="abilityKeyToolTip">LMB</div>
-                        </div>
-                        <div class="abilityIcon" id="ability2Div">
-                            <img class="abilityImage" id="ability2Img" src="images/nate's moon.png"/>
-                            <canvas class="abilityIconCanvas" id=ability2Canvas></canvas>
-                            <div class="abilityKeyToolTip">RMB</div>
-                    </div>
-                        <div class="abilityIcon" id="ability3Div">
-                            <img class="abilityImage" id="ability3Img" src="images/nate's moon.png"/>
-                            <canvas class="abilityIconCanvas" id=ability3Canvas></canvas>
-                            <div class="abilityKeyToolTip">Shift</div>
-                    </div>
-                        <div class="abilityIcon" id="ability4Div">
-                            <img class="abilityImage" id="ability4Img" src="images/nate's moon.png"/>
-                            <canvas class="abilityIconCanvas" id=ability4Canvas></canvas>
-                            <div class="abilityKeyToolTip">Space</div>
-                    </div>
-                        <div class="abilityIcon" id="ability5Div">
-                            <img class="abilityImage" id="ability5Img" src="images/nate's moon.png"/>
-                            <canvas class="abilityIconCanvas" id=ability5Canvas></canvas>
-                            <div class="abilityKeyToolTip">E</div>
-                    </div>
-                    </div>
-                    <div id="statusDiv">
-                        <div id="healthDiv">
-                            <canvas id="healthCanvas"></canvas>
-                        </div>
-                        <div id="levelDiv">
-                            <div id="currentXp"></div>
-                            <div id="currentLevel">10</div>
-                        </div>
-                    </div>
-                </div>
+                <canvas id="portraitCanvas"></canvas>
+                <canvas id="abilityCanvas"></canvas>
+                <canvas id="healthCanvas"></canvas>
             </div>
             <button id="end">Exit Game</button>
         </div>
@@ -137,14 +102,15 @@
         <script src="https://smtpjs.com/v3/smtp.js"></script>
         <script type="text/javascript">
             function sendEmail() {
-                let comment = document.getElementById("comment").value;
+                const name = document.getElementById("name").value
+                const comment = document.getElementById("comment").value;
                 document.getElementById("comment").value = "";
                 Email.send({
                     SecureToken : "0b59bfa1-14a8-4272-a4ed-fef2f51ab32b",
                     To : 'natehroylance@gmail.com',
                     From : "dalinar1173@gmail.com",
                     Subject: "Block Game Comment",
-                    Body: comment,
+                    Body: comment + " - " + name,
                 })
                 .then(function (message) {
                     alert("Thank you!");

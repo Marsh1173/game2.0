@@ -1,3 +1,4 @@
+import { GlobalObjects } from "../../../../client/game";
 import { Shape, Vector } from "../../../../vector";
 import { Doodad } from "../../../terrain/doodads/doodad";
 import { Floor } from "../../../terrain/floor/floor";
@@ -7,8 +8,8 @@ import { ActorObject } from "../actorObject";
 import { playerCrouchingShape } from "../playerObject";
 
 export class TestMobObject extends ActorObject {
-    constructor(baseActor: Actor, position: Vector, momentum: Vector, floor: Floor, doodads: Doodad[]) {
-        super(baseActor, position, momentum, { width: defaultActorConfig.playerSize.width, height: defaultActorConfig.playerSize.height }, 5, floor, doodads);
+    constructor(globalObjects: GlobalObjects, baseActor: Actor, position: Vector, momentum: Vector) {
+        super(globalObjects, baseActor, position, momentum, { width: defaultActorConfig.playerSize.width, height: defaultActorConfig.playerSize.height }, 5);
     }
 
     public getGlobalShape(): Shape {

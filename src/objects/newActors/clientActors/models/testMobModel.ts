@@ -1,9 +1,9 @@
 import { Vector } from "../../../../vector";
-import { HealthBarType, Model } from "./model";
+import { SideType, Model } from "./model";
 
 export class TestMobModel extends Model {
-    constructor(ctx: CanvasRenderingContext2D, position: Vector, momentum: Vector, healthBarType: HealthBarType) {
-        super(ctx, position, momentum, healthBarType);
+    constructor(ctx: CanvasRenderingContext2D, position: Vector, momentum: Vector, healthInfo: { health: number; maxHealth: number }, healthBarType: SideType) {
+        super(ctx, position, momentum, healthInfo, healthBarType);
     }
 
     render() {}

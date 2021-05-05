@@ -9,14 +9,15 @@ import { defaultActorConfig } from "../objects/newActors/actorConfig";
 import { ServerDoodad } from "../objects/terrain/doodads/serverDoodad";
 import { ServerDaggers } from "../objects/newActors/serverActors/serverPlayer/serverClasses/serverDaggers";
 import { ServerHammer } from "../objects/newActors/serverActors/serverPlayer/serverClasses/serverHammer";
+import { GlobalObjects } from "../client/game";
 
 export class Game {
     private intervalId?: NodeJS.Timeout;
     private static readonly REFRESH_RATE = 16;
 
     public players: ServerPlayer[] = [];
-    private floor: ServerFloor = new ServerFloor(this.config.xSize, this.config.ySize);
-    private doodads: ServerDoodad[] = [];
+    private readonly floor: ServerFloor = new ServerFloor(this.config.xSize, this.config.ySize);
+    private readonly doodads: ServerDoodad[] = [];
 
     public static readonly clientMap: Record<number, (message: ServerMessage) => void> = {};
     public static broadcastMessage(msg: ServerMessage) {
@@ -94,7 +95,7 @@ export class Game {
                 class: classType,
                 position: defaultActorConfig.playerStart,
                 momentum: { x: 0, y: 0 },
-                health: defaultActorConfig.playerMaxHealth,
+                healthInfo: { health: newPlayer.getHealth(), maxHealth: newPlayer.getMaxHealth() },
                 name,
                 color,
                 classLevel,
@@ -106,11 +107,11 @@ export class Game {
     public createNewPlayer(id: number, name: string, color: string, team: number, classType: ClassType, classLevel: number, classSpec: number): ServerPlayer {
         switch (classType) {
             case "sword":
-                return new ServerSword(id, this.floor, this.doodads, color, name, classLevel, classSpec);
+                return new ServerSword(this, id, color, name, classLevel, classSpec);
             case "daggers":
-                return new ServerDaggers(id, this.floor, this.doodads, color, name, classLevel, classSpec); // SHOULD BE CHANGED TO DAGGERS
+                return new ServerDaggers(this, id, color, name, classLevel, classSpec);
             case "hammer":
-                return new ServerHammer(id, this.floor, this.doodads, color, name, classLevel, classSpec); // SHOULD BE CHANGED TO HAMMER
+                return new ServerHammer(this, id, color, name, classLevel, classSpec);
             default:
                 throw new Error("unknown player class type " + classType);
         }
@@ -141,15 +142,25 @@ export class Game {
                     player.updatePositionAndMomentum(data.momentum, data.position);
                     player.actionsNextFrame[data.actionType] = data.starting;
                 }
-                if (data.actionType === "crouch") {
-                    //private message testing
-                    /*Game.privateMessage({
-                        type: ""
-                    }, data.playerId);*/
+                break;
+            case "clientPlayerClick":
+                let damagingPlayer: ServerPlayer = this.players.find((player) => player.getActorId() === data.playerId)!;
+                if (damagingPlayer) {
+                    this.players.forEach((targetPlayer) => {
+                        if (data.leftClick) targetPlayer.registerDamage(damagingPlayer, Math.ceil(Math.random() * 25), undefined, undefined);
+                        else targetPlayer.registerHeal(Math.ceil(Math.random() * 15));
+                    });
                 }
                 break;
             default:
                 throw new Error(`Invalid client message type`);
         }
+    }
+
+    public getGlobalObjects(): GlobalObjects {
+        return {
+            floor: this.floor,
+            doodads: this.doodads,
+        };
     }
 }

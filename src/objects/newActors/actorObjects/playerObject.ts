@@ -1,4 +1,5 @@
 import e = require("express");
+import { GlobalObjects } from "../../../client/game";
 import { defaultConfig } from "../../../config";
 import { Size } from "../../../size";
 import { rotateVector, Shape, Vector } from "../../../vector";
@@ -21,8 +22,8 @@ export class PlayerObject extends ActorObject {
     public crouching: boolean = false;
     public standing: boolean = false;
 
-    constructor(baseActor: ClientPlayer | ServerPlayer, position: Vector, momentum: Vector, floor: Floor, public size: Size, doodads: Doodad[]) {
-        super(baseActor, position, momentum, size, defaultActorConfig.playerMass + 0, floor, doodads);
+    constructor(globalObjects: GlobalObjects, baseActor: ClientPlayer | ServerPlayer, position: Vector, momentum: Vector, public size: Size) {
+        super(globalObjects, baseActor, position, momentum, size, defaultActorConfig.playerMass + 0);
     }
 
     public getCollisionRange(): number {

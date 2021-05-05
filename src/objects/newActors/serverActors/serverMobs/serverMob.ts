@@ -1,17 +1,21 @@
+import { Game } from "../../../../server/game";
 import { Vector } from "../../../../vector";
 import { ServerDoodad } from "../../../terrain/doodads/serverDoodad";
 import { ServerFloor } from "../../../terrain/floor/serverFloor";
 import { TestMobObject } from "../../actorObjects/mobObjects/testMobObject";
-import { ServerActor } from "../serverActor";
+import { getStartingHealth, ServerActor } from "../serverActor";
 
 export type SerializedMob = SerializedTestMob;
 
 export class ServerMob extends ServerActor {
     actorObject: TestMobObject;
 
-    constructor(id: number, floor: ServerFloor, doodads: ServerDoodad[]) {
-        super("serverTestMob", id, { x: 700, y: 500 }, 10, floor);
-        this.actorObject = new TestMobObject(this, this.position, this.momentum, this.floor, doodads);
+    constructor(game: Game, id: number) {
+        super(game, "testMob", id, { x: 700, y: 500 }, { health: getStartingHealth("testMob"), maxHealth: getStartingHealth("testMob") });
+        this.actorObject = new TestMobObject(game.getGlobalObjects(), this, this.position, this.momentum);
+    }
+    getStartingHealth(): number {
+        return 50;
     }
 
     update(elapsedTime: number) {
@@ -23,7 +27,7 @@ export class ServerMob extends ServerActor {
             id: this.id,
             position: this.position,
             momentum: this.momentum,
-            health: this.health,
+            healthInfo: this.healthInfo,
         };
     }
 }
@@ -32,5 +36,5 @@ export interface SerializedTestMob {
     id: number;
     position: Vector;
     momentum: Vector;
-    health: number;
+    healthInfo: { health: number; maxHealth: number };
 }

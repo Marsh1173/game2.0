@@ -30,7 +30,7 @@ export class GameRenderer {
 
         this.updateHTML();
 
-        this.canvasDiv.style.maxHeight = String(defaultConfig.ySize) + "px";
+        //this.canvasDiv.style.maxHeight = String(defaultConfig.ySize) + "px";
         this.groundExcess.style.top = String(defaultConfig.ySize) + "px";
 
         //this.drawBackgroundCanvases(); draws pillars
@@ -47,7 +47,7 @@ export class GameRenderer {
     }
 
     private renderActorCTX() {
-        this.actorCtx.clearRect(0, 0, this.config.xSize, this.config.ySize);
+        this.actorCtx.clearRect(-this.screenPos.x - 50, -this.screenPos.y - 50, window.innerWidth + 100, window.innerHeight + 100);
         this.actorCtx.setTransform(1, 0, 0, 1, this.screenPos.x, this.screenPos.y);
 
         this.renderActors();
@@ -87,7 +87,7 @@ export class GameRenderer {
     private updateSliderY() {
         const windowHeight: number = window.innerHeight;
 
-        let temp = this.screenPos.y + ((-this.gamePlayer.position.y + windowHeight / 2) / 2 - this.screenPos.y) / 10;
+        let temp = this.screenPos.y + ((-this.gamePlayer.position.y + windowHeight / 3) / 2 - this.screenPos.y) / 10;
         //make a temp position to check where it would be updated to
         if (this.screenPos.y < temp + 0.1 && this.screenPos.y > temp - 0.1) {
             return; //so it's not updating even while idle
@@ -135,11 +135,7 @@ export class GameRenderer {
     }
 }
 
-function renderActors(this: GameRenderer) {
-    this.game.players.forEach((player) => {
-        //player.render();
-    });
-}
+function renderActors(this: GameRenderer) {}
 
 export function renderShape(ctx: CanvasRenderingContext2D, shape: Vector[]) {
     ctx.beginPath();

@@ -3,38 +3,42 @@ import { textSpanIntersectsWithTextSpan } from "typescript";
 import { LinkedList, Node } from "../../../../linkedList";
 import { Vector } from "../../../../vector";
 
-export type HealthBarType = "enemy" | "self" | "ally";
+export type SideType = "enemy" | "self" | "ally";
 const healthDividerWidth: number = 20;
-const damageBarDuration: number = 0.15;
+const healthBarDuration: number = 0.15;
 
 export abstract class Model {
     protected targetPosition: Vector = { x: 0, y: 0 };
     protected readonly healthHeight: number = 50;
-    public health: number = 150;
-    protected readonly maxHealth: number = 150;
     protected readonly healthColor: string;
     protected readonly damageEffectColor: string;
+    protected readonly healEffectColor: string;
 
     protected damageEffectBars: LinkedList<{ timer: number; position: number; width: number; height: number }> = new LinkedList();
+    protected healEffectBars: LinkedList<{ timer: number; position: number; width: number; height: number }> = new LinkedList();
 
     constructor(
         protected ctx: CanvasRenderingContext2D,
         protected readonly position: Vector,
         protected readonly momentum: Vector,
-        healthBarType: HealthBarType,
+        protected readonly healthInfo: { health: number; maxHealth: number },
+        healthBarType: SideType,
     ) {
         switch (healthBarType) {
             case "enemy":
                 this.healthColor = "red";
                 this.damageEffectColor = "white";
+                this.healEffectColor = "red";
                 break;
             case "ally":
                 this.healthColor = "white";
                 this.damageEffectColor = "red";
+                this.healEffectColor = "green";
                 break;
             case "self":
                 this.healthColor = "#00c746";
-                this.damageEffectColor = "red";
+                this.damageEffectColor = "white";
+                this.healEffectColor = "#00c746";
                 break;
             default:
                 throw new Error("unknown health bar type in model constructor");
@@ -48,27 +52,33 @@ export abstract class Model {
         this.ctx.fillRect(-25, 0, 50, 8);
 
         this.ctx.fillStyle = this.healthColor;
-        this.ctx.fillRect(-24, 1, 48 * (this.health / this.maxHealth), 6);
+        this.ctx.fillRect(-24, 1, 48 * (this.healthInfo.health / this.healthInfo.maxHealth), 6);
 
         this.ctx.fillStyle = "rgba(0, 0, 0, 0.562)";
-        for (let i: number = 1; i < this.health / healthDividerWidth; i += 1) {
-            this.ctx.fillRect(-25 + (48 * healthDividerWidth * i) / this.maxHealth, 1, 2, 6);
+        for (let i: number = 1; i < this.healthInfo.health / healthDividerWidth; i += 1) {
+            this.ctx.fillRect(-25 + (48 * healthDividerWidth * i) / this.healthInfo.maxHealth, 1, 2, 6);
         }
 
         if (!this.damageEffectBars.ifEmpty()) {
             this.ctx.fillStyle = this.damageEffectColor;
             var node: Node<{ timer: number; position: number; width: number; height: number }> | null = this.damageEffectBars.head;
             while (node !== null) {
-                this.ctx.globalAlpha = 1 - (damageBarDuration - node.data.timer) * 2;
+                this.ctx.globalAlpha = 1 - (healthBarDuration - node.data.timer) * 3;
                 this.ctx.fillRect(-25 + node.data.position, 4 - node.data.height / 2, node.data.width, node.data.height);
                 node = node.next;
             }
             this.ctx.globalAlpha = 1;
         }
 
-        //this.health = Math.min(this.health + 0.2, this.maxHealth);
-        if (this.health < 0) {
-            this.health = this.maxHealth + 0;
+        if (!this.healEffectBars.ifEmpty()) {
+            this.ctx.fillStyle = this.healEffectColor;
+            var node: Node<{ timer: number; position: number; width: number; height: number }> | null = this.healEffectBars.head;
+            while (node !== null) {
+                this.ctx.globalAlpha = 0.5 + (healthBarDuration - node.data.timer) * 4;
+                this.ctx.fillRect(-25 + node.data.position, 4 - node.data.height / 2, node.data.width, node.data.height);
+                node = node.next;
+            }
+            this.ctx.globalAlpha = 1;
         }
 
         this.ctx.transform(1, 0, 0.15, 1, 0, 0); // the skew had to be de-transformed procedurally or else the main canvas bugged
@@ -77,10 +87,19 @@ export abstract class Model {
 
     public registerDamage(quantity: number) {
         this.damageEffectBars.insertAtEnd({
-            timer: damageBarDuration,
-            position: (this.health / this.maxHealth) * 48,
-            width: (quantity / this.maxHealth) * 48 + 1,
-            height: 6,
+            timer: healthBarDuration,
+            position: (this.healthInfo.health / this.healthInfo.maxHealth) * 48,
+            width: (quantity / this.healthInfo.maxHealth) * 48 + 1,
+            height: 8,
+        });
+    }
+
+    public registerHeal(quantity: number) {
+        this.healEffectBars.insertAtEnd({
+            timer: healthBarDuration,
+            position: (this.healthInfo.health / this.healthInfo.maxHealth) * 48,
+            width: (quantity / this.healthInfo.maxHealth) * 48 + 1,
+            height: 30,
         });
     }
 
@@ -105,11 +124,26 @@ export abstract class Model {
             var node: Node<{ timer: number; position: number; width: number; height: number }> | null = this.damageEffectBars.head;
             while (node !== null) {
                 node.data.timer -= elapsedTime;
-                node.data.height += elapsedTime * 120;
+                node.data.height += elapsedTime * 100;
 
                 if (node.data.timer <= 0) {
                     this.damageEffectBars.deleteFirst();
                     node = this.damageEffectBars.head;
+                } else {
+                    node = node.next;
+                }
+            }
+        }
+
+        if (!this.healEffectBars.ifEmpty()) {
+            var node: Node<{ timer: number; position: number; width: number; height: number }> | null = this.healEffectBars.head;
+            while (node !== null) {
+                node.data.timer -= elapsedTime;
+                node.data.height -= elapsedTime * 100;
+
+                if (node.data.timer <= 0) {
+                    this.healEffectBars.deleteFirst();
+                    node = this.healEffectBars.head;
                 } else {
                     node = node.next;
                 }

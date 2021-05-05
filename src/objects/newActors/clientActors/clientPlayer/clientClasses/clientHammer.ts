@@ -1,26 +1,15 @@
+import { Game } from "../../../../../client/game";
 import { Vector } from "../../../../../vector";
 import { ClientDoodad } from "../../../../terrain/doodads/clientDoodad";
 import { ClientFloor } from "../../../../terrain/floor/clientFloor";
-import { ClassType } from "../../../serverActors/serverPlayer/serverPlayer";
+import { ClassType, SerializedPlayer } from "../../../serverActors/serverPlayer/serverPlayer";
 import { ClientPlayer } from "../clientPlayer";
 
 export class ClientHammer extends ClientPlayer {
     classType: ClassType = "hammer";
 
-    constructor(
-        id: number,
-        position: Vector,
-        momentum: Vector,
-        health: number,
-        ctx: CanvasRenderingContext2D,
-        floor: ClientFloor,
-        doodads: ClientDoodad[],
-        color: string,
-        name: string,
-        level: number,
-        spec: number,
-    ) {
-        super(id, position, momentum, health, ctx, floor, doodads, color, name, level, spec);
+    constructor(game: Game, playerInfo: SerializedPlayer) {
+        super(game, playerInfo, "hammerPlayer");
     }
 
     updateInput(elapsedTime: number) {}

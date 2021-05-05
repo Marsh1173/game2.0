@@ -1,7 +1,7 @@
 import { DoodadType } from "../../objects/terrain/doodads/doodad";
 import { ServerTalker } from "../servertalker";
 
-export type AbilityImageName = "swordBasicAttackIcon" | "nullLevel3" | "nullLevel6" | "nullLevel10";
+export type AbilityImageName = "slashIcon" | "whirlwindIcon" | "emptyIcon";
 
 export type ImageName = DoodadType | AbilityImageName;
 
@@ -9,10 +9,9 @@ export type ImageName = DoodadType | AbilityImageName;
 
 export const imageInformation: Record<ImageName, string> = {
     rockLarge: `http://${ServerTalker.hostName}/images/rockDoodad.png`,
-    swordBasicAttackIcon: `http://${ServerTalker.hostName}/images/swordIcon.png`,
-    nullLevel3: `http://${ServerTalker.hostName}/images/hammerIcon.png`,
-    nullLevel6: `http://${ServerTalker.hostName}/images/daggersIcon.png`,
-    nullLevel10: `http://${ServerTalker.hostName}/images/emailIcon.png`,
+    slashIcon: `http://${ServerTalker.hostName}/images/abilityIcons/slashIcon.png`,
+    emptyIcon: `http://${ServerTalker.hostName}/images/abilityIcons/emptyIcon.png`,
+    whirlwindIcon: `http://${ServerTalker.hostName}/images/abilityIcons/whirlwindIcon.png`,
 };
 
 class AssetManager {

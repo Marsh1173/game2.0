@@ -1,4 +1,5 @@
-import { ClientPlayerAction } from "../objects/newActors/clientActors/clientPlayer/clientPlayer";
+import { ClientPlayerAction, ClientPlayerClick } from "../objects/newActors/clientActors/clientPlayer/clientPlayer";
+import { ServerDamageMessage, ServerHealMessage } from "../objects/newActors/serverActors/serverActor";
 import {
     PlayerAllowChooseSpec,
     PlayerChangeSpec,
@@ -28,6 +29,8 @@ export type ServerMessage =
     | PlayerChangeSpec
     | PlayerLevelSet
     | PlayerSetXP
-    | PlayerAllowChooseSpec;
+    | PlayerAllowChooseSpec
+    | ServerDamageMessage
+    | ServerHealMessage;
 
-export type ClientMessage = ClientPlayerAction;
+export type ClientMessage = ClientPlayerAction | ClientPlayerClick;

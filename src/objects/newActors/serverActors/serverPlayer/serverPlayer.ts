@@ -1,10 +1,12 @@
+import { Game } from "../../../../server/game";
 import { Vector } from "../../../../vector";
 import { ServerDoodad } from "../../../terrain/doodads/serverDoodad";
 import { ServerFloor } from "../../../terrain/floor/serverFloor";
+import { ActorType } from "../../actor";
 import { defaultActorConfig } from "../../actorConfig";
 import { ActorObject } from "../../actorObjects/actorObject";
 import { PlayerObject } from "../../actorObjects/playerObject";
-import { ServerActor } from "../serverActor";
+import { getStartingHealth, ServerActor } from "../serverActor";
 import { ServerSword } from "./serverClasses/serverSword";
 
 export type ClassType = "sword" | "daggers" | "hammer";
@@ -24,26 +26,25 @@ export abstract class ServerPlayer extends ServerActor {
     };
 
     constructor(
+        game: Game,
         id: number,
-        floor: ServerFloor,
-        doodads: ServerDoodad[],
         protected color: string,
         protected name: string,
         protected level: number,
         protected spec: number,
+        actorType: ActorType,
     ) {
-        super("serverPlayer", id, { x: defaultActorConfig.playerStart.x, y: defaultActorConfig.playerStart.y }, defaultActorConfig.playerMaxHealth + 0, floor);
-        this.actorObject = new PlayerObject(
-            this,
-            this.position,
-            this.momentum,
-            this.floor,
-            {
-                width: defaultActorConfig.playerSize.width,
-                height: defaultActorConfig.playerSize.height,
-            },
-            doodads,
+        super(
+            game,
+            actorType,
+            id,
+            { x: defaultActorConfig.playerStart.x, y: defaultActorConfig.playerStart.y },
+            { health: getStartingHealth(actorType), maxHealth: getStartingHealth(actorType) },
         );
+        this.actorObject = new PlayerObject(game.getGlobalObjects(), this, this.position, this.momentum, {
+            width: defaultActorConfig.playerSize.width,
+            height: defaultActorConfig.playerSize.height,
+        });
     }
 
     public getLevel(): number {
@@ -80,6 +81,9 @@ export abstract class ServerPlayer extends ServerActor {
     }
 
     protected abstract updateInput(elapsedTime: number): void;
+    getStartingHealth(): number {
+        return defaultActorConfig.playerMaxHealth;
+    }
 
     protected updateActions(elapsedTime: number) {
         if (this.actionsNextFrame.jump) {
@@ -106,7 +110,7 @@ export abstract class ServerPlayer extends ServerActor {
             id: this.id,
             position: this.position,
             momentum: this.momentum,
-            health: this.health,
+            healthInfo: { health: this.healthInfo.health, maxHealth: this.healthInfo.maxHealth },
             name: this.name,
             color: this.color,
             class: this.classType,
@@ -120,7 +124,7 @@ export interface SerializedPlayer {
     id: number;
     position: Vector;
     momentum: Vector;
-    health: number;
+    healthInfo: { health: number; maxHealth: number };
     name: string;
     color: string;
     class: ClassType;

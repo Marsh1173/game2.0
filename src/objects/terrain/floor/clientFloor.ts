@@ -1,3 +1,4 @@
+import { Game } from "../../../client/game";
 import { defaultConfig } from "../../../config";
 import { findAngle } from "../../../findAngle";
 import { rootKeepSign, Vector } from "../../../vector";
@@ -8,6 +9,7 @@ export class ClientFloor extends Floor {
     private gameHeight: number = defaultConfig.ySize;
 
     constructor(
+        protected game: Game,
         pointsAndAngles: { point: number; angle: number; slope: number }[],
         pointCount: number,
         resultWidth: number,
@@ -38,5 +40,7 @@ export class ClientFloor extends Floor {
         }
         this.ctx.lineTo((this.pointCount - 1) * this.resultWidth, this.gameHeight + 10);
         this.ctx.fill();
+
+        this.ctx.fillRect(-this.game.screenPos.x, this.gameHeight + 5, window.innerWidth, window.innerHeight - this.game.screenPos.y);
     }
 }
