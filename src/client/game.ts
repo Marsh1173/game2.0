@@ -82,7 +82,10 @@ export class Game {
             this.newClientPlayer(playerInfo);
         });
 
+        console.log("game id is " + this.id);
+        console.log("players are " + this.globalClientActors.players);
         this.gamePlayer = this.findPlayer();
+        console.log("From the game constructor, player healthInfo is " + this.gamePlayer.getHealthInfo().health);
         this.gamePlayerController = new Controller(this.gamePlayer, this);
 
         this.gameRenderer = new GameRenderer(this.config, this, this.gamePlayer, this.screenPos);
