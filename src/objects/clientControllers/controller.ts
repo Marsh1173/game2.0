@@ -1,82 +1,66 @@
-import { Game } from "../../../../client/game";
-import { AbilityImageName, assetManager, imageInformation, ImageName } from "../../../../client/gameRender/assetmanager";
-import { safeGetElementById } from "../../../../client/util";
-import { defaultConfig } from "../../../../config";
-import { defaultActorConfig } from "../../actorConfig";
-import { ClassType } from "../../serverActors/serverPlayer/serverPlayer";
-import { ClientPlayer } from "../clientPlayer/clientPlayer";
+import { Game } from "../../client/game";
+import { AbilityImageName, assetManager, imageInformation, ImageName } from "../../client/gameRender/assetmanager";
+import { safeGetElementById } from "../../client/util";
+import { defaultConfig } from "../../config";
+import { defaultActorConfig } from "../newActors/actorConfig";
+import { ClassType } from "../newActors/serverActors/serverPlayer/serverPlayer";
+import { ClientPlayer } from "../newActors/clientActors/clientPlayer/clientPlayer";
 import { UserInterface } from "./userInterface";
+import { Vector } from "../../vector";
+import { PlayerSword } from "../newActors/clientActors/clientPlayer/playerClasses/playerSword";
 
 export class Controller {
     public readonly keyState: Record<string, boolean> = {};
+    protected pressAbilitiesNextFrame: (Vector | undefined)[] = [undefined, undefined, undefined, undefined];
+    protected releaseAbilitiesNextFrame: (boolean | undefined)[] = [undefined, undefined, undefined, undefined];
 
-    protected config = defaultConfig;
+    protected readonly config = defaultConfig;
 
     protected jumpCount: number = 0;
-
     protected wasMovingRight: boolean = false;
     protected wasMovingLeft: boolean = false;
     protected wasCrouching: boolean = false;
 
-    protected userInterface: UserInterface;
+    public readonly userInterface: UserInterface;
 
-    constructor(protected player: ClientPlayer, protected game: Game) {
+    constructor(protected player: PlayerSword, protected game: Game) {
         this.userInterface = new UserInterface(player);
-        this.updateAbilityImages();
     }
 
-    public updateXPbar(xpAmount: number) {
-        this.userInterface.updateXPbar(xpAmount);
-    }
-
-    public levelUp(level: number) {
-        this.userInterface.levelUp(level);
-    }
-
-    protected updateAbilityImages() {}
-
-    public registerMouseDown(e: MouseEvent) {
+    public registerMouseDown(e: MouseEvent, globalMousePos: Vector) {
         if (e.button === 0) {
-            this.game.serverTalker.sendMessage({
-                type: "clientPlayerClick",
-                playerId: this.player.getActorId(),
-                leftClick: true,
-            });
-            //broadcast send message damage
+            this.pressAbilitiesNextFrame[0] = globalMousePos;
         } else if (e.button === 2) {
-            this.game.serverTalker.sendMessage({
-                type: "clientPlayerClick",
-                playerId: this.player.getActorId(),
-                leftClick: false,
-            });
-            //broadcast send message heal
+            this.pressAbilitiesNextFrame[1] = globalMousePos;
         }
     }
-    public registerMouseUp(e: MouseEvent) {
+    public registerMouseUp(e: MouseEvent, globalMousePos: Vector) {
         if (e.button === 0) {
+            this.releaseAbilitiesNextFrame[0] = true;
         } else if (e.button === 2) {
+            this.releaseAbilitiesNextFrame[1] = true;
         }
     }
-    public registerKeyDown(e: KeyboardEvent) {
+    public registerKeyDown(e: KeyboardEvent, globalMousePos: Vector) {
+        if (e.code === this.config.playerKeys.firstAbility) {
+            this.pressAbilitiesNextFrame[2] = globalMousePos;
+        } else if (e.code === this.config.playerKeys.secondAbility) {
+            this.pressAbilitiesNextFrame[3] = globalMousePos;
+        }
         this.keyState[e.code] = true;
     }
-    public registerKeyUp(e: KeyboardEvent) {
+    public registerKeyUp(e: KeyboardEvent, globalMousePos: Vector) {
+        if (e.code === this.config.playerKeys.firstAbility) {
+            this.releaseAbilitiesNextFrame[2] = true;
+        } else if (e.code === this.config.playerKeys.secondAbility) {
+            this.releaseAbilitiesNextFrame[3] = true;
+        }
         this.keyState[e.code] = false;
     }
 
-    //public abstract updateGamePlayerAbilities(): void;
-    //public abstract ability1Press(): void;
-    //public abstract ability1Release(): void;
-    //public abstract ability2Press(): void;
-    //public abstract ability2Release(): void;
-    //public abstract ability3Press(): void;
-    //public abstract ability3Release(): void;
-    //public abstract ability4Press(): void;
-    //public abstract ability4Release(): void;
-
-    public updateGamePlayerActions() {
+    protected updateGamePlayerMoveActions() {
         let tempWasMovingLeft: boolean = false;
-        this.player.actionsNextFrame.moveLeft = false;
+        this.player.moveActionsNextFrame.moveLeft = false;
         if (this.keyState[this.config.playerKeys.left]) {
             if (this.player.attemptMoveLeftAction()) tempWasMovingLeft = true;
         }
@@ -93,7 +77,7 @@ export class Controller {
         }
 
         let tempWasMovingRight: boolean = false;
-        this.player.actionsNextFrame.moveRight = false;
+        this.player.moveActionsNextFrame.moveRight = false;
         if (this.keyState[this.config.playerKeys.right]) {
             if (this.player.attemptMoveRightAction()) tempWasMovingRight = true;
         }
@@ -110,7 +94,7 @@ export class Controller {
         }
 
         let tempWasCrouching: boolean = false;
-        this.player.actionsNextFrame.crouch = false;
+        this.player.moveActionsNextFrame.crouch = false;
         if (this.keyState[this.config.playerKeys.down]) {
             if (this.player.attemptCrouchAction()) tempWasCrouching = true;
         }
@@ -146,7 +130,25 @@ export class Controller {
         }
     }
 
+    protected updateGamePlayerAbilities() {
+        for (let i: number = 0; i < 4; i++) {
+            if (this.pressAbilitiesNextFrame[i] !== undefined) {
+                this.player.pressAbility(this.pressAbilitiesNextFrame[i] as Vector, i as 0 | 1 | 2 | 3);
+                this.pressAbilitiesNextFrame[i] = undefined;
+            }
+        }
+        for (let i: number = 0; i < 4; i++) {
+            if (this.releaseAbilitiesNextFrame[i] !== undefined) {
+                this.player.releaseAbility(i as 0 | 1 | 2 | 3);
+                this.releaseAbilitiesNextFrame[i] = undefined;
+            }
+        }
+    }
+
     public update(elapsedTime: number) {
+        this.updateGamePlayerMoveActions();
+        this.updateGamePlayerAbilities();
+
         this.userInterface.updateAndRender();
     }
 }

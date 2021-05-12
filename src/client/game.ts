@@ -11,7 +11,7 @@ import { ClientPlayer } from "../objects/newActors/clientActors/clientPlayer/cli
 import { ClientSword } from "../objects/newActors/clientActors/clientPlayer/clientClasses/clientSword";
 import { ClientFloor } from "../objects/terrain/floor/clientFloor";
 import { SerializedPlayer } from "../objects/newActors/serverActors/serverPlayer/serverPlayer";
-import { Controller } from "../objects/newActors/clientActors/clientControllers/controller";
+import { Controller } from "../objects/clientControllers/controller";
 import { ifInside } from "../ifInside";
 import { ClientDoodad } from "../objects/terrain/doodads/clientDoodad";
 import { Doodad } from "../objects/terrain/doodads/doodad";
@@ -20,16 +20,18 @@ import { ClientDaggers } from "../objects/newActors/clientActors/clientPlayer/cl
 import { Floor } from "../objects/terrain/floor/floor";
 import { ClientActor } from "../objects/newActors/clientActors/clientActor";
 import { SideType } from "../objects/newActors/clientActors/models/model";
+import { SwordController } from "../objects/clientControllers/swordController";
+import { DaggersController } from "../objects/clientControllers/daggersController";
+import { HammerController } from "../objects/clientControllers/hammerController";
+import { PlayerSword } from "../objects/newActors/clientActors/clientPlayer/playerClasses/playerSword";
 
 export class Game {
     private static readonly menuDiv = safeGetElementById("menuDiv");
     private static readonly gameDiv = safeGetElementById("gameDiv");
 
     protected gameRenderer: GameRenderer;
-    protected gamePlayer: ClientPlayer;
+    protected gamePlayer: PlayerSword;
     protected gamePlayerController: Controller;
-
-    //public players: ClientPlayer[] = [];
 
     protected readonly globalClientActors: GlobalClientActors = {
         actors: [],
@@ -44,7 +46,7 @@ export class Game {
     private going: boolean = false;
 
     public screenPos: Vector = { x: 0, y: 0 };
-    private mousePos: Vector = { x: 0, y: 0 };
+    public mousePos: Vector = { x: 0, y: 0 };
 
     private handleMessage = handleMessage;
     protected findActor = findActor;
@@ -79,13 +81,14 @@ export class Game {
         });
 
         info.players.forEach((playerInfo) => {
-            this.newClientPlayer(playerInfo);
+            if (playerInfo.id !== this.id) {
+                this.newClientPlayer(playerInfo);
+            }
         });
 
-        console.log("game id is " + this.id);
-        console.log("players are " + this.globalClientActors.players);
-        this.gamePlayer = this.findPlayer();
-        console.log("From the game constructor, player healthInfo is " + this.gamePlayer.getHealthInfo().health);
+        let gamePlayerInfo: SerializedPlayer = info.players.find((player) => player.id === this.id)!;
+        this.gamePlayer = this.makeGamePlayer(gamePlayerInfo);
+
         this.gamePlayerController = new Controller(this.gamePlayer, this);
 
         this.gameRenderer = new GameRenderer(this.config, this, this.gamePlayer, this.screenPos);
@@ -98,6 +101,7 @@ export class Game {
 
         // use onkeydown and onkeyup instead of addEventListener because it's possible to add multiple event listeners per event
         // This would cause a bug where each time you press a key it creates multiple blasts or jumps
+
         let positionDifference: Vector = { x: 300, y: 800 };
         window.onmousedown = (e: MouseEvent) => {
             /*console.log(
@@ -107,11 +111,11 @@ export class Game {
                     (-this.screenPos.y + this.mousePos.y - positionDifference.y) +
                     "},",
             );*/
-            this.gamePlayerController.registerMouseDown(e);
+            this.gamePlayerController.registerMouseDown(e, this.getGlobalMousePos());
         };
-        window.onmouseup = (e: MouseEvent) => this.gamePlayerController.registerMouseUp(e);
-        window.onkeydown = (e: KeyboardEvent) => this.gamePlayerController.registerKeyDown(e);
-        window.onkeyup = (e: KeyboardEvent) => this.gamePlayerController.registerKeyUp(e);
+        window.onmouseup = (e: MouseEvent) => this.gamePlayerController.registerMouseUp(e, this.getGlobalMousePos());
+        window.onkeydown = (e: KeyboardEvent) => this.gamePlayerController.registerKeyDown(e, this.getGlobalMousePos());
+        window.onkeyup = (e: KeyboardEvent) => this.gamePlayerController.registerKeyUp(e, this.getGlobalMousePos());
 
         window.onmousemove = (e: MouseEvent) => {
             this.mousePos.x = e.clientX;
@@ -148,11 +152,9 @@ export class Game {
     private update(elapsedTime: number) {
         elapsedTime = Math.min(0.03, elapsedTime); //fix to make sure sudden lag spikes dont clip them through the floors\
 
-        this.gamePlayerController.updateGamePlayerActions();
+        this.gameRenderer.updateAndRender(elapsedTime);
 
         this.updateObjects(elapsedTime);
-
-        this.gameRenderer.updateAndRender(elapsedTime);
 
         this.globalClientObjects.doodads.forEach((doodad) => doodad.render());
         this.globalClientObjects.floor.render();
@@ -196,6 +198,31 @@ export class Game {
         this.globalClientActors.actors.push(newPlayer);
     }
 
+    protected makeGamePlayer(playerInfo: SerializedPlayer): PlayerSword {
+        var newGamePlayer: PlayerSword;
+        switch (playerInfo.class) {
+            case "daggers":
+                throw new Error("PlayerDaggers have not been implemented yet");
+                //newGamePlayer = new PlayerSword(this, playerInfo);
+                //this.globalClientActors.daggerPlayers.push(newGamePlayer as ClientDaggers);
+                break;
+            case "hammer":
+                throw new Error("PlayerHammers have not been implemented yet");
+                //newGamePlayer = new PlayerSword(this, playerInfo);
+                //this.globalClientActors.hammerPlayers.push(newGamePlayer as ClientHammer);
+                break;
+            case "sword":
+                newGamePlayer = new PlayerSword(this, playerInfo);
+                this.globalClientActors.swordPlayers.push(newGamePlayer as ClientSword);
+                break;
+            default:
+                throw new Error("unknown class type " + playerInfo.class);
+        }
+        this.globalClientActors.players.push(newGamePlayer);
+        this.globalClientActors.actors.push(newGamePlayer);
+        return newGamePlayer;
+    }
+
     protected getMouseShape(): Shape {
         let p1: Vector = { x: this.mousePos.x - this.screenPos.x, y: this.mousePos.y - 40 - this.screenPos.y };
         let p2: Vector = { x: this.mousePos.x - 30 - this.screenPos.x, y: this.mousePos.y + 20 - this.screenPos.y };
@@ -210,7 +237,7 @@ export class Game {
             ],
         };
     }
-    protected getGlobalMousePos(): Vector {
+    public getGlobalMousePos(): Vector {
         return { x: this.mousePos.x - this.screenPos.x, y: this.mousePos.y - this.screenPos.y };
     }
 

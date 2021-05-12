@@ -21,6 +21,10 @@ export abstract class Actor {
         protected healthInfo: { health: number; maxHealth: number },
     ) {}
 
+    public getCollisionRange(): number {
+        return this.actorObject.getCollisionRange();
+    }
+
     public getActorType(): ActorType {
         return this.actorType;
     }

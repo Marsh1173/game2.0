@@ -12,7 +12,7 @@ export function handleMessage(this: Game, msg: ServerMessage) {
             player = this.globalClientActors.players.find((player) => player.getActorId() === msg.playerId);
             if (player && player !== this.gamePlayer) {
                 player.updatePositionAndMomentumFromServer(msg.position, msg.momentum);
-                player.actionsNextFrame[msg.actionType] = msg.starting;
+                player.moveActionsNextFrame[msg.actionType] = msg.starting;
             }
             break;
         case "info":

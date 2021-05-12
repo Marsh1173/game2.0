@@ -1,9 +1,10 @@
 import { DoodadType } from "../../objects/terrain/doodads/doodad";
 import { ServerTalker } from "../servertalker";
 
-export type AbilityImageName = "slashIcon" | "whirlwindIcon" | "emptyIcon";
+export type AbilityImageName = "slashIcon" | "whirlwindIcon" | "emptyIcon" | "lvl10" | "lvl6" | "stabIcon" | "lungeIcon" | "swingIcon" | "poundIcon";
+export type WeaponImageName = "berserkerSword2";
 
-export type ImageName = DoodadType | AbilityImageName;
+export type ImageName = DoodadType | AbilityImageName | WeaponImageName;
 
 //let img: HTMLImageElement = assetManager.images["lavafly"];
 
@@ -12,8 +13,14 @@ export const imageInformation: Record<ImageName, string> = {
     slashIcon: `http://${ServerTalker.hostName}/images/abilityIcons/slashIcon.png`,
     emptyIcon: `http://${ServerTalker.hostName}/images/abilityIcons/emptyIcon.png`,
     whirlwindIcon: `http://${ServerTalker.hostName}/images/abilityIcons/whirlwindIcon.png`,
+    lvl10: `http://${ServerTalker.hostName}/images/abilityIcons/lvl10.png`,
+    lvl6: `http://${ServerTalker.hostName}/images/abilityIcons/lvl6.png`,
+    stabIcon: `http://${ServerTalker.hostName}/images/abilityIcons/stabIcon.png`,
+    lungeIcon: `http://${ServerTalker.hostName}/images/abilityIcons/lungeIcon.png`,
+    swingIcon: `http://${ServerTalker.hostName}/images/abilityIcons/swingIcon.png`,
+    poundIcon: `http://${ServerTalker.hostName}/images/abilityIcons/poundIcon.png`,
+    berserkerSword2: `http://${ServerTalker.hostName}/images/weaponImages/berserkerSword2.png`,
 };
-
 class AssetManager {
     public images: Record<ImageName, HTMLImageElement>;
     // public sounds: Record<string, HTMLImageElement>;

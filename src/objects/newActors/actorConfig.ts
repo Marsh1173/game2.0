@@ -1,5 +1,6 @@
 import { Size } from "../../size";
 import { Vector } from "../../vector";
+import { PlayerModelConfig, playerModelConfig } from "./clientActors/model/playerModels/playerModel";
 
 export interface ActorConfig {
     gameSpeed: number;
@@ -15,6 +16,8 @@ export interface ActorConfig {
     fallingAcceleration: number;
     XPPerLevel: number;
     LevelXPMultiplier: number;
+    globalCooldown: number;
+    playerModelConfig: PlayerModelConfig;
 }
 
 export const defaultActorConfig: ActorConfig = {
@@ -40,4 +43,6 @@ export const defaultActorConfig: ActorConfig = {
     fallingAcceleration: 300,
     XPPerLevel: 20,
     LevelXPMultiplier: 1.1,
+    globalCooldown: 0.3,
+    playerModelConfig,
 };

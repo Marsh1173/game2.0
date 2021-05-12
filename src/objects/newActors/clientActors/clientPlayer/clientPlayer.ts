@@ -8,6 +8,7 @@ import { defaultActorConfig } from "../../actorConfig";
 import { PlayerObject } from "../../actorObjects/playerObject";
 import { ClassType, PlayerActionType, SerializedPlayer } from "../../serverActors/serverPlayer/serverPlayer";
 import { ClientActor } from "../clientActor";
+import { SwordPlayerModel } from "../model/playerModels/swordPlayerModel";
 import { PlayerModel } from "../models/playerModel";
 import { ClientSword } from "./clientClasses/clientSword";
 
@@ -15,12 +16,14 @@ export abstract class ClientPlayer extends ClientActor {
     actorObject: PlayerObject;
     model: PlayerModel;
 
+    protected readonly playerModel: SwordPlayerModel;
+
     public abstract classType: ClassType;
     protected readonly color: string;
     protected readonly name: string;
     protected level: number;
     protected spec: number;
-    public actionsNextFrame: Record<PlayerActionType, boolean> = {
+    public moveActionsNextFrame: Record<PlayerActionType, boolean> = {
         jump: false,
         moveRight: false,
         moveLeft: false,
@@ -36,6 +39,8 @@ export abstract class ClientPlayer extends ClientActor {
         this.spec = playerInfo.classSpec;
 
         let playerSizePointer: Size = { width: defaultActorConfig.playerSize.width + 0, height: defaultActorConfig.playerSize.height + 0 };
+
+        this.playerModel = new SwordPlayerModel(game, this, game.getActorCtx(), playerInfo.position, game.getActorSide(this.id), this.color, playerSizePointer);
 
         this.model = new PlayerModel(
             this,
@@ -68,14 +73,14 @@ export abstract class ClientPlayer extends ClientActor {
 
     public attemptJumpAction(): boolean {
         if (!this.actorObject.crouching) {
-            this.actionsNextFrame.jump = true;
+            this.moveActionsNextFrame.jump = true;
             return true;
         }
         return false;
     }
     public attemptCrouchAction(): boolean {
         if (true) {
-            this.actionsNextFrame.crouch = true;
+            this.moveActionsNextFrame.crouch = true;
             return true;
         }
         return false;
@@ -87,13 +92,13 @@ export abstract class ClientPlayer extends ClientActor {
         this.actorObject.unCrouch();
     }
     protected jump() {
-        this.actionsNextFrame.jump = false;
+        this.moveActionsNextFrame.jump = false;
         this.actorObject.jump();
     }
 
     public attemptMoveRightAction(): boolean {
         if (true) {
-            this.actionsNextFrame.moveRight = true;
+            this.moveActionsNextFrame.moveRight = true;
             return true;
         }
         return false;
@@ -104,7 +109,7 @@ export abstract class ClientPlayer extends ClientActor {
 
     public attemptMoveLeftAction(): boolean {
         if (true) {
-            this.actionsNextFrame.moveLeft = true;
+            this.moveActionsNextFrame.moveLeft = true;
             return true;
         }
         return false;
@@ -116,23 +121,29 @@ export abstract class ClientPlayer extends ClientActor {
     protected abstract updateInput(elapsedTime: number): void;
 
     protected updateActions(elapsedTime: number) {
-        if (this.actionsNextFrame.jump) {
+        this.playerModel.update(elapsedTime);
+
+        if (this.moveActionsNextFrame.jump) {
             this.jump();
         }
-        if (this.actionsNextFrame.moveRight) {
+        if (this.moveActionsNextFrame.moveRight) {
             this.moveRight(elapsedTime);
         }
-        if (this.actionsNextFrame.moveLeft) {
+        if (this.moveActionsNextFrame.moveLeft) {
             this.moveLeft(elapsedTime);
         }
-        if (this.actionsNextFrame.crouch !== this.actorObject.crouching) {
-            if (this.actionsNextFrame.crouch) {
+        if (this.moveActionsNextFrame.crouch !== this.actorObject.crouching) {
+            if (this.moveActionsNextFrame.crouch) {
                 this.crouch();
             } else {
                 this.unCrouch();
             }
-            this.actorObject.crouching = this.actionsNextFrame.crouch;
+            this.actorObject.crouching = this.moveActionsNextFrame.crouch;
         }
+    }
+
+    public render() {
+        this.playerModel.render();
     }
 }
 

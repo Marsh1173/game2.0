@@ -6,7 +6,7 @@ import { TranslationName } from "../actorObjects/translations";
 import { Model } from "./models/model";
 
 export abstract class ClientActor extends Actor {
-    protected abstract model: Model;
+    //protected abstract model: Model;
     protected globalActors: GlobalClientActors;
     protected lastHitByActor: ClientActor;
 
@@ -17,14 +17,14 @@ export abstract class ClientActor extends Actor {
     }
 
     public render() {
-        this.model.render();
+        //this.model.render();
     }
     public renderHealth() {
-        this.model.renderHealth();
+        //this.model.renderHealth();
     }
 
     public updatePositionAndMomentumFromServer(position: Vector, momentum: Vector) {
-        this.model.processPositionUpdateDifference({ x: position.x - this.position.x, y: position.y - this.position.y });
+        //this.model.processPositionUpdateDifference({ x: position.x - this.position.x, y: position.y - this.position.y });
 
         this.position.x = position.x + 0;
         this.position.y = position.y + 0;
@@ -38,7 +38,7 @@ export abstract class ClientActor extends Actor {
         knockback: Vector | undefined,
         translationData: { name: TranslationName; angle: number } | undefined,
     ): boolean {
-        this.model.registerDamage(newHealth - this.healthInfo.health);
+        //this.model.registerDamage(newHealth - this.healthInfo.health);
         originActor.registerDamageDone(newHealth - this.healthInfo.health);
 
         if (translationData) this.actorObject.startTranslation(translationData.angle, translationData.name);
@@ -49,7 +49,7 @@ export abstract class ClientActor extends Actor {
     }
 
     public registerHeal(newHealth: number): void {
-        this.model.registerHeal(newHealth - this.healthInfo.health);
+        //this.model.registerHeal(newHealth - this.healthInfo.health);
         this.healthInfo.health = newHealth + 0;
     }
 }

@@ -41,7 +41,7 @@ export class GameRenderer {
         this.updateSliderY();
         //this.attemptUpdateHTML();
 
-        this.renderBackground();
+        //this.renderBackground();
 
         this.renderActorCTX();
     }
