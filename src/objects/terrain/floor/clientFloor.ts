@@ -1,6 +1,7 @@
 import { Game } from "../../../client/game";
 import { defaultConfig } from "../../../config";
 import { findAngle } from "../../../findAngle";
+import { Size } from "../../../size";
 import { rootKeepSign, Vector } from "../../../vector";
 import { defaultActorConfig } from "../../newActors/actorConfig";
 import { Floor } from "./floor";
@@ -18,8 +19,8 @@ export class ClientFloor extends Floor {
         super(pointCount, resultWidth, pointsAndAngles);
     }
 
-    public render() {
-        this.ctx.fillStyle = "#1b4a20"; //d"white";
+    public render(screenPos: Vector, screenSize: Size) {
+        this.ctx.fillStyle = "#1b4a20"; //"white";
 
         this.ctx.beginPath();
         this.ctx.moveTo(0, this.pointsAndAngles[0].point);
@@ -41,6 +42,6 @@ export class ClientFloor extends Floor {
         this.ctx.lineTo((this.pointCount - 1) * this.resultWidth, this.gameHeight + 10);
         this.ctx.fill();
 
-        this.ctx.fillRect(-this.game.screenPos.x, this.gameHeight + 5, window.innerWidth, window.innerHeight - this.game.screenPos.y);
+        this.ctx.fillRect(-screenPos.x, this.gameHeight + 5, screenSize.width, screenSize.height - screenPos.y);
     }
 }

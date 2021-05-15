@@ -18,22 +18,21 @@ export class ClientSword extends ClientPlayer {
     update(elapsedTime: number) {
         this.updateActions(elapsedTime);
         this.actorObject.update(elapsedTime, this.moveActionsNextFrame.moveLeft || this.moveActionsNextFrame.moveRight);
-        this.model.updateModel(elapsedTime);
     }
 
     public performClientAbility: Record<SwordPlayerAbility, (mousePos: Vector) => void> = {
         slash: (mousePos) => {
-            this.playerModel.setAnimation("slash", findAngle(this.position, mousePos));
+            this.model.setAnimation("slash", findAngle(this.position, mousePos));
         },
         whirlwind: () => {
-            this.playerModel.setAnimation("whirlwind", 0);
+            this.model.setAnimation("whirlwind", 0);
         },
         unavailable: () => {},
     };
     public releaseClientAbility: Record<SwordPlayerAbility, () => void> = {
         slash: () => {},
         whirlwind: () => {
-            this.playerModel.setAnimation("stand", 0);
+            this.model.setAnimation("stand", 0);
         },
         unavailable: () => {},
     };

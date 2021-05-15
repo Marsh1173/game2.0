@@ -7,9 +7,15 @@ import { ClassType } from "../newActors/serverActors/serverPlayer/serverPlayer";
 import { ClientPlayer } from "../newActors/clientActors/clientPlayer/clientPlayer";
 import { UserInterface } from "./userInterface";
 import { Vector } from "../../vector";
-import { PlayerSword } from "../newActors/clientActors/clientPlayer/playerClasses/playerSword";
+import { Controller } from "./controllers/controller";
+import { DaggersController } from "./controllers/daggersController";
+import { ClientDaggers } from "../newActors/clientActors/clientPlayer/clientClasses/clientDaggers";
+import { HammerController } from "./controllers/hammerController";
+import { ClientHammer } from "../newActors/clientActors/clientPlayer/clientClasses/clientHammer";
+import { ClientSword } from "../newActors/clientActors/clientPlayer/clientClasses/clientSword";
+import { SwordController } from "./controllers/swordController";
 
-export class Controller {
+export class InputReader {
     public readonly keyState: Record<string, boolean> = {};
     protected pressAbilitiesNextFrame: (Vector | undefined)[] = [undefined, undefined, undefined, undefined];
     protected releaseAbilitiesNextFrame: (boolean | undefined)[] = [undefined, undefined, undefined, undefined];
@@ -22,9 +28,23 @@ export class Controller {
     protected wasCrouching: boolean = false;
 
     public readonly userInterface: UserInterface;
+    public readonly controller: Controller;
 
-    constructor(protected player: PlayerSword, protected game: Game) {
-        this.userInterface = new UserInterface(player);
+    constructor(protected player: ClientPlayer, protected game: Game) {
+        switch (this.player.getClassType()) {
+            case "daggers":
+                this.controller = new DaggersController(this.game, this.player as ClientDaggers);
+                break;
+            case "hammer":
+                this.controller = new HammerController(this.game, this.player as ClientHammer);
+                break;
+            case "sword":
+                this.controller = new SwordController(this.game, this.player as ClientSword);
+                break;
+            default:
+                throw new Error("unknown class type in input reader constructor");
+        }
+        this.userInterface = new UserInterface(this.controller, this.player);
     }
 
     public registerMouseDown(e: MouseEvent, globalMousePos: Vector) {
@@ -133,13 +153,13 @@ export class Controller {
     protected updateGamePlayerAbilities() {
         for (let i: number = 0; i < 4; i++) {
             if (this.pressAbilitiesNextFrame[i] !== undefined) {
-                this.player.pressAbility(this.pressAbilitiesNextFrame[i] as Vector, i as 0 | 1 | 2 | 3);
+                this.controller.pressAbility(this.pressAbilitiesNextFrame[i] as Vector, i as 0 | 1 | 2 | 3);
                 this.pressAbilitiesNextFrame[i] = undefined;
             }
         }
         for (let i: number = 0; i < 4; i++) {
             if (this.releaseAbilitiesNextFrame[i] !== undefined) {
-                this.player.releaseAbility(i as 0 | 1 | 2 | 3);
+                this.controller.releaseAbility(i as 0 | 1 | 2 | 3);
                 this.releaseAbilitiesNextFrame[i] = undefined;
             }
         }
@@ -149,6 +169,7 @@ export class Controller {
         this.updateGamePlayerMoveActions();
         this.updateGamePlayerAbilities();
 
+        this.controller.update(elapsedTime);
         this.userInterface.updateAndRender();
     }
 }

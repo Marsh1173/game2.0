@@ -4,8 +4,8 @@ import { defaultActorConfig } from "../newActors/actorConfig";
 import { ClassType } from "../newActors/serverActors/serverPlayer/serverPlayer";
 import { ClientPlayer } from "../newActors/clientActors/clientPlayer/clientPlayer";
 import { Vector } from "../../vector";
-import { PlayerSword } from "../newActors/clientActors/clientPlayer/playerClasses/playerSword";
-import { PlayerAbility } from "../newActors/clientActors/clientPlayer/playerClasses/abilities/playerAbility";
+import { PlayerAbility } from "./controllers/abilities/playerAbility";
+import { Controller } from "./controllers/controller";
 
 export class UserInterface {
     protected XPtoNextLevel: number;
@@ -29,8 +29,8 @@ export class UserInterface {
 
     protected readonly playerAbilityStatus: PlayerAbility[];
 
-    constructor(protected player: PlayerSword /*|PlayerDaggers | PlayerHammer*/) {
-        this.playerAbilityStatus = this.player.getAbilityStatus();
+    constructor(protected readonly controller: Controller, protected readonly player: ClientPlayer) {
+        this.playerAbilityStatus = this.controller.getAbilityStatus();
 
         //this.portraitElement.width = 50;
         //this.portraitElement.height = 50;
@@ -148,14 +148,14 @@ export class UserInterface {
     protected globalCooldownLastFrame: number = -1;
     protected renderAbilities() {
         for (let i: number = 0; i < this.renderAbilityIconFunctions.length; i++) {
-            if (this.globalCooldownLastFrame !== this.player.globalCooldown || this.iconCooldownLastFrame[i] !== this.playerAbilityStatus[i].cooldown) {
+            if (this.globalCooldownLastFrame !== this.controller.globalCooldown || this.iconCooldownLastFrame[i] !== this.playerAbilityStatus[i].cooldown) {
                 this.abilityCanvas.fillStyle = "rgb(200, 200, 200)";
                 this.renderAbilityIconFunctions[i]();
                 this.abilityChanged[i] = false;
                 this.iconCooldownLastFrame[i] = this.playerAbilityStatus[i].cooldown + 0;
             }
         }
-        this.globalCooldownLastFrame = this.player.globalCooldown;
+        this.globalCooldownLastFrame = this.controller.globalCooldown;
     }
     protected renderAbilityIconFunctions: (() => void)[] = [
         () => {
@@ -175,12 +175,12 @@ export class UserInterface {
     protected renderAbilityIcon(pos: Vector, sideLength: number, abilityIndex: number) {
         this.abilityCanvas.clearRect(pos.x - 2, pos.y - 2, sideLength + 4, sideLength + 4);
 
-        if (this.playerAbilityStatus[abilityIndex].cooldown !== 0 || this.player.globalCooldown !== 0) {
+        if (this.playerAbilityStatus[abilityIndex].cooldown !== 0 || this.controller.globalCooldown !== 0) {
             this.abilityCanvas.fillStyle = "rgba(200, 200, 200, 0.4)";
             roundRect(this.abilityCanvas, pos.x, pos.y, sideLength, sideLength, 5, true, false);
             let clearRectHeight: number = this.playerAbilityStatus[abilityIndex].cooldown / this.playerAbilityStatus[abilityIndex].totalCooldown;
-            if (this.player.globalCooldown > this.playerAbilityStatus[abilityIndex].cooldown) {
-                clearRectHeight = this.player.globalCooldown / defaultActorConfig.globalCooldown;
+            if (this.controller.globalCooldown > this.playerAbilityStatus[abilityIndex].cooldown) {
+                clearRectHeight = this.controller.globalCooldown / defaultActorConfig.globalCooldown;
             }
             this.abilityCanvas.clearRect(pos.x - 2, pos.y - 2, sideLength + 4, sideLength * clearRectHeight + 2);
             this.abilityCanvas.fillStyle = "rgba(200, 200, 200, 0.2)";

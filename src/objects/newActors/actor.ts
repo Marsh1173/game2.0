@@ -57,7 +57,7 @@ export abstract class Actor {
         quantity: number,
         knockback: Vector | undefined,
         translationData: { name: TranslationName; angle: number } | undefined,
-    ): boolean;
+    ): { ifKilled: boolean; damageDealt: number };
 
     public abstract registerHeal(quantity: number): void;
 
@@ -65,4 +65,35 @@ export abstract class Actor {
 
     public registerDamageDone(quantity: number): void {}
     public registerKillDone(): void {}
+
+    public registerKnockback(force: Vector) {
+        this.actorObject.registerKnockback(force);
+    }
+
+    /**
+     * @param p1 start point of the line.
+     * @param p2 end point of the line.
+     * @returns returns true if the line intersects with the shape.
+     */
+    public checkIfCollidesWithLine(p1: Vector, p2: Vector): boolean {
+        return this.actorObject.checkIfCollidesWithLine(p1, p2);
+    }
+
+    /**
+     * @param largeShape Shape of the object in question.
+     * @returns true if any point of this actorObject falls inside the object in question.
+     */
+    public ifInsideLargerShape(largeShape: Vector[]): boolean {
+        if (this.actorObject.ifInsideLargerShape(largeShape)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * @param smallShape Shape of the object in question.
+     * @returns true if any point of the object in question falls inside this actorObject.
+     */
+    public ifInsideSmallerShape(smallShape: Vector[]): boolean {
+        return this.actorObject.ifInsideSmallerShape(smallShape);
+    }
 }

@@ -10,7 +10,7 @@ export function handleMessage(this: Game, msg: ServerMessage) {
         case "serverPlayerAction":
             if (msg.playerId === this.id) return;
             player = this.globalClientActors.players.find((player) => player.getActorId() === msg.playerId);
-            if (player && player !== this.gamePlayer) {
+            if (player) {
                 player.updatePositionAndMomentumFromServer(msg.position, msg.momentum);
                 player.moveActionsNextFrame[msg.actionType] = msg.starting;
             }
@@ -19,7 +19,7 @@ export function handleMessage(this: Game, msg: ServerMessage) {
             this.constructGame(msg.info);
             break;
         case "playerLeave":
-            this.globalClientActors.players = this.globalClientActors.players.filter((player) => player.getActorId() !== msg.id);
+            this.playerLeave(msg.id);
             break;
         case "playerJoin":
             this.newClientPlayer(msg.playerInfo);
@@ -41,12 +41,29 @@ export function handleMessage(this: Game, msg: ServerMessage) {
             break;
         case "serverHealMessage":
             let healedActor: ClientActor = this.findActor(msg.actorId, msg.actorType);
+            this.particleSystem.addSparks(healedActor.position);
             healedActor.registerHeal(msg.newHealth);
             break;
         case "serverDamageMessage":
             let damagedActor: ClientActor = this.findActor(msg.actorId, msg.actorType);
             let damageOriginActor: ClientActor = this.findActor(msg.originId, msg.originType);
             damagedActor.registerDamage(damageOriginActor, msg.newHealth, msg.knockback, msg.translationData);
+            break;
+        case "playerChangeFacing":
+            if (msg.id === this.id) return;
+            player = this.globalClientActors.players.find((player) => player.getActorId() === msg.id);
+            if (player) {
+                player.updateFacingFromServer(msg.facingRight);
+            }
+            break;
+        case "serverSwordMessage":
+            if (msg.originId === this.id) return;
+            let swordPlayer = this.globalClientActors.swordPlayers.find((player) => player.getActorId() === msg.originId);
+            if (swordPlayer) {
+                if (msg.msg.starting) swordPlayer.performClientAbility[msg.msg.ability](msg.msg.mousePos);
+                else swordPlayer.releaseClientAbility[msg.msg.ability]();
+            }
+
             break;
         default:
             throw new Error("Unrecognized message from server");

@@ -60,6 +60,16 @@ export abstract class Doodad {
         }
     }
 
+    public getCollisionRange(): number {
+        return this.collisionRange;
+    }
+
+    /**
+     * Very cheap check if two objects are close enough to touch.
+     * @param position Position of the object in question.
+     * @param objectCollisionRange Highest possible radius of the object in question.
+     * @returns True if the objects are close enough to possibly collide.
+     */
     public checkCollisionRange(position: Vector, objectCollisionRange: number): boolean {
         //if objects' collision bounds are too close
         return findDistance(this.position, position) <= this.collisionRange + objectCollisionRange;

@@ -57,6 +57,7 @@ function updateClassLevels() {
 
 var ifImagesHaveBeenLoaded: boolean = false;
 safeGetElementById("startGame").onmouseup = async () => {
+    hideMenuElements();
     saveLocalData();
 
     var name: string = (safeGetElementById("name") as HTMLInputElement).value;
@@ -89,13 +90,14 @@ safeGetElementById("startGame").onmouseup = async () => {
     const { id, info, config } = await serverTalker.serverTalkerReady;
     const game = new Game(info, config, id, serverTalker, 50);
     game.start();
-    //document.documentElement.requestFullscreen();
-    hideMenuElements();
+    document.documentElement.requestFullscreen();
+    gameDiv.style.display = "block";
     safeGetElementById("end").onclick = async () => {
         game.end();
-        showMenuElements();
+        gameDiv.style.display = "none";
         updateClassLevels();
-        //document.exitFullscreen();
+        document.exitFullscreen();
+        showMenuElements();
         return;
     };
 };
@@ -108,10 +110,10 @@ gameDiv.style.display = "none";
 function hideMenuElements() {
     menuDiv.style.display = "none";
     optionsDiv.style.display = "none";
-    gameDiv.style.display = "block";
+    //gameDiv.style.display = "block"; included in startgame button
 }
 function showMenuElements() {
-    gameDiv.style.display = "none";
+    //gameDiv.style.display = "none"; included in startgame button
     menuDiv.style.display = "flex";
     optionsDiv.style.display = "flex";
 }
@@ -211,6 +213,24 @@ safeGetElementById("informationButton").onclick = () => {
         informationDiv.style.display = "none";
         screenCover.style.display = "none";
         infoOption.classList.remove("selected");
+    }
+};
+
+var patchNotesDiv: HTMLElement = safeGetElementById("patchNotesDiv");
+var patchNotesOption: HTMLElement = safeGetElementById("patchNotesOption");
+safeGetElementById("patchNotesButton").onclick = () => {
+    patchNotesOption.classList.add("selected");
+    patchNotesDiv.style.display = "flex";
+    screenCover.style.display = "block";
+
+    screenCover.addEventListener("click", closePatchNotesDiv);
+
+    function closePatchNotesDiv() {
+        screenCover.removeEventListener("click", closePatchNotesDiv);
+
+        patchNotesDiv.style.display = "none";
+        screenCover.style.display = "none";
+        patchNotesOption.classList.remove("selected");
     }
 };
 var tipsButtonToggled: boolean = false;

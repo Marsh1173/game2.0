@@ -1,37 +1,34 @@
-import { Game } from "../../../../../client/game";
-import { assetManager } from "../../../../../client/gameRender/assetmanager";
-import { Vector } from "../../../../../vector";
-import { UserInterface } from "../../../../clientControllers/userInterface";
-import { ActorType } from "../../../actor";
-import { defaultActorConfig } from "../../../actorConfig";
-import { SerializedPlayer } from "../../../serverActors/serverPlayer/serverPlayer";
-import { ClientSword, SwordPlayerAbility } from "../clientClasses/clientSword";
-import { EmptyAbility } from "./abilities/emptyAbility";
+import { Game } from "../../../client/game";
 import { PlayerAbility } from "./abilities/playerAbility";
-import { PlayerHoldAbility } from "./abilities/playerHoldAbility";
+import { SerializedPlayer } from "../../newActors/serverActors/serverPlayer/serverPlayer";
+import { EmptyAbility } from "./abilities/emptyAbility";
+import { defaultActorConfig } from "../../newActors/actorConfig";
 import { SwordSlashAbility } from "./abilities/swordAbilities/swordSlashAbility";
 import { ClientSwordWhirlwindHit, SwordWhirlWindAbility } from "./abilities/swordAbilities/swordWhirlwindAbility";
+import { Vector } from "../../../vector";
+import { PlayerHoldAbility } from "./abilities/playerHoldAbility";
+import { ActorType } from "../../newActors/actor";
+import { ClientSword } from "../../newActors/clientActors/clientPlayer/clientClasses/clientSword";
+import { ClientPlayer } from "../../newActors/clientActors/clientPlayer/clientPlayer";
 
-export class PlayerSword extends ClientSword {
-    public level = 0; // set in setLevel()
-    public currentXp = 0;
-    public xpToNextLevel = 20; // set in setLevel()
+export abstract class Controller {
+    protected level = 0; // set in setLevel()
+    protected currentXp = 0;
+    protected xpToNextLevel = 20; // set in setLevel()
     public globalCooldown: number = 0;
 
-    public currentCastingAbility: number | undefined = undefined;
-    public stateStage: number = 0;
+    protected currentCastingAbility: number | undefined = undefined;
+    protected stateStage: number = 0;
 
     readonly abilityData: PlayerAbility[];
 
-    constructor(game: Game, playerInfo: SerializedPlayer) {
-        super(game, playerInfo);
-
+    constructor(protected readonly game: Game, protected readonly player: ClientPlayer) {
         this.abilityData = [];
         for (let i: number = 0; i < 4; i++) {
-            this.abilityData.push(new EmptyAbility(game, this, i));
+            this.abilityData.push(new EmptyAbility(game, this.player, this, i));
         }
 
-        this.setLevel(playerInfo.classLevel);
+        this.setLevel(this.player.getLevel());
     }
 
     public setXp(xp: number) {
@@ -42,19 +39,11 @@ export class PlayerSword extends ClientSword {
         this.level = level + 0;
         this.xpToNextLevel = defaultActorConfig.XPPerLevel * Math.pow(defaultActorConfig.LevelXPMultiplier, level - 1) + 0;
         this.setXp(0);
-        this.setAbilities(this.level, this.spec);
+        this.setAbilities();
         //this.UserInterface.updateLevel(level):
     }
-    setAbilities(level: number, spec: number) {
-        if (spec === 1) {
-            throw new Error("bad spec 1");
-        } else if (spec === 2) {
-            throw new Error("bad spec 2");
-        } else {
-            this.abilityData[0] = new SwordSlashAbility(this.game, this, 0);
-            this.abilityData[1] = new SwordWhirlWindAbility(this.game, this, 1);
-        }
-    }
+
+    protected abstract setAbilities(): void;
 
     public setCurrentCastingAbility(abilityIndex: number) {
         if (this.currentCastingAbility !== undefined) this.abilityData[this.currentCastingAbility].stopFunc();
@@ -66,6 +55,7 @@ export class PlayerSword extends ClientSword {
 
     public pressAbility(globalMousePos: Vector, abilityIndex: 0 | 1 | 2 | 3): boolean {
         if (this.abilityData[abilityIndex].attemptFunc()) {
+            this.updateFacing();
             this.abilityData[abilityIndex].pressFunc(globalMousePos);
             return true;
         }
@@ -110,22 +100,32 @@ export class PlayerSword extends ClientSword {
     public facingRight: boolean = true;
     protected updateFacing() {
         let mousePos: Vector = this.game.getGlobalMousePos();
-        if (mousePos.x > this.position.x) {
+        if (mousePos.x > this.player.position.x) {
             if (!this.facingRight) {
                 this.facingRight = true;
-                this.playerModel.changeFacing(true);
+                this.player.updateFacingFromServer(true);
+                this.game.serverTalker.sendMessage({
+                    type: "clientPlayerFacingUpdate",
+                    playerid: this.player.getActorId(),
+                    facingRight: this.facingRight,
+                });
                 //broadcast
             }
         } else {
             if (this.facingRight) {
                 this.facingRight = false;
-                this.playerModel.changeFacing(false);
+                this.player.updateFacingFromServer(false);
+                this.game.serverTalker.sendMessage({
+                    type: "clientPlayerFacingUpdate",
+                    playerid: this.player.getActorId(),
+                    facingRight: this.facingRight,
+                });
                 //broadcast
             }
         }
     }
 
-    update(elapsedTime: number) {
+    public update(elapsedTime: number) {
         this.updateGlobalCooldown(elapsedTime);
         if (this.currentCastingAbility !== undefined) {
             this.abilityData[this.currentCastingAbility].castUpdateFunc(elapsedTime);
@@ -133,18 +133,5 @@ export class PlayerSword extends ClientSword {
             this.updateFacing();
         }
         this.updateAbilities(elapsedTime);
-        super.update(elapsedTime);
     }
-}
-
-export interface ClientSwordMessage {
-    type: "clientSwordMessage";
-    msg: ClientSwordWhirlwindHit | ClientSwordSlashHit;
-}
-export interface ClientSwordSlashHit {
-    type: "clientSwordSlashHit";
-    actorType: ActorType;
-    actorId: number;
-    originId: number;
-    angle: number;
 }

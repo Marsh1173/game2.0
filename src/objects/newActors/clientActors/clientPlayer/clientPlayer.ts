@@ -9,14 +9,12 @@ import { PlayerObject } from "../../actorObjects/playerObject";
 import { ClassType, PlayerActionType, SerializedPlayer } from "../../serverActors/serverPlayer/serverPlayer";
 import { ClientActor } from "../clientActor";
 import { SwordPlayerModel } from "../model/playerModels/swordPlayerModel";
-import { PlayerModel } from "../models/playerModel";
 import { ClientSword } from "./clientClasses/clientSword";
 
 export abstract class ClientPlayer extends ClientActor {
     actorObject: PlayerObject;
-    model: PlayerModel;
 
-    protected readonly playerModel: SwordPlayerModel;
+    model: SwordPlayerModel;
 
     public abstract classType: ClassType;
     protected readonly color: string;
@@ -40,18 +38,8 @@ export abstract class ClientPlayer extends ClientActor {
 
         let playerSizePointer: Size = { width: defaultActorConfig.playerSize.width + 0, height: defaultActorConfig.playerSize.height + 0 };
 
-        this.playerModel = new SwordPlayerModel(game, this, game.getActorCtx(), playerInfo.position, game.getActorSide(this.id), this.color, playerSizePointer);
+        this.model = new SwordPlayerModel(game, this, game.getActorCtx(), playerInfo.position, game.getActorSide(this.id), this.color, playerSizePointer);
 
-        this.model = new PlayerModel(
-            this,
-            game.getActorCtx(),
-            playerInfo.position,
-            playerInfo.momentum,
-            playerSizePointer,
-            this.color,
-            this.healthInfo,
-            game.getActorSide(this.id),
-        );
         this.actorObject = new PlayerObject(game.getGlobalObjects(), this, this.position, this.momentum, playerSizePointer);
     }
 
@@ -121,7 +109,7 @@ export abstract class ClientPlayer extends ClientActor {
     protected abstract updateInput(elapsedTime: number): void;
 
     protected updateActions(elapsedTime: number) {
-        this.playerModel.update(elapsedTime);
+        this.model.update(elapsedTime);
 
         if (this.moveActionsNextFrame.jump) {
             this.jump();
@@ -143,7 +131,11 @@ export abstract class ClientPlayer extends ClientActor {
     }
 
     public render() {
-        this.playerModel.render();
+        this.model.render();
+    }
+
+    public updateFacingFromServer(facingRight: boolean) {
+        this.model.changeFacing(facingRight);
     }
 }
 
@@ -160,4 +152,10 @@ export interface ClientPlayerClick {
     type: "clientPlayerClick";
     playerId: number;
     leftClick: boolean;
+}
+
+export interface ClientPlayerFacingUpdate {
+    type: "clientPlayerFacingUpdate";
+    playerid: number;
+    facingRight: boolean;
 }

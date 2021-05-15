@@ -1,7 +1,8 @@
-import { Game, GlobalClientActors } from "../../../../../../client/game";
-import { Vector } from "../../../../../../vector";
-import { defaultActorConfig } from "../../../../actorConfig";
-import { PlayerSword } from "../playerSword";
+import { Game, GlobalClientActors } from "../../../../client/game";
+import { Vector } from "../../../../vector";
+import { defaultActorConfig } from "../../../newActors/actorConfig";
+import { ClientPlayer } from "../../../newActors/clientActors/clientPlayer/clientPlayer";
+import { Controller } from "../controller";
 
 export type PlayerAbilityType = "press" | "hold";
 
@@ -21,7 +22,8 @@ export abstract class PlayerAbility {
      */
     constructor(
         protected readonly game: Game,
-        protected readonly player: PlayerSword,
+        protected readonly player: ClientPlayer,
+        protected readonly controller: Controller,
         public readonly totalCooldown: number,
         public img: HTMLImageElement,
         protected readonly totalCastTime: number,
@@ -33,7 +35,7 @@ export abstract class PlayerAbility {
     }
 
     public attemptFunc(): boolean {
-        if (this.player.globalCooldown === 0 && this.cooldown === 0) return true;
+        if (this.controller.globalCooldown === 0 && this.cooldown === 0) return true;
         return false;
     }
     public updateFunc(elapsedTime: number) {

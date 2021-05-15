@@ -17,7 +17,6 @@ export class ClientHammer extends ClientPlayer {
     update(elapsedTime: number) {
         this.updateActions(elapsedTime);
         this.actorObject.update(elapsedTime, this.moveActionsNextFrame.moveLeft || this.moveActionsNextFrame.moveRight);
-        this.model.updateModel(elapsedTime);
     }
 
     public performClientAbility: Record<HammerPlayerAbility, (mousePos: Vector) => void> = {

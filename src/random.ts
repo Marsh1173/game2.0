@@ -1,14 +1,21 @@
+import { Vector } from "./vector";
+
 export class Random {
     public static nextDouble() {
         return Math.random();
     }
 
-    public static range(min: number, max: number) {
+    public static range(min: number, max: number): number {
+        let range = max - min;
+        return Math.random() * range + min;
+    }
+
+    public static rangeFloor(min: number, max: number): number {
         let range = max - min;
         return Math.floor(Math.random() * range + min);
     }
 
-    public static nextCircleVector() {
+    public static nextCircleVector(): Vector {
         let angle = Math.random() * 2 * Math.PI;
         return {
             x: Math.cos(angle),

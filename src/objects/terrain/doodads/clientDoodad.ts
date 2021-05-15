@@ -1,4 +1,5 @@
 import { assetManager } from "../../../client/gameRender/assetmanager";
+import { Size } from "../../../size";
 import { Vector } from "../../../vector";
 import { Doodad, DoodadType } from "./doodad";
 
@@ -7,6 +8,15 @@ export class ClientDoodad extends Doodad {
 
     constructor(position: Vector, rotation: number, doodadType: DoodadType, protected readonly ctx: CanvasRenderingContext2D) {
         super(position, rotation, doodadType);
+    }
+
+    public ifShouldRender(screenSize: Size, screenPos: Vector): boolean {
+        if (this.position.x + this.collisionRange >= -screenPos.x && this.position.x - this.collisionRange <= -screenPos.x + screenSize.width) {
+            return true;
+            /*if (this.position.y + this.collisionRange >= screenPos.y && this.position.y - this.collisionRange <= screenPos.y + screenSize.height) {
+            }*/ //only necessary if we add a y-dimension to the game.
+        }
+        return false;
     }
 
     public render() {

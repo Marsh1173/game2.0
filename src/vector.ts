@@ -1,3 +1,5 @@
+import { findAngle } from "./findAngle";
+
 export interface Vector {
     x: number;
     y: number;
@@ -23,6 +25,10 @@ export interface Shape {
     edges: Edge[];
 }
 
+export function findVectorFromAngle(angle: number, magnitude: number = 1): Vector {
+    return { x: Math.cos(angle) * magnitude, y: Math.sin(angle) * magnitude };
+}
+
 export function findDistance(a: Vector, b: Vector): number {
     return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }
@@ -42,6 +48,25 @@ export function rotateVector(angle: number, vector: Vector): Vector {
     };
 }
 
+export function rotateShape(shape: Vector[], angle: number, positionOffset: Vector, flipOverY: boolean = false): Vector[] {
+    let newVectorArray: Vector[] = [];
+
+    for (var i: number = 0; i < shape.length; i++) {
+        newVectorArray.push({ x: shape[i].x + 0, y: shape[i].y + 0 });
+
+        let tan: number = findAngle({ x: 0, y: 0 }, { x: newVectorArray[i].x, y: newVectorArray[i].y });
+        let mag: number = findLength(newVectorArray[i]);
+        newVectorArray[i].x = mag * Math.cos(tan + angle);
+        newVectorArray[i].y = mag * Math.sin(tan + angle) + positionOffset.y;
+
+        if (flipOverY) {
+            // flip it around if they're facing left
+            newVectorArray[i].x *= -1;
+        }
+        newVectorArray[i].x += positionOffset.x;
+    }
+    return newVectorArray;
+}
 export function dotProduct(v1: Vector, v2: Vector): number {
     return v1.x * v2.x + v1.y * v2.y;
 }

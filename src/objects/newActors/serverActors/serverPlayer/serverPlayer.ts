@@ -105,6 +105,14 @@ export abstract class ServerPlayer extends ServerActor {
         }
     }
 
+    protected broadcastFacing(facingRight: boolean) {
+        Game.broadcastMessage({
+            type: "playerChangeFacing",
+            facingRight,
+            id: this.id,
+        });
+    }
+
     serialize(): SerializedPlayer {
         return {
             id: this.id,
@@ -171,4 +179,10 @@ export interface PlayerSetXP {
 
 export interface PlayerAllowChooseSpec {
     type: "playerAllowChooseSpec";
+}
+
+export interface PlayerChangeFacing {
+    type: "playerChangeFacing";
+    facingRight: boolean;
+    id: number;
 }

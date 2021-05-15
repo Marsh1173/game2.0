@@ -39,17 +39,16 @@ export abstract class ServerActor extends Actor {
         quantity: number,
         knockback: Vector | undefined,
         translationData: { name: TranslationName; angle: number } | undefined,
-    ): boolean {
+    ): { ifKilled: boolean; damageDealt: number } {
         this.healthInfo.health = Math.max(this.healthInfo.health - quantity, 0);
         originActor.registerDamageDone(quantity);
 
-        if (translationData) this.actorObject.startTranslation(translationData.angle, translationData.name);
-        if (knockback) this.actorObject.registerKnockback(knockback);
-
         if (this.healthInfo.health === 0) {
             this.registerHeal(this.healthInfo.maxHealth); // DEBUGGING
-            return true;
+            return { ifKilled: true, damageDealt: quantity };
         } else {
+            if (translationData) this.actorObject.startTranslation(translationData.angle, translationData.name);
+            if (knockback) this.registerKnockback(knockback);
             Game.broadcastMessage({
                 type: "serverDamageMessage",
                 actorId: this.id,
@@ -60,7 +59,7 @@ export abstract class ServerActor extends Actor {
                 knockback,
                 translationData,
             });
-            return false;
+            return { ifKilled: false, damageDealt: quantity };
         }
     }
 

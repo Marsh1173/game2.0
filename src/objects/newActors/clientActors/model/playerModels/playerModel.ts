@@ -1,7 +1,8 @@
 import { Game } from "../../../../../client/game";
 import { Size } from "../../../../../size";
-import { Vector } from "../../../../../vector";
+import { rotateShape, Vector } from "../../../../../vector";
 import { defaultActorConfig } from "../../../actorConfig";
+import { renderShape } from "../../clientActor";
 import { ClientPlayer } from "../../clientPlayer/clientPlayer";
 import { SideType } from "../healthBar";
 import { Model } from "../model";
@@ -11,6 +12,8 @@ export abstract class PlayerModel extends Model {
 
     protected facingAnimation: { frame: number; facingRight: boolean } = { frame: 1, facingRight: true };
     protected facingAngleAnimation: { frame: number; angle: number; targetAngle: number } = { frame: 1, angle: 0, targetAngle: 0 };
+
+    protected hitAnimation: { frame: number; renderColor: string };
 
     constructor(
         game: Game,
@@ -22,10 +25,11 @@ export abstract class PlayerModel extends Model {
         protected readonly size: Size,
     ) {
         super(game, player, ctx, position, healthBarType);
+        this.hitAnimation = { frame: 0, renderColor: this.playerColor };
     }
 
     protected renderBlock() {
-        this.ctx.fillStyle = this.playerColor;
+        this.ctx.fillStyle = this.hitAnimation.renderColor;
         this.ctx.fillRect(this.size.width / -2, this.size.height / -2, this.size.width, this.size.height);
 
         /*this.ctx.strokeStyle = "green";
@@ -35,6 +39,43 @@ export abstract class PlayerModel extends Model {
         this.ctx.lineTo(Math.cos(this.facingAngleAnimation.angle) * 50, Math.sin(this.facingAngleAnimation.angle) * 50);
         this.ctx.stroke();*/
     }
+
+    public registerDamage(quantity: number) {
+        this.hitAnimation.frame += 0.05;
+        this.hitAnimation.renderColor = "red";
+        super.registerDamage(quantity);
+    }
+
+    protected updateHitAnimation(elapsedTime: number) {
+        if (this.hitAnimation.frame > 0) {
+            this.hitAnimation.frame -= elapsedTime;
+            if (this.hitAnimation.frame <= 0) {
+                this.hitAnimation.frame = 0;
+                this.hitAnimation.renderColor = this.playerColor;
+            }
+        }
+    }
+
+    public render() {
+        this.ctx.translate(this.position.x, this.position.y);
+        this.ctx.rotate(this.player.actorObject.objectAngle);
+        this.renderBlock();
+        this.ctx.rotate(-this.player.actorObject.objectAngle);
+
+        let facing: number = this.getFacingScale();
+        let angle: number = this.getFacingAngle();
+
+        this.ctx.scale(facing, 1);
+        this.ctx.rotate(angle);
+        this.renderWeapon();
+        this.ctx.rotate(-angle);
+        this.ctx.scale(1 / facing, 1);
+
+        this.ctx.translate(-this.position.x, -this.position.y);
+        this.healthBar.renderHealth();
+    }
+
+    protected abstract renderWeapon(): void;
 
     protected updateFacing(elapsedTime: number) {
         if (this.facingAnimation.frame < 1) {
@@ -80,6 +121,13 @@ export abstract class PlayerModel extends Model {
         } else {
             this.facingAngleAnimation.targetAngle = angle;
         }
+    }
+
+    public update(elapsedTime: number) {
+        this.updateFacing(elapsedTime);
+        this.updateFacingAngle(elapsedTime);
+        this.updateHitAnimation(elapsedTime);
+        super.update(elapsedTime);
     }
 }
 

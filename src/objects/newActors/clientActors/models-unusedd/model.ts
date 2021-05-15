@@ -2,12 +2,12 @@ import e = require("express");
 import { textSpanIntersectsWithTextSpan } from "typescript";
 import { LinkedList, Node } from "../../../../linkedList";
 import { Vector } from "../../../../vector";
+import { SideType } from "../model/healthBar";
 
-export type SideType = "enemy" | "self" | "ally";
 const healthDividerWidth: number = 20;
 const healthBarDuration: number = 0.15;
 
-export abstract class Model {
+abstract class Model {
     protected targetPosition: Vector = { x: 0, y: 0 };
     protected readonly healthHeight: number = 50;
     protected readonly healthColor: string;

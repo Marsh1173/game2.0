@@ -1,8 +1,7 @@
 import { Game } from "../../../../client/game";
 import { Vector } from "../../../../vector";
 import { ClientPlayer } from "../clientPlayer/clientPlayer";
-import { SideType } from "../models/model";
-import { HealthBarModel } from "./healthBar";
+import { HealthBarModel, SideType } from "./healthBar";
 import { Joint } from "./joint";
 
 export abstract class Model {
@@ -26,8 +25,13 @@ export abstract class Model {
     }
 
     public abstract render(): void;
+    public renderHealth() {
+        this.healthBar.renderHealth();
+    }
 
-    public abstract update(elapsedTime: number): void;
+    public update(elapsedTime: number) {
+        this.healthBar.update(elapsedTime);
+    }
 }
 
 export interface ModelAnimation {

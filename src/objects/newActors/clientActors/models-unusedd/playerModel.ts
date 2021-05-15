@@ -2,9 +2,8 @@ import { Size } from "../../../../size";
 import { Vector } from "../../../../vector";
 import { defaultActorConfig } from "../../actorConfig";
 import { ClientPlayer } from "../clientPlayer/clientPlayer";
-import { SideType, Model } from "./model";
 
-export class PlayerModel extends Model {
+/*export class PlayerModel extends Model {
     constructor(
         private playerActor: ClientPlayer,
         ctx: CanvasRenderingContext2D,
@@ -26,4 +25,4 @@ export class PlayerModel extends Model {
         this.ctx.fillRect(-this.size.width / 2, -this.size.height / 2, this.size.width, this.size.height);
         this.ctx.restore();
     }
-}
+}*/

@@ -2,7 +2,7 @@ import { DoodadType } from "../../objects/terrain/doodads/doodad";
 import { ServerTalker } from "../servertalker";
 
 export type AbilityImageName = "slashIcon" | "whirlwindIcon" | "emptyIcon" | "lvl10" | "lvl6" | "stabIcon" | "lungeIcon" | "swingIcon" | "poundIcon";
-export type WeaponImageName = "berserkerSword2";
+export type WeaponImageName = "sword11" | "dagger11" | "hammer11";
 
 export type ImageName = DoodadType | AbilityImageName | WeaponImageName;
 
@@ -19,7 +19,9 @@ export const imageInformation: Record<ImageName, string> = {
     lungeIcon: `http://${ServerTalker.hostName}/images/abilityIcons/lungeIcon.png`,
     swingIcon: `http://${ServerTalker.hostName}/images/abilityIcons/swingIcon.png`,
     poundIcon: `http://${ServerTalker.hostName}/images/abilityIcons/poundIcon.png`,
-    berserkerSword2: `http://${ServerTalker.hostName}/images/weaponImages/berserkerSword2.png`,
+    sword11: `http://${ServerTalker.hostName}/images/weaponImages/sword11.png`,
+    hammer11: `http://${ServerTalker.hostName}/images/weaponImages/hammer11.png`,
+    dagger11: `http://${ServerTalker.hostName}/images/weaponImages/dagger11.png`,
 };
 class AssetManager {
     public images: Record<ImageName, HTMLImageElement>;

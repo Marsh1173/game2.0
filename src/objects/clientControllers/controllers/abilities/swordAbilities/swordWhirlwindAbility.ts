@@ -1,18 +1,20 @@
-import { Game } from "../../../../../../../client/game";
-import { assetManager } from "../../../../../../../client/gameRender/assetmanager";
-import { findAngle } from "../../../../../../../findAngle";
-import { findDistance, Vector } from "../../../../../../../vector";
-import { ActorType } from "../../../../../actor";
-import { ClientActor } from "../../../../clientActor";
-import { ClientSword } from "../../../clientClasses/clientSword";
-import { PlayerSword } from "../../playerSword";
+import { Game } from "../../../../../client/game";
+import { assetManager } from "../../../../../client/gameRender/assetmanager";
+import { findAngle } from "../../../../../findAngle";
+import { findDistance, Vector } from "../../../../../vector";
+import { ActorType } from "../../../../newActors/actor";
+import { ClientActor } from "../../../../newActors/clientActors/clientActor";
+import { ClientSword } from "../../../../newActors/clientActors/clientPlayer/clientClasses/clientSword";
+import { Controller } from "../../controller";
+import { SwordController } from "../../swordController";
 import { PlayerHoldAbility } from "../playerHoldAbility";
 
 export class SwordWhirlWindAbility extends PlayerHoldAbility {
-    constructor(game: Game, player: PlayerSword, abilityArrayIndex: number) {
+    constructor(game: Game, protected readonly player: ClientSword, protected readonly controller: SwordController, abilityArrayIndex: number) {
         super(
             game,
             player,
+            controller,
             SwordWhirlWindAbilityData.cooldown,
             assetManager.images["whirlwindIcon"],
             SwordWhirlWindAbilityData.totalCastTime,
@@ -21,12 +23,13 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
     }
 
     public pressFunc(globalMousePos: Vector) {
-        this.player.setNegativeGlobalCooldown();
-        this.player.setCurrentCastingAbility(this.abilityArrayIndex);
+        this.controller.setNegativeGlobalCooldown();
+        this.controller.setCurrentCastingAbility(this.abilityArrayIndex);
         this.player.performClientAbility["whirlwind"](globalMousePos);
         this.cooldown = this.totalCooldown / 2;
         this.casting = true;
 
+        this.controller.sendServerSwordAbility("whirlwind", true, { x: 0, y: 0 });
         //broadcast starting
     }
     public castUpdateFunc(elapsedTime: number) {
@@ -72,10 +75,12 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
     public stopFunc() {
         if (this.casting) {
             this.player.releaseClientAbility["whirlwind"]();
-            this.player.resetGlobalCooldown();
-            this.player.resetCurrentCastingAbility();
+            this.controller.resetGlobalCooldown();
+            this.controller.resetCurrentCastingAbility();
             this.resetAbility();
             this.casting = false;
+
+            this.controller.sendServerSwordAbility("whirlwind", false, { x: 0, y: 0 });
             //boradcast ending
         }
     }
@@ -84,10 +89,8 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
 export const SwordWhirlWindAbilityData = {
     cooldown: 3,
     totalCastTime: 1.5,
-    hitDetectTimer: 0.35,
-    hitRange: 150,
-    damage: 15,
-    knockbackForce: 300,
+    hitDetectTimer: 0.3,
+    hitRange: 80,
 };
 
 export interface ClientSwordWhirlwindHit {

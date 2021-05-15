@@ -1,5 +1,7 @@
 import { GlobalObjects } from "../../../client/game";
 import { defaultConfig } from "../../../config";
+import { ifInside } from "../../../ifInside";
+import { ifIntersect } from "../../../ifIntersect";
 import { Size } from "../../../size";
 import { rotateVector, Shape, Vector } from "../../../vector";
 import { Doodad } from "../../terrain/doodads/doodad";
@@ -37,6 +39,37 @@ export abstract class ActorObject {
     public abstract getGlobalShape(): Shape;
     public abstract getCollisionRange(): number;
     public abstract registerGroundAngle(angle: number, standing: boolean): void;
+
+    public checkIfCollidesWithLine(p1: Vector, p2: Vector): boolean {
+        let personalShape: Shape = this.getGlobalShape();
+
+        for (let i: number = 0; i < personalShape.edges.length; i++) {
+            if (ifIntersect(personalShape.edges[i].p1, personalShape.edges[i].p2, p1, p2)) {
+                return true;
+            }
+        }
+        //last check in case the line is inside object
+        if (ifInside(p1, personalShape.points)) return true;
+        return false;
+    }
+    public ifInsideLargerShape(largeShape: Vector[]): boolean {
+        let personalShape: Shape = this.getGlobalShape();
+        for (let i: number = 0; i < personalShape.points.length; i++) {
+            if (ifInside(personalShape.points[i], largeShape)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public ifInsideSmallerShape(smallShape: Vector[]): boolean {
+        let personalShape: Shape = this.getGlobalShape();
+        for (let i: number = 0; i < smallShape.length; i++) {
+            if (ifInside(smallShape[i], personalShape.points)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     protected registerGravity(elapsedTime: number) {
         this.momentum.y += defaultActorConfig.fallingAcceleration * elapsedTime * this.mass;

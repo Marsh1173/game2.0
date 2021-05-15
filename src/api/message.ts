@@ -1,8 +1,10 @@
-import { ClientPlayerAction, ClientPlayerClick } from "../objects/newActors/clientActors/clientPlayer/clientPlayer";
-import { ClientSwordMessage } from "../objects/newActors/clientActors/clientPlayer/playerClasses/playerSword";
+import { ClientSwordMessage } from "../objects/clientControllers/controllers/swordController";
+import { ClientPlayerAction, ClientPlayerClick, ClientPlayerFacingUpdate } from "../objects/newActors/clientActors/clientPlayer/clientPlayer";
 import { ServerDamageMessage, ServerHealMessage } from "../objects/newActors/serverActors/serverActor";
+import { ServerSwordMessage } from "../objects/newActors/serverActors/serverPlayer/serverClasses/serverSword";
 import {
     PlayerAllowChooseSpec,
+    PlayerChangeFacing,
     PlayerChangeSpec,
     PlayerJoin,
     PlayerLeave,
@@ -32,6 +34,8 @@ export type ServerMessage =
     | PlayerSetXP
     | PlayerAllowChooseSpec
     | ServerDamageMessage
-    | ServerHealMessage;
+    | ServerHealMessage
+    | PlayerChangeFacing
+    | ServerSwordMessage;
 
-export type ClientMessage = ClientPlayerAction | ClientPlayerClick | ClientSwordMessage;
+export type ClientMessage = ClientPlayerAction | ClientPlayerClick | ClientSwordMessage | ClientPlayerFacingUpdate;

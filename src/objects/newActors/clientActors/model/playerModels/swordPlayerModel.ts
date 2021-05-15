@@ -3,6 +3,7 @@ import { assetManager } from "../../../../../client/gameRender/assetmanager";
 import { findAngle } from "../../../../../findAngle";
 import { Size } from "../../../../../size";
 import { Vector } from "../../../../../vector";
+import { renderShape } from "../../clientActor";
 import { ClientPlayer } from "../../clientPlayer/clientPlayer";
 import { SideType } from "../healthBar";
 import { Joint } from "../joint";
@@ -19,26 +20,11 @@ export class SwordPlayerModel extends PlayerModel {
 
     constructor(game: Game, player: ClientPlayer, ctx: CanvasRenderingContext2D, position: Vector, healthBarType: SideType, playerColor: string, size: Size) {
         super(game, player, ctx, position, healthBarType, playerColor, size);
-        this.swordJoint = new Joint(this.ctx, assetManager.images["berserkerSword2"], { x: -50, y: -150 }, 0.4, 0, { x: -25, y: 10 }, 0, -0.5);
+        this.swordJoint = new Joint(this.ctx, assetManager.images["sword11"], { x: -34, y: -250 }, 0.24, 0, { x: -25, y: 20 }, 0, -0.4);
     }
 
-    public render() {
-        this.ctx.translate(this.position.x, this.position.y);
-        this.ctx.rotate(this.player.actorObject.objectAngle);
-        this.renderBlock();
-        this.ctx.rotate(-this.player.actorObject.objectAngle);
-
-        let facing: number = this.getFacingScale();
-        let angle: number = this.getFacingAngle();
-
-        this.ctx.scale(facing, 1);
-        this.ctx.rotate(angle);
+    public renderWeapon() {
         this.swordJoint.render(this.animationTime / this.animationStateAnimation.totalTime, this.animationStateAnimation.jointAnimationInfo["playerSword"]);
-        this.ctx.rotate(-angle);
-        this.ctx.scale(1 / facing, 1);
-
-        this.ctx.translate(-this.position.x, -this.position.y);
-        this.healthBar.renderHealth();
     }
 
     public update(elapsedTime: number) {
@@ -51,14 +37,13 @@ export class SwordPlayerModel extends PlayerModel {
             }
         }
 
-        this.updateFacing(elapsedTime);
-        this.updateFacingAngle(elapsedTime);
-        this.healthBar.update(elapsedTime);
         this.swordJoint.update(elapsedTime);
+        super.update(elapsedTime);
     }
 
     public setAnimation(animation: SwordPlayerAnimationName, angle: number) {
         this.animationTime = 0;
+        this.animationState = animation;
         this.animationStateAnimation = SwordPlayerAnimationData[animation];
         this.changeFacingAngle(angle);
     }

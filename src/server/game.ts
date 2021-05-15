@@ -10,12 +10,22 @@ import { ServerDoodad } from "../objects/terrain/doodads/serverDoodad";
 import { ServerDaggers } from "../objects/newActors/serverActors/serverPlayer/serverClasses/serverDaggers";
 import { ServerHammer } from "../objects/newActors/serverActors/serverPlayer/serverClasses/serverHammer";
 import { GlobalObjects } from "../client/game";
+import { ServerActor } from "../objects/newActors/serverActors/serverActor";
+import { ActorType } from "../objects/newActors/actor";
+import { playerModelConfig } from "../objects/newActors/clientActors/model/playerModels/playerModel";
 
 export class Game {
     private intervalId?: NodeJS.Timeout;
     private static readonly REFRESH_RATE = 16;
 
-    public players: ServerPlayer[] = [];
+    protected globalServerActors: GlobalServerActors = {
+        actors: [],
+        players: [],
+        swordPlayers: [],
+        daggerPlayers: [],
+        hammerPlayers: [],
+    };
+    //public players: ServerPlayer[] = [];
     private readonly floor: ServerFloor = new ServerFloor(this.config.xSize, this.config.ySize);
     private readonly doodads: ServerDoodad[] = [];
 
@@ -52,7 +62,7 @@ export class Game {
 
     public allInfo(): AllInfo {
         return {
-            players: this.players.map((player) => player.serialize()),
+            players: this.globalServerActors.players.map((player) => player.serialize()),
             floor: this.floor.serialize(),
             doodads: this.doodads.map((doodad) => doodad.serialize()),
         };
@@ -69,24 +79,45 @@ export class Game {
     }
 
     public update(elapsedTime: number) {
-        if (this.players.length === 0) {
+        if (this.globalServerActors.actors.length === 0) {
             return;
         }
 
-        this.updateObjects(elapsedTime);
+        this.updateActors(elapsedTime);
     }
 
-    private updateObjects(elapsedTime: number) {
-        this.players.forEach((player) => player.update(elapsedTime));
+    private updateActors(elapsedTime: number) {
+        this.globalServerActors.actors.forEach((actor) => actor.update(elapsedTime));
     }
 
     public newPlayer(id: number, name: string, color: string, team: number, classType: ClassType, classLevel: number, classSpec: number) {
+        //adding conditions  to prevent errors
+        if (classLevel < 1 || classLevel > 10) {
+            classLevel = 0;
+        }
         if (classLevel < 3 || classSpec > 2) {
             classSpec = 0;
         }
 
-        let newPlayer = this.createNewPlayer(id, name, color, team, classType, classLevel, classSpec);
-        this.players.push(newPlayer);
+        let newPlayer: ServerPlayer;
+        switch (classType) {
+            case "sword":
+                newPlayer = new ServerSword(this, id, color, name, classLevel, classSpec);
+                this.globalServerActors.swordPlayers.push(newPlayer as ServerSword);
+                break;
+            case "daggers":
+                newPlayer = new ServerDaggers(this, id, color, name, classLevel, classSpec);
+                this.globalServerActors.daggerPlayers.push(newPlayer as ServerDaggers);
+                break;
+            case "hammer":
+                newPlayer = new ServerHammer(this, id, color, name, classLevel, classSpec);
+                this.globalServerActors.hammerPlayers.push(newPlayer as ServerHammer);
+                break;
+            default:
+                throw new Error("unknown player class type " + classType);
+        }
+        this.globalServerActors.actors.push(newPlayer);
+        this.globalServerActors.players.push(newPlayer);
 
         Game.broadcastMessage({
             type: "playerJoin",
@@ -104,21 +135,24 @@ export class Game {
         });
     }
 
-    public createNewPlayer(id: number, name: string, color: string, team: number, classType: ClassType, classLevel: number, classSpec: number): ServerPlayer {
-        switch (classType) {
-            case "sword":
-                return new ServerSword(this, id, color, name, classLevel, classSpec);
-            case "daggers":
-                return new ServerDaggers(this, id, color, name, classLevel, classSpec);
-            case "hammer":
-                return new ServerHammer(this, id, color, name, classLevel, classSpec);
-            default:
-                throw new Error("unknown player class type " + classType);
-        }
-    }
-
     public removePlayer(id: number) {
-        this.players = this.players.filter((player) => player.getActorId() !== id);
+        let player: ServerPlayer = this.globalServerActors.players.find((player) => player.getActorId() === id)!;
+        switch (player.getClassType()) {
+            case "daggers":
+                this.globalServerActors.daggerPlayers = this.globalServerActors.daggerPlayers.filter((player) => player.getActorId() !== id);
+                break;
+            case "sword":
+                this.globalServerActors.swordPlayers = this.globalServerActors.swordPlayers.filter((player) => player.getActorId() !== id);
+                break;
+            case "hammer":
+                this.globalServerActors.hammerPlayers = this.globalServerActors.hammerPlayers.filter((player) => player.getActorId() !== id);
+                break;
+            default:
+                throw new Error("unknown class type in playerLeave");
+        }
+        this.globalServerActors.players = this.globalServerActors.players.filter((player) => player.getActorId() !== id);
+        this.globalServerActors.actors = this.globalServerActors.actors.filter((actor) => actor.getActorId() !== id);
+
         Game.broadcastMessage({
             type: "playerLeave",
             id,
@@ -137,23 +171,53 @@ export class Game {
                     position: data.position,
                     momentum: data.momentum,
                 });
-                player = this.players.find((player) => player.getActorId() === data.playerId);
+                player = this.globalServerActors.players.find((player) => player.getActorId() === data.playerId);
                 if (player) {
                     player.updatePositionAndMomentum(data.momentum, data.position);
                     player.actionsNextFrame[data.actionType] = data.starting;
                 }
                 break;
-            case "clientPlayerClick":
-                let damagingPlayer: ServerPlayer = this.players.find((player) => player.getActorId() === data.playerId)!;
-                if (damagingPlayer) {
-                    this.players.forEach((targetPlayer) => {
-                        if (data.leftClick) targetPlayer.registerDamage(damagingPlayer, Math.ceil(Math.random() * 25), undefined, undefined);
-                        else targetPlayer.registerHeal(Math.ceil(Math.random() * 15));
-                    });
+            case "clientPlayerFacingUpdate":
+                Game.broadcastMessage({
+                    type: "playerChangeFacing",
+                    id: data.playerid,
+                    facingRight: data.facingRight,
+                });
+                break;
+            case "clientSwordMessage":
+                let swordPlayer: ServerSword | undefined = this.globalServerActors.swordPlayers.find((player) => player.getActorId() === data.msg.originId);
+                switch (data.msg.type) {
+                    case "clientSwordWhirlwindHit":
+                        if (swordPlayer) swordPlayer.assignWhirlwindDamage(data.msg.actors);
+                        break;
+                    case "clientSwordSlashHit":
+                        if (swordPlayer) swordPlayer.assignSlashDamage(data.msg.actors);
+                        break;
+                    case "clientSwordAbility":
+                        if (swordPlayer) swordPlayer.performServerAbility(data.msg.abilityType, data.msg.starting, data.msg.mousePos);
+                        break;
+
+                    default:
+                        throw new Error(`Invalid clientSwordMessage type`);
                 }
                 break;
             default:
                 throw new Error(`Invalid client message type`);
+        }
+    }
+
+    public findActor(actorId: number, type: ActorType): ServerActor | undefined {
+        switch (type) {
+            case "daggersPlayer":
+                return this.globalServerActors.daggerPlayers.find((player) => player.getActorId() === actorId)!;
+            case "hammerPlayer":
+                return this.globalServerActors.hammerPlayers.find((player) => player.getActorId() === actorId)!;
+            case "swordPlayer":
+                return this.globalServerActors.swordPlayers.find((player) => player.getActorId() === actorId)!;
+            case "testMob":
+                throw new Error("Test mobs have not been implemented in findActor");
+            default:
+                throw new Error(`Invalid actor type in findActor ` + type + ` with id ` + actorId);
         }
     }
 
@@ -163,4 +227,16 @@ export class Game {
             doodads: this.doodads,
         };
     }
+
+    public getGlobalServerActors(): GlobalServerActors {
+        return this.globalServerActors;
+    }
+}
+
+export interface GlobalServerActors {
+    actors: ServerActor[];
+    players: ServerPlayer[];
+    swordPlayers: ServerSword[];
+    daggerPlayers: ServerDaggers[];
+    hammerPlayers: ServerHammer[];
 }

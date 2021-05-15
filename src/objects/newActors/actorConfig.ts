@@ -37,8 +37,8 @@ export const defaultActorConfig: ActorConfig = {
     playerMass: 10,
     playerMaxHealth: 100,
     playerJumpHeight: 1000,
-    maxSidewaysMomentum: 500, //400
-    standingSidewaysAcceleration: 8000, //8000
+    maxSidewaysMomentum: 450, //400
+    standingSidewaysAcceleration: 6000, //8000
     nonStandingSidewaysAcceleration: 1500, //1500
     fallingAcceleration: 300,
     XPPerLevel: 20,

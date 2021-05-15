@@ -17,6 +17,5 @@ export class ClientDaggers extends ClientPlayer {
     update(elapsedTime: number) {
         this.updateActions(elapsedTime);
         this.actorObject.update(elapsedTime, this.moveActionsNextFrame.moveLeft || this.moveActionsNextFrame.moveRight);
-        this.model.updateModel(elapsedTime);
     }
 }

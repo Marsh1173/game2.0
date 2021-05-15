@@ -9,17 +9,10 @@
     <body oncontextmenu="return false;">
         <div id="backgroundGradient"></div><!--#1c262c is underground color-->
         <div id="gameDiv">
-            <div id='slideContainer'>
-                <!--<img id='slideBackground' src='images/testBackground.jpg'/>-->
-                <div id='slider'><canvas id="canvas"></canvas></div>
-            </div>
             <img id="moon" src="images/nate's moon.png"/>
             <div id="canvasDiv">
-                <canvas id="backgroundCanvas"></canvas>
-                <canvas id="buildingLayerOneCanvas"></canvas>
                 <canvas id="actorCanvas"></canvas>
             </div>
-            <div id="groundExcess"></div>
             <div id="UserInterfaceDiv">
                 <canvas id="abilityCanvas"></canvas>
                 <canvas id="healthCanvas"></canvas>
@@ -29,15 +22,14 @@
         <div id="optionsDiv">
             <div id="optionIcons">
                 <div id="settingsOption" ><img id="settingsOptionImage" src="images/options.png"/></div>
-                <hr/>
-                <div id="emailOption" ><img id="emailOptionImage" src="images/emailIcon.png"/></div>
-                <hr/>
+                <div id="patchNotesOption"><p id="patchNotesOptionIcon" style="color:rgb(157, 255, 247)">☰</p></div>
+                <div id="emailOption" ><p id="emailOptionIcon">✉</p></div>
                 <div id="infoOption" ><p id="infoOptionIcon">ⓘ</p></div>
-                <hr/>
                 <div id="tipsOption"><p id="tipsOptionIcon">?</p></div>
             </div>
             <div id="optionsTooltip">
                 <p id="settingsButton">Settings</p>
+                <p id="patchNotesButton">Patch Notes</p>
                 <p id="commentButton">Submit a Comment</p>
                 <p id="informationButton">Website Information</p>
                 <p id="toggleTipsButton">Toggle Tips</p>
@@ -83,6 +75,40 @@
         <div id="commentDiv">
             <textarea id="comment" placeholder="Type a comment to submit to the website's owner..."></textarea>
             <button id="submitComment" onclick="sendEmail()">Submit Comment</button>
+        </div>
+        <div id='patchNotesDiv'>
+            <h2>Patch Notes</h2>
+            <hr />
+            <p class="patchDate newPatch">5-15-2021 - NEW</p>
+            <p class="newPatch">ADDED PATCH NOTES.</p>
+            <p class="newPatch">Added a basic weapon and animations!! More to come with the next patch!</p>
+            <p class="newPatch">Vastly improved user interface and removed levels and experience for now.</p>
+            <p class="newPatch">Added basic abilities for the sword class including Slash and Whirlwind, and more will come next patch for the remaining classes.</p>
+            <p class="newPatch">MASSIVE rendering performance improvements, with up to 50% increased game engine speeds.</p>
+            <p class="newPatch">New support for larger screens, removed 4k screen floor clipping (this one's for you, Mark and Kassi).</p>
+            <p class="newPatch">Added small red player flashes for better hit visibility.</p>
+            <p class="newPatch">Added basic particle functionality that's displayed when a player is healed.</p>
+            <hr/>
+            <p class="patchDate">5-5-2021</p>
+            <p>Small bug fixes for player health. Player's health was not updating correctly and sometimes overshooting their max health.</p>
+            <hr />
+            <p class="patchDate">5-5-2021</p>
+            <p>Huge updates to user interface, and added a few early ability icons. Added a heal animation to the healthbars, and testing with left/right clicks.</p>
+            <p>Improved the main actor canvas to reduce clipping and improve performance.</p>
+            <hr />
+            <p class="patchDate">5-3-2021</p>
+            <p>Added basic user interface with more to come. Adjusted controls to be more responsive, and added options to the main menu.</p>
+            <p>Finishing touches on doodad collision detection and response forcing.</p>
+            <hr />
+            <p class="patchDate">4-29-2021</p>
+            <p>Added basic rock doodads, with more to come as the game progresses.</p>
+            <p>Added and improved class icons.</p>
+            <hr />
+            <p class="patchDate">4-27-2021</p>
+            <p>Overhauled the object hierarchy in the code, resulting in faster processing and more potential to the game.</p>
+            <p>Redid the main menu, with clearer buttons and a more appealing visual style.</p>
+            <p>New and improved terrain system, featuring hills and realistic-er ground.</p>
+            <p>Improved graphics and faster rendering for background and players.</p>
         </div>
         <div id="informationDiv">
             <h3>Creator</h3>
