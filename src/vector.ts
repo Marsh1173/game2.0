@@ -48,6 +48,16 @@ export function rotateVector(angle: number, vector: Vector): Vector {
     };
 }
 
+export function findMirroredAngle(angle: number): number {
+    if (angle < Math.PI / -2) {
+        return -Math.PI - angle;
+    } else if (angle > Math.PI / 2) {
+        return Math.PI - angle;
+    } else {
+        return angle;
+    }
+}
+
 export function rotateShape(shape: Vector[], angle: number, positionOffset: Vector, flipOverY: boolean = false): Vector[] {
     let newVectorArray: Vector[] = [];
 

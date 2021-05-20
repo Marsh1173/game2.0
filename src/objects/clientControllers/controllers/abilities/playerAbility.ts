@@ -56,4 +56,16 @@ export abstract class PlayerAbility {
     protected resetAbility() {
         this.castStage = 0;
     }
+
+    public getIconCooldownPercent(): number {
+        if (this.cooldown !== 0 || this.controller.globalCooldown !== 0) {
+            if (this.controller.globalCooldown > this.cooldown) {
+                return this.controller.globalCooldown / defaultActorConfig.globalCooldown;
+            } else {
+                return this.cooldown / this.totalCooldown;
+            }
+        } else {
+            return 0;
+        }
+    }
 }

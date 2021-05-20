@@ -1,6 +1,7 @@
 import { Game } from "../../../../../client/game";
+import { roundRect } from "../../../../../client/gameRender/gameRenderer";
 import { Size } from "../../../../../size";
-import { rotateShape, Vector } from "../../../../../vector";
+import { findMirroredAngle, rotateShape, Vector } from "../../../../../vector";
 import { defaultActorConfig } from "../../../actorConfig";
 import { renderShape } from "../../clientActor";
 import { ClientPlayer } from "../../clientPlayer/clientPlayer";
@@ -32,6 +33,11 @@ export abstract class PlayerModel extends Model {
         this.ctx.fillStyle = this.hitAnimation.renderColor;
         this.ctx.fillRect(this.size.width / -2, this.size.height / -2, this.size.width, this.size.height);
 
+        this.ctx.strokeStyle = "#222222";
+        this.ctx.lineWidth = 2;
+        roundRect(this.ctx, this.size.width / -2 - 1, this.size.height / -2 - 1, this.size.width + 2, this.size.height + 2, 3, false, true);
+        //();
+
         /*this.ctx.strokeStyle = "green";
         this.ctx.lineWidth = 3;
         this.ctx.beginPath();
@@ -41,7 +47,7 @@ export abstract class PlayerModel extends Model {
     }
 
     public registerDamage(quantity: number) {
-        this.hitAnimation.frame += 0.05;
+        this.hitAnimation.frame = 0.07;
         this.hitAnimation.renderColor = "red";
         super.registerDamage(quantity);
     }
@@ -114,13 +120,7 @@ export abstract class PlayerModel extends Model {
 
     public changeFacingAngle(angle: number) {
         this.facingAngleAnimation.frame = 0;
-        if (angle < Math.PI / -2) {
-            this.facingAngleAnimation.targetAngle = -Math.PI - angle;
-        } else if (angle > Math.PI / 2) {
-            this.facingAngleAnimation.targetAngle = Math.PI - angle;
-        } else {
-            this.facingAngleAnimation.targetAngle = angle;
-        }
+        this.facingAngleAnimation.targetAngle = findMirroredAngle(angle);
     }
 
     public update(elapsedTime: number) {

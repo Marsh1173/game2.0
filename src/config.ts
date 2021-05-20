@@ -35,7 +35,7 @@ export interface Config {
 }
 
 export const defaultConfig: Config = {
-    playerSize: { width: 48, height: 50 },
+    playerSize: { width: 96, height: 100 },
     playerStart: {
         x: 300,
         y: 650,

@@ -76,13 +76,23 @@ export abstract class ActorObject {
     }
 
     protected registerGroundFriction(elapsedTime: number) {
-        if (Math.abs(this.momentum.x) <= 100) this.momentum.x = 0;
-        else this.momentum.x -= elapsedTime * this.mass * (this.momentum.x <= 0 ? -1 : 1) * 600;
+        //if (Math.abs(this.momentum.x) <= 10) this.momentum.x = 0;
+        //else this.momentum.x -= elapsedTime * this.mass * (this.momentum.x <= 0 ? -1 : 1) * 600;
+        if (this.momentum.x > 0) {
+            this.momentum.x -= elapsedTime * this.mass * 600;
+            if (this.momentum.x < 0) this.momentum.x = 0;
+        } else if (this.momentum.x < 0) {
+            this.momentum.x += elapsedTime * this.mass * 600;
+            if (this.momentum.x > 0) this.momentum.x = 0;
+        }
     }
 
     protected registerAirResistance(elapsedTime: number) {
-        this.momentum.x *= Math.pow(0.9, elapsedTime * this.mass);
-        this.momentum.y *= Math.pow(0.9, elapsedTime * this.mass);
+        if (Math.abs(this.momentum.x) <= 3) this.momentum.x = 0;
+        else this.momentum.x -= elapsedTime * this.mass * (this.momentum.x <= 0 ? -1 : 1) * 30;
+
+        if (Math.abs(this.momentum.y) <= 3) this.momentum.y = 0;
+        else this.momentum.y -= elapsedTime * this.mass * (this.momentum.y <= 0 ? -1 : 1) * 30;
     }
 
     public registerKnockback(force: Vector) {

@@ -28,9 +28,9 @@ export class PlayerObject extends ActorObject {
 
     public getCollisionRange(): number {
         if (this.crouching) {
-            return Math.sqrt(24 ** 2 + 15 ** 2);
+            return Math.sqrt((defaultActorConfig.playerCrouchSize.width / 2) ** 2 + (defaultActorConfig.playerCrouchSize.height / 2) ** 2);
         } else {
-            return Math.sqrt(24 ** 2 + 25 ** 2);
+            return Math.sqrt((defaultActorConfig.playerSize.width / 2) ** 2 + (defaultActorConfig.playerSize.height / 2) ** 2);
         }
     }
 
@@ -139,7 +139,7 @@ export class PlayerObject extends ActorObject {
         this.standing = false;
 
         this.checkXBoundaryCollision();
-        if (this.checkYBoundaryCollision()) this.standing = true;
+        //if (this.checkYBoundaryCollision()) this.standing = true;
 
         this.checkDoodads();
 
@@ -147,7 +147,7 @@ export class PlayerObject extends ActorObject {
         if (groundHitDetection.hit) {
             this.registerGroundAngle(groundHitDetection.angle, true);
         } else {
-            if (Math.abs(this.objectAngle) < 0.06) {
+            if (Math.abs(this.objectAngle) < 0.02) {
                 this.objectAngle = 0;
             } else {
                 this.objectAngle *= 0.9;

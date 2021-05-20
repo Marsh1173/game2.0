@@ -3,7 +3,7 @@ import { rootKeepSign, Vector } from "../../../vector";
 import { Floor } from "./floor";
 
 export class ServerFloor extends Floor {
-    private range: number = 70; // 150
+    private range: number = 70; // 70
     public startWidth: number = 300; // 300
 
     private smoothIterations: number = 3; // 3

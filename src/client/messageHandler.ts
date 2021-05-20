@@ -48,6 +48,7 @@ export function handleMessage(this: Game, msg: ServerMessage) {
             let damagedActor: ClientActor = this.findActor(msg.actorId, msg.actorType);
             let damageOriginActor: ClientActor = this.findActor(msg.originId, msg.originType);
             damagedActor.registerDamage(damageOriginActor, msg.newHealth, msg.knockback, msg.translationData);
+            damagedActor.updatePositionAndMomentumFromServer(msg.position, msg.momentum);
             break;
         case "playerChangeFacing":
             if (msg.id === this.id) return;

@@ -28,6 +28,8 @@ export abstract class ClientPlayer extends ClientActor {
         crouch: false,
     };
 
+    public facingRight: boolean = true;
+
     constructor(game: Game, playerInfo: SerializedPlayer, actorType: ActorType) {
         super(game, actorType, playerInfo.id, playerInfo.position, playerInfo.momentum, playerInfo.healthInfo);
 
@@ -135,6 +137,7 @@ export abstract class ClientPlayer extends ClientActor {
     }
 
     public updateFacingFromServer(facingRight: boolean) {
+        this.facingRight = facingRight;
         this.model.changeFacing(facingRight);
     }
 }

@@ -12,6 +12,7 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
+    /* background: linear-gradient(rgb(63, 103, 204) 15%, rgb(118, 148, 223) 49%);*/
     background: linear-gradient(rgba(19, 34, 73, 1) 15%, rgba(27, 48, 103, 1) 49%);
     border: none;
 }
@@ -309,7 +310,7 @@ body {
     position: absolute;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.336);
+    background-color: rgba(0, 0, 0, 0.425);
     display: none;
 }
 
@@ -323,26 +324,39 @@ body {
     left: calc(50% - 250px);
     top: 30%;
     width: 500px;
-    height: 300px;
     border: none;
     border-radius: 3px;
-    background-image: linear-gradient(rgb(148, 148, 148), rgb(112, 112, 112));
     flex-direction: column;
     align-items: center;
+    background-image: linear-gradient(rgb(54, 54, 54), rgb(34, 34, 34));
 }
-#comment {
-    width: 90%;
-    height: 70%;
+#commentDiv {
+    height: 270px;
+}
+#comment,
+#commentName {
     resize: none;
-    margin-top: 20px;
     padding: 5px;
     outline: none;
     border-radius: 5px;
     border: none;
-    font-size: 14pt;
     box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.466);
 }
-#comment:focus::placeholder {
+#comment {
+    width: 90%;
+    height: 150px;
+    margin-top: 20px;
+    font-size: 14pt;
+}
+#commentName {
+    width: 40%;
+    height: 20px;
+    margin-top: 5px;
+    font-size: 14pt;
+    overflow: hidden;
+}
+#comment:focus::placeholder,
+#commentName:focus::placeholder {
     color: transparent;
 }
 #submitComment {
@@ -368,12 +382,12 @@ body {
 
 #informationDiv,
 #patchNotesDiv {
-    color: rgb(222, 232, 245);
+    color: rgb(217, 220, 223);
     top: 10%;
     height: 600px;
-    background-image: linear-gradient(rgb(54, 54, 54), rgb(34, 34, 34));
 }
 #informationDiv h3 {
+    color: rgb(133, 133, 133);
     margin-top: 20px;
     font-weight: 100;
 }
@@ -390,6 +404,13 @@ body {
     height: 2px;
     border: none;
 }
+#playTestTeamDiv {
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+    text-align: center;
+}
+
 /*PATCH NOTES DIV ELEMENT STYLES*/
 #patchNotesDiv {
     align-items: flex-start;

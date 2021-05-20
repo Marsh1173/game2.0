@@ -40,9 +40,10 @@ export class Game {
     }
 
     constructor(public readonly config: Config) {
-        this.doodads.push(new ServerDoodad({ x: 1000, y: this.floor.getYCoordAndAngle(1000).yCoord }, 0, "rockLarge"));
-        this.doodads.push(new ServerDoodad({ x: 1800, y: this.floor.getYCoordAndAngle(1800).yCoord }, 0, "rockLarge"));
-        this.doodads.push(new ServerDoodad({ x: 2700, y: this.floor.getYCoordAndAngle(2700).yCoord }, 0, "rockLarge"));
+        this.doodads.push(new ServerDoodad({ x: 1000, y: this.floor.getYCoordAndAngle(1000).yCoord - 140 }, 0, "rockLarge"));
+        this.doodads.push(new ServerDoodad({ x: 1400, y: this.floor.getYCoordAndAngle(1000).yCoord - 290 }, 0, "rockLarge"));
+        this.doodads.push(new ServerDoodad({ x: 1800, y: this.floor.getYCoordAndAngle(1000).yCoord - 440 }, 0, "rockLarge"));
+        this.doodads.push(new ServerDoodad({ x: 2700, y: this.floor.getYCoordAndAngle(2700).yCoord }, 2.2, "rockLarge"));
         this.doodads.push(new ServerDoodad({ x: 3500, y: this.floor.getYCoordAndAngle(3500).yCoord }, 0, "rockLarge"));
     }
 

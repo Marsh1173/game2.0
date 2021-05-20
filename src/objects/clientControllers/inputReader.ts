@@ -17,8 +17,8 @@ import { SwordController } from "./controllers/swordController";
 
 export class InputReader {
     public readonly keyState: Record<string, boolean> = {};
-    protected pressAbilitiesNextFrame: (Vector | undefined)[] = [undefined, undefined, undefined, undefined];
-    protected releaseAbilitiesNextFrame: (boolean | undefined)[] = [undefined, undefined, undefined, undefined];
+    protected pressAbilitiesNextFrame: boolean[] = [false, false, false, false];
+    protected releaseAbilitiesNextFrame: boolean[] = [false, false, false, false];
 
     protected readonly config = defaultConfig;
 
@@ -49,9 +49,9 @@ export class InputReader {
 
     public registerMouseDown(e: MouseEvent, globalMousePos: Vector) {
         if (e.button === 0) {
-            this.pressAbilitiesNextFrame[0] = globalMousePos;
+            this.pressAbilitiesNextFrame[0] = true;
         } else if (e.button === 2) {
-            this.pressAbilitiesNextFrame[1] = globalMousePos;
+            this.pressAbilitiesNextFrame[1] = true;
         }
     }
     public registerMouseUp(e: MouseEvent, globalMousePos: Vector) {
@@ -63,9 +63,9 @@ export class InputReader {
     }
     public registerKeyDown(e: KeyboardEvent, globalMousePos: Vector) {
         if (e.code === this.config.playerKeys.firstAbility) {
-            this.pressAbilitiesNextFrame[2] = globalMousePos;
+            this.pressAbilitiesNextFrame[2] = true;
         } else if (e.code === this.config.playerKeys.secondAbility) {
-            this.pressAbilitiesNextFrame[3] = globalMousePos;
+            this.pressAbilitiesNextFrame[3] = true;
         }
         this.keyState[e.code] = true;
     }
@@ -152,15 +152,16 @@ export class InputReader {
 
     protected updateGamePlayerAbilities() {
         for (let i: number = 0; i < 4; i++) {
-            if (this.pressAbilitiesNextFrame[i] !== undefined) {
-                this.controller.pressAbility(this.pressAbilitiesNextFrame[i] as Vector, i as 0 | 1 | 2 | 3);
-                this.pressAbilitiesNextFrame[i] = undefined;
+            if (this.pressAbilitiesNextFrame[i] === true) {
+                this.controller.pressAbility(i as 0 | 1 | 2 | 3);
+                if (i !== 0) this.pressAbilitiesNextFrame[i] = false;
             }
         }
         for (let i: number = 0; i < 4; i++) {
-            if (this.releaseAbilitiesNextFrame[i] !== undefined) {
+            if (this.releaseAbilitiesNextFrame[i] === true) {
                 this.controller.releaseAbility(i as 0 | 1 | 2 | 3);
-                this.releaseAbilitiesNextFrame[i] = undefined;
+                this.releaseAbilitiesNextFrame[i] = false;
+                if (i === 0) this.pressAbilitiesNextFrame[i] = false;
             }
         }
     }

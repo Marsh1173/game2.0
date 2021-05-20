@@ -6,6 +6,7 @@ import { ClientPlayer } from "../newActors/clientActors/clientPlayer/clientPlaye
 import { Vector } from "../../vector";
 import { PlayerAbility } from "./controllers/abilities/playerAbility";
 import { Controller } from "./controllers/controller";
+import { roundRect } from "../../client/gameRender/gameRenderer";
 
 export class UserInterface {
     protected XPtoNextLevel: number;
@@ -175,48 +176,22 @@ export class UserInterface {
     protected renderAbilityIcon(pos: Vector, sideLength: number, abilityIndex: number) {
         this.abilityCanvas.clearRect(pos.x - 2, pos.y - 2, sideLength + 4, sideLength + 4);
 
-        if (this.playerAbilityStatus[abilityIndex].cooldown !== 0 || this.controller.globalCooldown !== 0) {
-            this.abilityCanvas.fillStyle = "rgba(200, 200, 200, 0.4)";
-            roundRect(this.abilityCanvas, pos.x, pos.y, sideLength, sideLength, 5, true, false);
-            let clearRectHeight: number = this.playerAbilityStatus[abilityIndex].cooldown / this.playerAbilityStatus[abilityIndex].totalCooldown;
-            if (this.controller.globalCooldown > this.playerAbilityStatus[abilityIndex].cooldown) {
-                clearRectHeight = this.controller.globalCooldown / defaultActorConfig.globalCooldown;
-            }
-            this.abilityCanvas.clearRect(pos.x - 2, pos.y - 2, sideLength + 4, sideLength * clearRectHeight + 2);
-            this.abilityCanvas.fillStyle = "rgba(200, 200, 200, 0.2)";
+        let percentCooldown: number = this.playerAbilityStatus[abilityIndex].getIconCooldownPercent();
+        if (percentCooldown === 0) {
             roundRect(this.abilityCanvas, pos.x, pos.y, sideLength, sideLength, 5, true, false);
         } else {
+            if (percentCooldown !== 1) {
+                this.abilityCanvas.fillStyle = "rgba(200, 200, 200, 0.4)";
+                roundRect(this.abilityCanvas, pos.x, pos.y, sideLength, sideLength, 5, true, false);
+                this.abilityCanvas.clearRect(pos.x - 2, pos.y, sideLength + 4, sideLength * percentCooldown + 2);
+            }
+            this.abilityCanvas.fillStyle = "rgba(200, 200, 200, 0.2)";
             roundRect(this.abilityCanvas, pos.x, pos.y, sideLength, sideLength, 5, true, false);
         }
 
         this.abilityCanvas.globalCompositeOperation = "destination-out";
         this.abilityCanvas.drawImage(this.playerAbilityStatus[abilityIndex].img, pos.x, pos.y, sideLength, sideLength);
         this.abilityCanvas.globalCompositeOperation = "source-over";
-    }
-}
-
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke: boolean) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-
-    ctx.closePath();
-    if (fill) {
-        ctx.fill();
-    }
-    if (stroke) {
-        ctx.stroke();
     }
 }
 

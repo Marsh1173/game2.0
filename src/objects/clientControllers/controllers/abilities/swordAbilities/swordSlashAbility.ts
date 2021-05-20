@@ -8,6 +8,7 @@ import { ClientSword } from "../../../../newActors/clientActors/clientPlayer/cli
 import { Controller } from "../../controller";
 import { SwordController } from "../../swordController";
 import { PlayerPressAbility } from "../playerPressAbility";
+import { SwordWhirlWindAbility } from "./swordWhirlwindAbility";
 
 export class SwordSlashAbility extends PlayerPressAbility {
     private slashAngle: number = 0;
@@ -34,6 +35,8 @@ export class SwordSlashAbility extends PlayerPressAbility {
         this.casting = true;
 
         this.controller.sendServerSwordAbility("slash", true, globalMousePos);
+        this.game.gameRenderer.screenZoom(1.06);
+        //this.game.gameRenderer.screenNudge({ x: Math.cos(this.slashAngle) * 7, y: Math.sin(this.slashAngle) * 7 });
     }
     castUpdateFunc(elapsedTime: number) {
         this.castStage += elapsedTime;
@@ -52,7 +55,7 @@ export class SwordSlashAbility extends PlayerPressAbility {
                     actors.push({
                         actorType: actor.getActorType(),
                         actorId: actor.getActorId(),
-                        angle: findAngle(this.player.position, actor.position),
+                        angle: this.slashAngle,
                     });
                 }
             });
@@ -66,6 +69,9 @@ export class SwordSlashAbility extends PlayerPressAbility {
                         originId: this.player.getActorId(),
                     },
                 });
+                if (this.controller.abilityData[1] instanceof SwordWhirlWindAbility) {
+                    this.controller.abilityData[1].cooldown--;
+                }
             }
         }
         if (this.castStage >= SwordSlashAbilityData.totalCastTime) {
@@ -92,16 +98,17 @@ export interface ClientSwordSlashHit {
     originId: number;
 }
 
-const SwordSlashHitShape: Vector[] = [
+export const SwordSlashHitShape: Vector[] = [
     { x: -10, y: -30 },
-    { x: 50, y: -60 },
-    { x: 100, y: 0 },
-    { x: 70, y: 50 },
+    { x: 7, y: -80 },
+    { x: 100, y: -55 },
+    { x: 110, y: 20 },
+    { x: 75, y: 55 },
     { x: 10, y: 70 },
 ];
 
 const SwordSlashAbilityData = {
-    cooldown: 0.4,
+    cooldown: 0.3,
     totalCastTime: 0.5,
-    hitDetectFrame: 0.15,
+    hitDetectFrame: 0.05,
 };

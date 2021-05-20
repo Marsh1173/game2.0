@@ -53,10 +53,10 @@ export abstract class Controller {
         this.currentCastingAbility = undefined;
     }
 
-    public pressAbility(globalMousePos: Vector, abilityIndex: 0 | 1 | 2 | 3): boolean {
+    public pressAbility(abilityIndex: 0 | 1 | 2 | 3): boolean {
         if (this.abilityData[abilityIndex].attemptFunc()) {
             this.updateFacing();
-            this.abilityData[abilityIndex].pressFunc(globalMousePos);
+            this.abilityData[abilityIndex].pressFunc(this.game.getGlobalMousePos());
             return true;
         }
         return false;
@@ -97,28 +97,27 @@ export abstract class Controller {
         }
     }
 
-    public facingRight: boolean = true;
     protected updateFacing() {
         let mousePos: Vector = this.game.getGlobalMousePos();
         if (mousePos.x > this.player.position.x) {
-            if (!this.facingRight) {
-                this.facingRight = true;
+            if (!this.player.facingRight) {
+                this.player.facingRight = true;
                 this.player.updateFacingFromServer(true);
                 this.game.serverTalker.sendMessage({
                     type: "clientPlayerFacingUpdate",
                     playerid: this.player.getActorId(),
-                    facingRight: this.facingRight,
+                    facingRight: this.player.facingRight,
                 });
                 //broadcast
             }
         } else {
-            if (this.facingRight) {
-                this.facingRight = false;
+            if (this.player.facingRight) {
+                this.player.facingRight = false;
                 this.player.updateFacingFromServer(false);
                 this.game.serverTalker.sendMessage({
                     type: "clientPlayerFacingUpdate",
                     playerid: this.player.getActorId(),
-                    facingRight: this.facingRight,
+                    facingRight: this.player.facingRight,
                 });
                 //broadcast
             }

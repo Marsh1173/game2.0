@@ -24,12 +24,13 @@ import { DaggersController } from "../objects/clientControllers/controllers/dagg
 import { HammerController } from "../objects/clientControllers/controllers/hammerController";
 import { SideType } from "../objects/newActors/clientActors/model/healthBar";
 import { ParticleSystem } from "./particles/particleSystem";
+import { Size } from "../size";
 
 export class Game {
     private static readonly menuDiv = safeGetElementById("menuDiv");
     private static readonly gameDiv = safeGetElementById("gameDiv");
 
-    protected gameRenderer: GameRenderer;
+    public gameRenderer: GameRenderer;
     protected gamePlayer: ClientPlayer;
     protected gamePlayerInputReader: InputReader;
 
@@ -42,12 +43,12 @@ export class Game {
     };
     protected readonly globalClientObjects: GlobalClientObjects;
 
-    protected readonly particleSystem: ParticleSystem;
+    public readonly particleSystem: ParticleSystem;
 
     public static particleAmount: number;
     private going: boolean = false;
 
-    public screenPos: Vector = { x: 0, y: 0 };
+    //public screenPos: Vector = { x: 0, y: 0 };
     public mousePos: Vector = { x: 0, y: 0 };
 
     private handleMessage = handleMessage;
@@ -95,7 +96,7 @@ export class Game {
 
         this.gamePlayerInputReader = new InputReader(this.gamePlayer, this);
 
-        this.gameRenderer = new GameRenderer(this.config, this, this.gamePlayer, this.screenPos);
+        this.gameRenderer = new GameRenderer(this.config, this, this.gamePlayer);
 
         this.serverTalker.messageHandler = (msg: ServerMessage) => this.handleMessage(msg);
     }
@@ -106,15 +107,10 @@ export class Game {
         // use onkeydown and onkeyup instead of addEventListener because it's possible to add multiple event listeners per event
         // This would cause a bug where each time you press a key it creates multiple blasts or jumps
 
-        //let positionDifference: Vector = this.gamePlayer.position;
         window.onmousedown = (e: MouseEvent) => {
-            /*console.log(
-                "{x: " +
-                    (-this.screenPos.x + this.mousePos.x - positionDifference.x) +
-                    ", y: " +
-                    (-this.screenPos.y + this.mousePos.y - positionDifference.y) +
-                    "},",
-            );*/
+            /*let globalMouse: Vector = this.getGlobalMousePos();
+            let playerPos: Vector = this.gamePlayer.position;
+            console.log("{x: " + (playerPos.x - globalMouse.x) + ", y: " + (playerPos.y - globalMouse.y) + "},");*/
             this.gamePlayerInputReader.registerMouseDown(e, this.getGlobalMousePos());
         };
         window.onmouseup = (e: MouseEvent) => this.gamePlayerInputReader.registerMouseUp(e, this.getGlobalMousePos());
@@ -154,28 +150,13 @@ export class Game {
     }
 
     private update(elapsedTime: number) {
+        elapsedTime = Math.min(0.1, elapsedTime);
+
+        this.gamePlayerInputReader.update(elapsedTime);
+
         this.updateObjects(elapsedTime);
 
         this.gameRenderer.updateAndRender(elapsedTime);
-
-        this.globalClientObjects.doodads.forEach((doodad) => {
-            if (doodad.ifShouldRender(this.gameRenderer.previousWindowSize, this.screenPos)) {
-                doodad.render();
-            }
-        });
-        this.globalClientObjects.floor.render(this.screenPos, this.gameRenderer.previousWindowSize);
-        this.globalClientActors.players.forEach((player) => {
-            if (player.getActorId() !== this.id) player.render();
-        });
-        this.gamePlayer.render();
-        this.globalClientActors.players.forEach((player) => {
-            if (player.getActorId() !== this.id) player.renderHealth();
-        });
-        this.gamePlayer.renderHealth();
-
-        this.particleSystem.updateAndRender(elapsedTime);
-
-        this.gamePlayerInputReader.update(elapsedTime);
     }
 
     private updateObjects(elapsedTime: number) {
@@ -246,21 +227,26 @@ export class Game {
         this.globalClientActors.actors = this.globalClientActors.actors.filter((actor) => actor.getActorId() !== id);
     }
     protected getMouseShape(): Shape {
-        let p1: Vector = { x: this.mousePos.x - this.screenPos.x, y: this.mousePos.y - 40 - this.screenPos.y };
-        let p2: Vector = { x: this.mousePos.x - 30 - this.screenPos.x, y: this.mousePos.y + 20 - this.screenPos.y };
-        let p3: Vector = { x: this.mousePos.x + 30 - this.screenPos.x, y: this.mousePos.y + 20 - this.screenPos.y };
+        /*
+        let p1: Vector = { x: this.mousePos.x + this.screenPos.x, y: this.mousePos.y - 40 + this.screenPos.y };
+        let p2: Vector = { x: this.mousePos.x - 30 + this.screenPos.x, y: this.mousePos.y + 20 + this.screenPos.y };
+        let p3: Vector = { x: this.mousePos.x + 30 + this.screenPos.x, y: this.mousePos.y + 20 + this.screenPos.y };
         return {
-            center: { x: this.mousePos.x - this.screenPos.x, y: this.mousePos.y - this.screenPos.y },
+            center: { x: this.mousePos.x + this.screenPos.x, y: this.mousePos.y + this.screenPos.y },
             points: [p1, p2, p3],
             edges: [
                 { p1, p2 },
                 { p1: p2, p2: p3 },
                 { p1: p3, p2: p1 },
             ],
-        };
+        };*/
+        throw new Error("getMouseShape currently not adjusted for screen center");
     }
     public getGlobalMousePos(): Vector {
-        return { x: this.mousePos.x - this.screenPos.x, y: this.mousePos.y - this.screenPos.y };
+        return {
+            x: this.mousePos.x / this.gameRenderer.currentZoom + this.gameRenderer.currentScreenPos.x,
+            y: this.mousePos.y / this.gameRenderer.currentZoom + this.gameRenderer.currentScreenPos.y,
+        };
     }
 
     public getGlobalObjects(): GlobalClientObjects {
@@ -275,6 +261,9 @@ export class Game {
     public getActorSide(team: number): SideType {
         if (team === this.id) return "self";
         else return "enemy";
+    }
+    public getId(): number {
+        return this.id;
     }
 }
 

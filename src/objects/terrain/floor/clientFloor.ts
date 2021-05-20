@@ -8,6 +8,7 @@ import { Floor } from "./floor";
 
 export class ClientFloor extends Floor {
     private gameHeight: number = defaultConfig.ySize;
+    private gameWidth: number = defaultConfig.xSize;
 
     constructor(
         protected game: Game,
@@ -32,16 +33,21 @@ export class ClientFloor extends Floor {
         }
         this.ctx.fill();
 
-        this.ctx.fillStyle = "#1c262c";
+        this.ctx.fillStyle = defaultActorConfig.dirtColorNight;
 
         this.ctx.beginPath();
         this.ctx.moveTo(0, this.gameHeight + 10);
         for (let i: number = 0; i < this.pointCount; i++) {
-            this.ctx.lineTo(i * this.resultWidth, this.pointsAndAngles[i].point + 15);
+            this.ctx.lineTo(i * this.resultWidth, this.pointsAndAngles[i].point + 14);
         }
         this.ctx.lineTo((this.pointCount - 1) * this.resultWidth, this.gameHeight + 10);
         this.ctx.fill();
 
-        this.ctx.fillRect(-screenPos.x, this.gameHeight + 5, screenSize.width, screenSize.height - screenPos.y);
+        this.ctx.fillRect(
+            Math.max(screenPos.x, 0),
+            this.gameHeight + 5,
+            Math.min(screenSize.width, this.gameWidth - screenPos.x),
+            screenSize.height + screenPos.y,
+        );
     }
 }

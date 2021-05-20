@@ -2,9 +2,10 @@ import { DoodadType } from "../../objects/terrain/doodads/doodad";
 import { ServerTalker } from "../servertalker";
 
 export type AbilityImageName = "slashIcon" | "whirlwindIcon" | "emptyIcon" | "lvl10" | "lvl6" | "stabIcon" | "lungeIcon" | "swingIcon" | "poundIcon";
-export type WeaponImageName = "sword11" | "dagger11" | "hammer11";
+export type WeaponImageName = "sword31" | "sword21" | "sword11" | "dagger11" | "hammer11";
+export type GifImageName = "slashEffectTest2" | "whirlwindEffectBase" | "whirlwindEffectTop";
 
-export type ImageName = DoodadType | AbilityImageName | WeaponImageName;
+export type ImageName = DoodadType | AbilityImageName | WeaponImageName | GifImageName;
 
 //let img: HTMLImageElement = assetManager.images["lavafly"];
 
@@ -20,8 +21,13 @@ export const imageInformation: Record<ImageName, string> = {
     swingIcon: `http://${ServerTalker.hostName}/images/abilityIcons/swingIcon.png`,
     poundIcon: `http://${ServerTalker.hostName}/images/abilityIcons/poundIcon.png`,
     sword11: `http://${ServerTalker.hostName}/images/weaponImages/sword11.png`,
+    sword21: `http://${ServerTalker.hostName}/images/weaponImages/sword21.png`,
+    sword31: `http://${ServerTalker.hostName}/images/weaponImages/sword31.png`,
     hammer11: `http://${ServerTalker.hostName}/images/weaponImages/hammer11.png`,
     dagger11: `http://${ServerTalker.hostName}/images/weaponImages/dagger11.png`,
+    slashEffectTest2: `http://${ServerTalker.hostName}/images/effectImages/slashEffectTest2.png`,
+    whirlwindEffectBase: `http://${ServerTalker.hostName}/images/effectImages/whirlwindEffectBase.png`,
+    whirlwindEffectTop: `http://${ServerTalker.hostName}/images/effectImages/whirlwindEffectTop.png`,
 };
 class AssetManager {
     public images: Record<ImageName, HTMLImageElement>;

@@ -3,6 +3,7 @@ import { assetManager } from "../../../../../client/gameRender/assetmanager";
 import { findAngle } from "../../../../../findAngle";
 import { findDistance, Vector } from "../../../../../vector";
 import { ActorType } from "../../../../newActors/actor";
+import { defaultActorConfig } from "../../../../newActors/actorConfig";
 import { ClientActor } from "../../../../newActors/clientActors/clientActor";
 import { ClientSword } from "../../../../newActors/clientActors/clientPlayer/clientClasses/clientSword";
 import { Controller } from "../../controller";
@@ -23,23 +24,25 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
     }
 
     public pressFunc(globalMousePos: Vector) {
+        this.game.gameRenderer.screenZoom(0.8, 10);
         this.controller.setNegativeGlobalCooldown();
         this.controller.setCurrentCastingAbility(this.abilityArrayIndex);
         this.player.performClientAbility["whirlwind"](globalMousePos);
-        this.cooldown = this.totalCooldown / 2;
         this.casting = true;
+
+        this.cooldown = 3;
 
         this.controller.sendServerSwordAbility("whirlwind", true, { x: 0, y: 0 });
         //broadcast starting
     }
     public castUpdateFunc(elapsedTime: number) {
         this.castStage += elapsedTime;
-        this.cooldown += elapsedTime;
 
         if (
             this.castStage % SwordWhirlWindAbilityData.hitDetectTimer >= 0.1 &&
             (this.castStage - elapsedTime) % SwordWhirlWindAbilityData.hitDetectTimer < 0.1
         ) {
+            this.cooldown++;
             let actors: {
                 actorType: ActorType;
                 actorId: number;
@@ -84,13 +87,28 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
             //boradcast ending
         }
     }
+
+    public updateFunc(elapsedTime: number) {
+        if (this.cooldown > SwordWhirlWindAbilityData.cooldown) {
+            this.cooldown = SwordWhirlWindAbilityData.cooldown + 0;
+        }
+
+        if (this.cooldown < 0) {
+            this.cooldown = 0;
+        }
+    }
+
+    public getIconCooldownPercent(): number {
+        if (this.cooldown === 0) return this.controller.globalCooldown / defaultActorConfig.globalCooldown;
+        else return this.cooldown / SwordWhirlWindAbilityData.cooldown;
+    }
 }
 
 export const SwordWhirlWindAbilityData = {
-    cooldown: 3,
-    totalCastTime: 1.5,
-    hitDetectTimer: 0.3,
-    hitRange: 80,
+    cooldown: 5,
+    totalCastTime: 1,
+    hitDetectTimer: 0.2,
+    hitRange: 140,
 };
 
 export interface ClientSwordWhirlwindHit {

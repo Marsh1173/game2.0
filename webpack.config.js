@@ -23,5 +23,5 @@ module.exports = {
         aggregateTimeout: 100,
         poll: 1000,
     },
-    mode: "development",
+    mode: "production",
 };

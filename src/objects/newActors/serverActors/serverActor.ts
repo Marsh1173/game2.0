@@ -58,6 +58,8 @@ export abstract class ServerActor extends Actor {
                 newHealth: this.healthInfo.health,
                 knockback,
                 translationData,
+                position: this.position,
+                momentum: this.momentum,
             });
             return { ifKilled: false, damageDealt: quantity };
         }
@@ -83,6 +85,8 @@ export interface ServerDamageMessage {
     newHealth: number;
     knockback: Vector | undefined;
     translationData: { name: TranslationName; angle: number } | undefined;
+    position: Vector;
+    momentum: Vector;
 }
 
 export interface ServerHealMessage {

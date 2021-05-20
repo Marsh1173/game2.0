@@ -4,7 +4,7 @@ import { ClassType } from "../objects/newActors/serverActors/serverPlayer/server
 import { Game } from "./game";
 import { assetManager } from "./gameRender/assetmanager";
 import { ServerTalker } from "./servertalker";
-import { safeGetElementById } from "./util";
+import { fillPatchNotesDiv, safeGetElementById } from "./util";
 /*const particleSlider = safeGetElementById("particles");
 const particleAmount = safeGetElementById("particleAmount");
 
@@ -13,9 +13,9 @@ particleSlider.oninput = function () {
 };*/
 
 var classInfo = {
-    sword: { level: 1, spec: 2 },
-    daggers: { level: 3, spec: 4 },
-    hammer: { level: 5, spec: 6 },
+    sword: { level: 1, spec: 0 },
+    daggers: { level: 1, spec: 0 },
+    hammer: { level: 1, spec: 0 },
 };
 
 var classType: ClassType = "sword";
@@ -90,13 +90,13 @@ safeGetElementById("startGame").onmouseup = async () => {
     const { id, info, config } = await serverTalker.serverTalkerReady;
     const game = new Game(info, config, id, serverTalker, 50);
     game.start();
-    document.documentElement.requestFullscreen();
+    //document.documentElement.requestFullscreen();
     gameDiv.style.display = "block";
     safeGetElementById("end").onclick = async () => {
         game.end();
         gameDiv.style.display = "none";
         updateClassLevels();
-        document.exitFullscreen();
+        //document.exitFullscreen();
         showMenuElements();
         return;
     };
@@ -235,3 +235,6 @@ safeGetElementById("patchNotesButton").onclick = () => {
 };
 var tipsButtonToggled: boolean = false;
 safeGetElementById("toggleTipsButton").onclick = () => {};
+
+var patchNotesDiv: HTMLElement = safeGetElementById("patchNotesDiv");
+fillPatchNotesDiv(patchNotesDiv);

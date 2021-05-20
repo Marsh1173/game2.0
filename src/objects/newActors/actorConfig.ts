@@ -4,6 +4,8 @@ import { PlayerModelConfig, playerModelConfig } from "./clientActors/model/playe
 
 export interface ActorConfig {
     gameSpeed: number;
+    dirtColorNight: string;
+    dirtColorDay: string;
     playerStart: Vector;
     playerSize: Size;
     playerCrouchSize: Size;
@@ -22,27 +24,29 @@ export interface ActorConfig {
 
 export const defaultActorConfig: ActorConfig = {
     gameSpeed: 1,
+    dirtColorNight: "#1c262c",
+    dirtColorDay: "#402f17",
     playerStart: {
         x: 300,
         y: 650,
     },
     playerSize: {
-        width: 48,
-        height: 50,
+        width: 53,
+        height: 55,
     },
     playerCrouchSize: {
-        width: 48,
-        height: 30,
+        width: 57,
+        height: 36,
     },
     playerMass: 10,
     playerMaxHealth: 100,
     playerJumpHeight: 1000,
-    maxSidewaysMomentum: 450, //400
+    maxSidewaysMomentum: 500, //400
     standingSidewaysAcceleration: 6000, //8000
     nonStandingSidewaysAcceleration: 1500, //1500
     fallingAcceleration: 300,
     XPPerLevel: 20,
     LevelXPMultiplier: 1.1,
-    globalCooldown: 0.3,
+    globalCooldown: 0.2,
     playerModelConfig,
 };

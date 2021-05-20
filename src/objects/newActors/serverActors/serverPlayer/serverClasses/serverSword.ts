@@ -34,10 +34,11 @@ export class ServerSword extends ServerPlayer {
                 let result: { ifKilled: boolean; damageDealt: number } = serverActor.registerDamage(
                     this,
                     SwordWhirlWindAbilityData.damage,
-                    findVectorFromAngle(actor.angle, SwordWhirlWindAbilityData.knockbackForce),
+                    //findVectorFromAngle(actor.angle, SwordWhirlWindAbilityData.knockbackForce),
+                    undefined,
                     undefined,
                 );
-                this.registerHeal(result.damageDealt / 3);
+                //this.registerHeal(result.damageDealt / 3);
             }
         });
     }
@@ -52,12 +53,13 @@ export class ServerSword extends ServerPlayer {
         actors.forEach((actor) => {
             let serverActor: ServerActor | undefined = this.game.findActor(actor.actorId, actor.actorType);
             if (serverActor) {
-                serverActor.registerDamage(
+                let result: { ifKilled: boolean; damageDealt: number } = serverActor.registerDamage(
                     this,
                     SwordSlashAbilityData.damage,
                     findVectorFromAngle(actor.angle, SwordSlashAbilityData.knockbackForce),
                     undefined,
                 );
+                this.registerHeal(result.damageDealt / 5);
             }
         });
     }
@@ -127,11 +129,11 @@ export interface ServerSwordAbility {
 }
 
 const SwordWhirlWindAbilityData = {
-    damage: 15,
-    knockbackForce: 500,
+    damage: 10,
+    //knockbackForce: 200,
 };
 
 const SwordSlashAbilityData = {
-    damage: 15,
-    knockbackForce: 700,
+    damage: 10,
+    knockbackForce: 500,
 };
