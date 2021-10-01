@@ -132,9 +132,7 @@ export class PlayerObject extends ActorObject {
         this.registerGravity(elapsedTime);
         this.updateTranslation(elapsedTime);
 
-        this.finalPositionUpdate(elapsedTime);
-
-        //registerTranslation or debuffs etc
+        this.positionUpdate(elapsedTime);
 
         this.standing = false;
 
@@ -153,6 +151,8 @@ export class PlayerObject extends ActorObject {
                 this.objectAngle *= 0.9;
             }
         }
+
+        this.previousPositionUpdate();
     }
 }
 

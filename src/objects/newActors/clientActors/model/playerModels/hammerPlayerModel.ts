@@ -3,33 +3,32 @@ import { assetManager } from "../../../../../client/gameRender/assetmanager";
 import { findAngle } from "../../../../../findAngle";
 import { Size } from "../../../../../size";
 import { Vector } from "../../../../../vector";
-import { SwordSlashHitShape } from "../../../../clientControllers/controllers/abilities/swordAbilities/swordSlashAbility";
 import { renderShape } from "../../clientActor";
-import { ClientSword } from "../../clientPlayer/clientClasses/clientSword";
+import { ClientHammer } from "../../clientPlayer/clientClasses/clientHammer";
 import { ClientPlayer } from "../../clientPlayer/clientPlayer";
 import { SideType } from "../healthBar";
 import { Joint } from "../joint";
 import { AnimationInfo, ModelAnimation } from "../model";
 import { PlayerModel } from "./playerModel";
 
-type SwordPlayerModelJoint = "playerSword";
-export type SwordPlayerAnimationName = "stand" | "slash1" | "slash2" | "whirlwind";
+type HammerPlayerModelJoint = "playerHammer";
+export type HammerPlayerAnimationName = "stand" | "swing1" | "swing2" | "pound";
 
-export class SwordPlayerModel extends PlayerModel {
-    protected animationStateAnimation: SwordModelAnimation = SwordPlayerAnimationData["stand"];
-    protected animationState: SwordPlayerAnimationName = "stand";
-    protected swordJoint: Joint;
+export class HammerPlayerModel extends PlayerModel {
+    protected animationStateAnimation: HammerModelAnimation = HammerPlayerAnimationData["stand"];
+    protected animationState: HammerPlayerAnimationName = "stand";
+    protected hammerJoint: Joint;
 
-    constructor(game: Game, player: ClientSword, ctx: CanvasRenderingContext2D, position: Vector, healthBarType: SideType, playerColor: string, size: Size) {
+    constructor(game: Game, player: ClientHammer, ctx: CanvasRenderingContext2D, position: Vector, healthBarType: SideType, playerColor: string, size: Size) {
         super(game, player, ctx, position, healthBarType, playerColor, size);
-        this.swordJoint = new Joint(this.ctx, assetManager.images["sword31"], { x: -200, y: -700 }, 0.1, 0, { x: -25, y: 20 }, 0, -0.4);
+        this.hammerJoint = new Joint(this.ctx, assetManager.images["hammer21"], { x: -200, y: -700 }, 0.12, 0, { x: -25, y: 20 }, 0, -0.4);
     }
 
     public renderWeapon() {
-        this.swordJoint.render(this.animationTime / this.animationStateAnimation.totalTime, this.animationStateAnimation.jointAnimationInfo["playerSword"]);
+        this.hammerJoint.render(this.animationTime / this.animationStateAnimation.totalTime, this.animationStateAnimation.jointAnimationInfo["playerHammer"]);
 
         /*this.ctx.scale(-1, 1);
-        renderShape(this.ctx, SwordSlashHitShape);
+        renderShape(this.ctx, hammerSlashHitShape);
         this.ctx.scale(-1, 1);*/
     }
 
@@ -43,35 +42,35 @@ export class SwordPlayerModel extends PlayerModel {
             }
         }
 
-        this.swordJoint.update(elapsedTime);
+        this.hammerJoint.update(elapsedTime);
         super.update(elapsedTime);
     }
 
-    public setAnimation(animation: SwordPlayerAnimationName, angle: number) {
+    public setAnimation(animation: HammerPlayerAnimationName, angle: number) {
         this.animationTime = 0;
         this.changeFacingAngle(angle);
-        if (animation === "slash1" && this.animationState === "slash1") {
-            this.animationState = "slash2";
-            this.animationStateAnimation = SwordPlayerAnimationData["slash2"];
+        if (animation === "swing1" && this.animationState === "swing1") {
+            this.animationState = "swing2";
+            this.animationStateAnimation = HammerPlayerAnimationData["swing2"];
         } else {
             this.animationState = animation;
-            this.animationStateAnimation = SwordPlayerAnimationData[animation];
+            this.animationStateAnimation = HammerPlayerAnimationData[animation];
         }
     }
 }
 
-export interface SwordModelAnimation extends ModelAnimation {
+export interface HammerModelAnimation extends ModelAnimation {
     totalTime: number;
     loop: boolean;
-    jointAnimationInfo: Record<SwordPlayerModelJoint, AnimationInfo>;
+    jointAnimationInfo: Record<HammerPlayerModelJoint, AnimationInfo>;
 }
 
-const SwordPlayerAnimationData: Record<SwordPlayerAnimationName, SwordModelAnimation> = {
+const HammerPlayerAnimationData: Record<HammerPlayerAnimationName, HammerModelAnimation> = {
     stand: {
         loop: true,
         totalTime: 1,
         jointAnimationInfo: {
-            playerSword: {
+            playerHammer: {
                 imgRotationEquation: undefined,
                 localPosXEquation: undefined,
                 localPosYEquation: undefined,
@@ -80,11 +79,11 @@ const SwordPlayerAnimationData: Record<SwordPlayerAnimationName, SwordModelAnima
             },
         },
     },
-    slash1: {
+    swing2: {
         loop: false,
-        totalTime: 0.6,
+        totalTime: 0.8,
         jointAnimationInfo: {
-            playerSword: {
+            playerHammer: {
                 imgRotationEquation: undefined,
                 localPosYEquation: undefined,
                 angleFromEquation: [
@@ -111,11 +110,11 @@ const SwordPlayerAnimationData: Record<SwordPlayerAnimationName, SwordModelAnima
             },
         },
     },
-    slash2: {
+    swing1: {
         loop: false,
-        totalTime: 0.4,
+        totalTime: 0.8,
         jointAnimationInfo: {
-            playerSword: {
+            playerHammer: {
                 imgRotationEquation: undefined,
                 localPosYEquation: undefined,
                 angleFromEquation: [
@@ -140,11 +139,11 @@ const SwordPlayerAnimationData: Record<SwordPlayerAnimationName, SwordModelAnima
             },
         },
     },
-    whirlwind: {
+    pound: {
         loop: false,
         totalTime: 1,
         jointAnimationInfo: {
-            playerSword: {
+            playerHammer: {
                 imgRotationEquation: undefined,
                 localPosYEquation: undefined,
                 angleFromEquation: [

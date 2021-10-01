@@ -27,6 +27,10 @@ export abstract class ActorObject {
         angle: 0,
     };
 
+    //position solver
+    protected readonly previousMomentum: Vector = { x: 0, y: 0 };
+    protected readonly previousPosition: Vector = { x: 0, y: 0 };
+
     constructor(
         protected globalObjects: GlobalObjects,
         protected readonly baseActor: Actor,
@@ -34,7 +38,12 @@ export abstract class ActorObject {
         protected readonly momentum: Vector,
         protected size: Size,
         protected mass: number,
-    ) {}
+    ) {
+        this.previousMomentum.x = this.momentum.x;
+        this.previousMomentum.y = this.momentum.y;
+        this.previousPosition.x = this.position.x;
+        this.previousPosition.y = this.position.y;
+    }
 
     public abstract getGlobalShape(): Shape;
     public abstract getCollisionRange(): number;
@@ -88,6 +97,7 @@ export abstract class ActorObject {
     }
 
     protected registerAirResistance(elapsedTime: number) {
+        return;
         if (Math.abs(this.momentum.x) <= 3) this.momentum.x = 0;
         else this.momentum.x -= elapsedTime * this.mass * (this.momentum.x <= 0 ? -1 : 1) * 30;
 
@@ -156,20 +166,22 @@ export abstract class ActorObject {
     protected checkDoodadCollision(actorShape: Shape, doodad: Doodad) {
         if (doodad.checkCollisionRange(this.position, this.getCollisionRange())) {
             if (doodad.checkObjectIntersection(actorShape)) {
-                let results: { positionChange: Vector; momentumChange: Vector | undefined; angle: number | undefined } = doodad.registerCollision(
-                    actorShape,
-                    this.momentum,
-                );
-                this.position.x += results.positionChange.x;
-                this.position.y += results.positionChange.y;
-                if (results.momentumChange) {
-                    this.momentum.x = results.momentumChange.x + 0;
-                    this.momentum.y = results.momentumChange.y + 0;
-                }
-                if (results.angle) {
-                    this.registerGroundAngle(results.angle, true);
-                }
+                let results: { positionChange: Vector; momentumChange: Vector | undefined; angle: number | undefined } =
+                    doodad.registerCollisionWithClosestSolution(actorShape, this.momentum);
+                this.registerDoodadCollision(results.positionChange, results.momentumChange, results.angle);
             }
+        }
+    }
+
+    private registerDoodadCollision(positionChange: Vector, momentumChange: Vector | undefined, angle: number | undefined) {
+        this.position.x += positionChange.x;
+        this.position.y += positionChange.y;
+        if (momentumChange) {
+            this.momentum.x = momentumChange.x + 0;
+            this.momentum.y = momentumChange.y + 0;
+        }
+        if (angle) {
+            this.registerGroundAngle(angle, true);
         }
     }
 
@@ -235,8 +247,16 @@ export abstract class ActorObject {
         this.translationData.translateInfo = undefined;
     }
 
-    protected finalPositionUpdate(elapsedTime: number) {
-        this.position.x += this.momentum.x * elapsedTime;
-        this.position.y += this.momentum.y * elapsedTime;
+    protected positionUpdate(elapsedTime: number) {
+        this.position.x += ((this.momentum.x + this.previousMomentum.x) * elapsedTime) / 2;
+        this.position.y += ((this.momentum.y + this.previousMomentum.y) * elapsedTime) / 2;
+
+        this.previousMomentum.x = this.momentum.x;
+        this.previousMomentum.y = this.momentum.y;
+    }
+
+    protected previousPositionUpdate() {
+        this.previousPosition.x = this.position.x;
+        this.previousPosition.y = this.position.y;
     }
 }

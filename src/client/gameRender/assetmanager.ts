@@ -2,7 +2,7 @@ import { DoodadType } from "../../objects/terrain/doodads/doodad";
 import { ServerTalker } from "../servertalker";
 
 export type AbilityImageName = "slashIcon" | "whirlwindIcon" | "emptyIcon" | "lvl10" | "lvl6" | "stabIcon" | "lungeIcon" | "swingIcon" | "poundIcon";
-export type WeaponImageName = "sword31" | "sword21" | "sword11" | "dagger11" | "hammer11";
+export type WeaponImageName = "sword31" | "sword21" | "sword11" | "dagger11" | "hammer11" | "hammer21" | "dagger21";
 export type GifImageName = "slashEffectTest2" | "whirlwindEffectBase" | "whirlwindEffectTop";
 
 export type ImageName = DoodadType | AbilityImageName | WeaponImageName | GifImageName;
@@ -10,24 +10,26 @@ export type ImageName = DoodadType | AbilityImageName | WeaponImageName | GifIma
 //let img: HTMLImageElement = assetManager.images["lavafly"];
 
 export const imageInformation: Record<ImageName, string> = {
-    rockLarge: `http://${ServerTalker.hostName}/images/rockDoodad.png`,
-    slashIcon: `http://${ServerTalker.hostName}/images/abilityIcons/slashIcon.png`,
-    emptyIcon: `http://${ServerTalker.hostName}/images/abilityIcons/emptyIcon.png`,
-    whirlwindIcon: `http://${ServerTalker.hostName}/images/abilityIcons/whirlwindIcon.png`,
-    lvl10: `http://${ServerTalker.hostName}/images/abilityIcons/lvl10.png`,
-    lvl6: `http://${ServerTalker.hostName}/images/abilityIcons/lvl6.png`,
-    stabIcon: `http://${ServerTalker.hostName}/images/abilityIcons/stabIcon.png`,
-    lungeIcon: `http://${ServerTalker.hostName}/images/abilityIcons/lungeIcon.png`,
-    swingIcon: `http://${ServerTalker.hostName}/images/abilityIcons/swingIcon.png`,
-    poundIcon: `http://${ServerTalker.hostName}/images/abilityIcons/poundIcon.png`,
-    sword11: `http://${ServerTalker.hostName}/images/weaponImages/sword11.png`,
-    sword21: `http://${ServerTalker.hostName}/images/weaponImages/sword21.png`,
-    sword31: `http://${ServerTalker.hostName}/images/weaponImages/sword31.png`,
-    hammer11: `http://${ServerTalker.hostName}/images/weaponImages/hammer11.png`,
-    dagger11: `http://${ServerTalker.hostName}/images/weaponImages/dagger11.png`,
-    slashEffectTest2: `http://${ServerTalker.hostName}/images/effectImages/slashEffectTest2.png`,
-    whirlwindEffectBase: `http://${ServerTalker.hostName}/images/effectImages/whirlwindEffectBase.png`,
-    whirlwindEffectTop: `http://${ServerTalker.hostName}/images/effectImages/whirlwindEffectTop.png`,
+    rockLarge: `https://${ServerTalker.hostName}/images/rockDoodad.png`,
+    slashIcon: `https://${ServerTalker.hostName}/images/abilityIcons/slashIcon.png`,
+    emptyIcon: `https://${ServerTalker.hostName}/images/abilityIcons/emptyIcon.png`,
+    whirlwindIcon: `https://${ServerTalker.hostName}/images/abilityIcons/whirlwindIcon.png`,
+    lvl10: `https://${ServerTalker.hostName}/images/abilityIcons/lvl10.png`,
+    lvl6: `https://${ServerTalker.hostName}/images/abilityIcons/lvl6.png`,
+    stabIcon: `https://${ServerTalker.hostName}/images/abilityIcons/stabIcon.png`,
+    lungeIcon: `https://${ServerTalker.hostName}/images/abilityIcons/lungeIcon.png`,
+    swingIcon: `https://${ServerTalker.hostName}/images/abilityIcons/swingIcon.png`,
+    poundIcon: `https://${ServerTalker.hostName}/images/abilityIcons/poundIcon.png`,
+    sword11: `https://${ServerTalker.hostName}/images/weaponImages/sword11.png`,
+    sword21: `https://${ServerTalker.hostName}/images/weaponImages/sword21.png`,
+    sword31: `https://${ServerTalker.hostName}/images/weaponImages/sword31.png`,
+    hammer11: `https://${ServerTalker.hostName}/images/weaponImages/hammer11.png`,
+    hammer21: `https://${ServerTalker.hostName}/images/weaponImages/hammer21.png`,
+    dagger11: `https://${ServerTalker.hostName}/images/weaponImages/dagger11.png`,
+    dagger21: `https://${ServerTalker.hostName}/images/weaponImages/dagger21.png`,
+    slashEffectTest2: `https://${ServerTalker.hostName}/images/effectImages/slashEffectTest2.png`,
+    whirlwindEffectBase: `https://${ServerTalker.hostName}/images/effectImages/whirlwindEffectBase.png`,
+    whirlwindEffectTop: `https://${ServerTalker.hostName}/images/effectImages/whirlwindEffectTop.png`,
 };
 class AssetManager {
     public images: Record<ImageName, HTMLImageElement>;

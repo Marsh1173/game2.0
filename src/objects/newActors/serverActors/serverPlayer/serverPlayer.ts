@@ -14,6 +14,7 @@ export type PlayerActionType = "jump" | "moveLeft" | "moveRight" | "crouch";
 
 export abstract class ServerPlayer extends ServerActor {
     protected crouching: boolean = false;
+    protected facingRight: boolean = true;
     public abstract classType: ClassType;
 
     actorObject: PlayerObject;
@@ -45,6 +46,10 @@ export abstract class ServerPlayer extends ServerActor {
             width: defaultActorConfig.playerSize.width,
             height: defaultActorConfig.playerSize.height,
         });
+    }
+
+    public getFacingRight(): boolean {
+        return this.facingRight;
     }
 
     public getLevel(): number {
@@ -80,7 +85,6 @@ export abstract class ServerPlayer extends ServerActor {
         this.actorObject.accelerateLeft(elapsedTime);
     }
 
-    protected abstract updateInput(elapsedTime: number): void;
     getStartingHealth(): number {
         return defaultActorConfig.playerMaxHealth;
     }
@@ -105,12 +109,18 @@ export abstract class ServerPlayer extends ServerActor {
         }
     }
 
-    protected broadcastFacing(facingRight: boolean) {
+    public broadcastFacing(facingRight: boolean) {
+        this.facingRight = facingRight;
         Game.broadcastMessage({
             type: "playerChangeFacing",
             facingRight,
             id: this.id,
         });
+    }
+
+    update(elapsedTime: number) {
+        this.updateActions(elapsedTime);
+        this.actorObject.update(elapsedTime, this.actionsNextFrame.moveLeft || this.actionsNextFrame.moveRight);
     }
 
     serialize(): SerializedPlayer {
@@ -124,6 +134,7 @@ export abstract class ServerPlayer extends ServerActor {
             class: this.classType,
             classLevel: this.level,
             classSpec: this.spec,
+            facingRight: this.facingRight,
         };
     }
 }
@@ -138,6 +149,7 @@ export interface SerializedPlayer {
     class: ClassType;
     classLevel: number;
     classSpec: number;
+    facingRight: boolean;
 }
 
 export interface ServerPlayerAction {

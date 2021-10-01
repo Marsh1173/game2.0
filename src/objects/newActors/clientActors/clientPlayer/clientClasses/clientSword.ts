@@ -5,22 +5,19 @@ import { findMirroredAngle, Vector } from "../../../../../vector";
 import { ClientDoodad } from "../../../../terrain/doodads/clientDoodad";
 import { ClientFloor } from "../../../../terrain/floor/clientFloor";
 import { ClassType, SerializedPlayer } from "../../../serverActors/serverPlayer/serverPlayer";
+import { SwordPlayerModel } from "../../model/playerModels/swordPlayerModel";
 import { ClientPlayer } from "../clientPlayer";
 
 export class ClientSword extends ClientPlayer {
     classType: ClassType = "sword";
+    model: SwordPlayerModel;
 
     protected whirlwindEffectparticle: DummyWhirlwindEffect | undefined = undefined;
 
     constructor(game: Game, playerInfo: SerializedPlayer) {
         super(game, playerInfo, "swordPlayer");
-    }
 
-    updateInput(elapsedTime: number) {}
-
-    update(elapsedTime: number) {
-        this.updateActions(elapsedTime);
-        this.actorObject.update(elapsedTime, this.moveActionsNextFrame.moveLeft || this.moveActionsNextFrame.moveRight);
+        this.model = new SwordPlayerModel(game, this, game.getActorCtx(), playerInfo.position, game.getActorSide(this.id), this.color, this.actorObject.size);
     }
 
     public performClientAbility: Record<SwordPlayerAbility, (mousePos: Vector) => void> = {

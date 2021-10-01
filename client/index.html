@@ -74,6 +74,30 @@
             
         </div>
         <div id="screenCover"></div>
+        <div id="settingsDiv">
+            <h1>Settings</h1>
+            <hr>
+            <div id="screenDelayDiv" title="Delay of screen behind character">
+                <label for="screenDelay">Screen Follow Delay: </label>
+                <input id="screenDelay" type="range" min="0" max="100" step="25"/>
+            </div>
+            <hr>
+            <div id="particleSliderDiv" title="Percentage of particles to display in-game">
+                <label for="particleSlider">Particles: </label>
+                <input id="particleSlider" type="range" min="0" max="100" step="25" value="100"/>
+            </div>
+            <hr>
+            <div id="effectsToggleDiv" title="If effects will be rendered in-game" >
+                <label for="effectsToggle">Effects: </label>
+                <input id="effectsToggle" type="checkbox" checked />
+            </div>
+            <hr>
+            <div id="cameraEffectsToggleDiv" title="If camera effects (shaking, zooming) will be rendered in-game" >
+                <label for="cameraEffectsToggle">Camera Effects: </label>
+                <input id="cameraEffectsToggle" type="checkbox" checked />
+            </div>
+            <button id="clearLocalStorageButton" title="Clears all local data, including class levels and specs">Clear Local Storage</button>
+        </div>
         <div id="commentDiv">
             <textarea id="comment" placeholder="Type a comment to submit to the website's owner..."></textarea>
             <textarea id="commentName" placeholder="Name... (optional)"></textarea>

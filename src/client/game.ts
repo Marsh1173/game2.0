@@ -150,8 +150,6 @@ export class Game {
     }
 
     private update(elapsedTime: number) {
-        elapsedTime = Math.min(0.1, elapsedTime);
-
         this.gamePlayerInputReader.update(elapsedTime);
 
         this.updateObjects(elapsedTime);
@@ -243,10 +241,7 @@ export class Game {
         throw new Error("getMouseShape currently not adjusted for screen center");
     }
     public getGlobalMousePos(): Vector {
-        return {
-            x: this.mousePos.x / this.gameRenderer.currentZoom + this.gameRenderer.currentScreenPos.x,
-            y: this.mousePos.y / this.gameRenderer.currentZoom + this.gameRenderer.currentScreenPos.y,
-        };
+        return this.gameRenderer.getCanvasPosFromScreen(this.mousePos);
     }
 
     public getGlobalObjects(): GlobalClientObjects {

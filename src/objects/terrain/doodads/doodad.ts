@@ -1,6 +1,18 @@
 import { findAngle } from "../../../findAngle";
-import { ifIntersect } from "../../../ifIntersect";
-import { DoodadEdge, dotProduct, findDifference, findDistance, findLength, rotateVector, Shape, Vector, vectorProject } from "../../../vector";
+import { findIntersection, ifIntersect } from "../../../ifIntersect";
+import {
+    DoodadEdge,
+    dotProduct,
+    Edge,
+    findDifference,
+    findDistance,
+    findLength,
+    findOrthonormalVector,
+    rotateVector,
+    Shape,
+    Vector,
+    vectorProject,
+} from "../../../vector";
 
 const doodadPointInformation: Record<DoodadType, Vector[]> = {
     rockLarge: [
@@ -14,11 +26,6 @@ const doodadPointInformation: Record<DoodadType, Vector[]> = {
         { x: 197, y: 23 },
     ],
 };
-
-function findOrthonormalVector(vector1: Vector, vector2: Vector): Vector {
-    let magnitude: number = findDistance(vector1, vector2);
-    return { x: (vector2.y - vector1.y) / magnitude, y: (vector1.x - vector2.x) / magnitude };
-}
 
 export type DoodadType = "rockLarge";
 
@@ -76,6 +83,11 @@ export abstract class Doodad {
     }
     public checkObjectIntersection(objectShape: Shape): boolean {
         //if objects intersect (line intersect -> or ifPointIsBehindEdge method)
+
+        /*This method checks all of this shape's edges to see if any of the object's points fall behind that edge.
+        If an edge exists with no points behind it, we can assume the shapes do not collide.
+        Otherwise, we know that somewhere the shapes collide.
+        This method will not work for concave doodads.*/
         for (let i1: number = 0; i1 < this.edges.length; i1++) {
             let ifPointExistsBehind: boolean = false;
             for (let i2: number = 0; i2 < objectShape.points.length; i2++) {
@@ -100,7 +112,52 @@ export abstract class Doodad {
         }
         return false;*/
     }
-    public registerCollision(objectShape: Shape, momentum: Vector): { positionChange: Vector; momentumChange: Vector | undefined; angle: number | undefined } {
+    public registerCollisionWithMostCorrectSolution(
+        dynamShape: Shape,
+        prevPositionDifference: Vector,
+        ctx: CanvasRenderingContext2D,
+    ): { positionChange: Vector; momentumChange: Vector | undefined; angle: number | undefined } | undefined {
+        /**
+         * This algorithm takes the dynamic object's shape and the difference between its current position and its position last frame.
+         * We assume the point difference is the "previous momentum."
+         * We check if any of the dynamObj's points collided with this object's shape due to it's previous momentum.
+         * If so, we find the closest intersection point to the dynamObj's previous position and return it.
+         */
+
+        let furthestIntersectionPoint: Vector | undefined = undefined;
+        let furthestIntersectionLength: number = 0;
+
+        for (let i: number = 0; i < dynamShape.points.length; i++) {
+            for (let j: number = 0; j < this.edges.length; j++) {
+                let pointMomentumLineSegment: Edge = {
+                    p1: dynamShape.points[i],
+                    p2: { x: dynamShape.points[i].x + prevPositionDifference.x, y: dynamShape.points[i].y + prevPositionDifference.y },
+                };
+
+                let intersectionPoint: undefined | Vector = findIntersection(this.edges[j], pointMomentumLineSegment);
+
+                if (intersectionPoint) {
+                    let intersectionDistanceFromOriginalPoint: number = findLength(intersectionPoint);
+                    if (intersectionDistanceFromOriginalPoint > furthestIntersectionLength) {
+                        furthestIntersectionLength = intersectionDistanceFromOriginalPoint;
+                        furthestIntersectionPoint = intersectionPoint;
+                    }
+                }
+            }
+        }
+
+        if (furthestIntersectionPoint) {
+            ctx.fillStyle = "red";
+            ctx.fillRect(furthestIntersectionPoint.x - 4, furthestIntersectionPoint.y - 4, 8, 8);
+        }
+
+        return undefined;
+    }
+
+    public registerCollisionWithClosestSolution(
+        objectShape: Shape,
+        momentum: Vector,
+    ): { positionChange: Vector; momentumChange: Vector | undefined; angle: number | undefined } {
         let lowestEdge: DoodadEdge = this.edges[0];
         let lowestDistance: number = 10000;
 

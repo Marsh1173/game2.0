@@ -11,7 +11,7 @@ import { Model } from "../model";
 export abstract class PlayerModel extends Model {
     protected animationTime: number = 0;
 
-    protected facingAnimation: { frame: number; facingRight: boolean } = { frame: 1, facingRight: true };
+    protected facingAnimation: { frame: number; facingRight: boolean };
     protected facingAngleAnimation: { frame: number; angle: number; targetAngle: number } = { frame: 1, angle: 0, targetAngle: 0 };
 
     protected hitAnimation: { frame: number; renderColor: string };
@@ -27,6 +27,8 @@ export abstract class PlayerModel extends Model {
     ) {
         super(game, player, ctx, position, healthBarType);
         this.hitAnimation = { frame: 0, renderColor: this.playerColor };
+
+        this.facingAnimation = { frame: 1, facingRight: this.player.facingRight };
     }
 
     protected renderBlock() {
@@ -121,6 +123,10 @@ export abstract class PlayerModel extends Model {
     public changeFacingAngle(angle: number) {
         this.facingAngleAnimation.frame = 0;
         this.facingAngleAnimation.targetAngle = findMirroredAngle(angle);
+    }
+
+    public getColor(): string {
+        return this.playerColor;
     }
 
     public update(elapsedTime: number) {

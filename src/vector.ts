@@ -103,3 +103,8 @@ export function rootKeepSign(number: number, root: number): number {
     if (number >= 0) return Math.pow(number, 1 / root);
     else return Math.pow(Math.abs(number), 1 / root) * -1;
 }
+
+export function findOrthonormalVector(vector1: Vector, vector2: Vector): Vector {
+    let magnitude: number = findDistance(vector1, vector2);
+    return { x: (vector2.y - vector1.y) / magnitude, y: (vector1.x - vector2.x) / magnitude };
+}

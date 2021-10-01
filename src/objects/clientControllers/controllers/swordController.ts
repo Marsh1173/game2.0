@@ -23,9 +23,11 @@ export class SwordController extends Controller {
     public sendServerSwordAbility(ability: SwordPlayerAbility, starting: boolean, mousePos: Vector) {
         this.game.serverTalker.sendMessage({
             type: "clientSwordMessage",
+            originId: this.player.getActorId(),
+            position: this.player.position,
+            momentum: this.player.momentum,
             msg: {
                 type: "clientSwordAbility",
-                originId: this.player.getActorId(),
                 abilityType: ability,
                 mousePos,
                 starting,
@@ -36,12 +38,14 @@ export class SwordController extends Controller {
 
 export interface ClientSwordMessage {
     type: "clientSwordMessage";
+    originId: number;
+    position: Vector;
+    momentum: Vector;
     msg: ClientSwordWhirlwindHit | ClientSwordSlashHit | ClientSwordAbility;
 }
 
 export interface ClientSwordAbility {
     type: "clientSwordAbility";
-    originId: number;
     abilityType: SwordPlayerAbility;
     mousePos: Vector;
     starting: boolean;

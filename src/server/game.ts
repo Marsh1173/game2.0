@@ -79,9 +79,23 @@ export class Game {
         this.update(elapsedTime * this.config.gameSpeed);
     }
 
+    public debugTimer: number = 0;
+
     public update(elapsedTime: number) {
         if (this.globalServerActors.actors.length === 0) {
             return;
+        }
+
+        this.debugTimer += elapsedTime;
+        if (this.debugTimer > 0.01) {
+            let actor: ServerActor = this.globalServerActors.players[0];
+            if (actor) {
+                Game.broadcastMessage({
+                    type: "serverDebugMessage",
+                    position: actor.position,
+                });
+            }
+            this.debugTimer = 0;
         }
 
         this.updateActors(elapsedTime);
@@ -125,13 +139,14 @@ export class Game {
             playerInfo: {
                 id,
                 class: classType,
-                position: defaultActorConfig.playerStart,
-                momentum: { x: 0, y: 0 },
+                position: newPlayer.position,
+                momentum: newPlayer.momentum,
                 healthInfo: { health: newPlayer.getHealth(), maxHealth: newPlayer.getMaxHealth() },
                 name,
                 color,
                 classLevel,
                 classSpec,
+                facingRight: newPlayer.getFacingRight(),
             },
         });
     }
@@ -179,27 +194,25 @@ export class Game {
                 }
                 break;
             case "clientPlayerFacingUpdate":
-                Game.broadcastMessage({
-                    type: "playerChangeFacing",
-                    id: data.playerid,
-                    facingRight: data.facingRight,
-                });
+                player = this.globalServerActors.players.find((player) => player.getActorId() === data.playerid);
+                if (player) player.broadcastFacing(data.facingRight);
                 break;
             case "clientSwordMessage":
-                let swordPlayer: ServerSword | undefined = this.globalServerActors.swordPlayers.find((player) => player.getActorId() === data.msg.originId);
-                switch (data.msg.type) {
-                    case "clientSwordWhirlwindHit":
-                        if (swordPlayer) swordPlayer.assignWhirlwindDamage(data.msg.actors);
-                        break;
-                    case "clientSwordSlashHit":
-                        if (swordPlayer) swordPlayer.assignSlashDamage(data.msg.actors);
-                        break;
-                    case "clientSwordAbility":
-                        if (swordPlayer) swordPlayer.performServerAbility(data.msg.abilityType, data.msg.starting, data.msg.mousePos);
-                        break;
-
-                    default:
-                        throw new Error(`Invalid clientSwordMessage type`);
+                let swordPlayer: ServerSword | undefined = this.globalServerActors.swordPlayers.find((player) => player.getActorId() === data.originId);
+                if (swordPlayer) {
+                    swordPlayer.serviceSwordMessage(data);
+                }
+                break;
+            case "clientDaggersMessage":
+                let daggersPlayer: ServerDaggers | undefined = this.globalServerActors.daggerPlayers.find((player) => player.getActorId() === data.originId);
+                if (daggersPlayer) {
+                    daggersPlayer.serviceClientDaggersMessage(data);
+                }
+                break;
+            case "clientHammerMessage":
+                let hammerPlayer: ServerHammer | undefined = this.globalServerActors.hammerPlayers.find((player) => player.getActorId() === data.originId);
+                if (hammerPlayer) {
+                    hammerPlayer.serviceHammerMessage(data);
                 }
                 break;
             default:
@@ -210,11 +223,11 @@ export class Game {
     public findActor(actorId: number, type: ActorType): ServerActor | undefined {
         switch (type) {
             case "daggersPlayer":
-                return this.globalServerActors.daggerPlayers.find((player) => player.getActorId() === actorId)!;
+                return this.globalServerActors.daggerPlayers.find((player) => player.getActorId() === actorId);
             case "hammerPlayer":
-                return this.globalServerActors.hammerPlayers.find((player) => player.getActorId() === actorId)!;
+                return this.globalServerActors.hammerPlayers.find((player) => player.getActorId() === actorId);
             case "swordPlayer":
-                return this.globalServerActors.swordPlayers.find((player) => player.getActorId() === actorId)!;
+                return this.globalServerActors.swordPlayers.find((player) => player.getActorId() === actorId);
             case "testMob":
                 throw new Error("Test mobs have not been implemented in findActor");
             default:

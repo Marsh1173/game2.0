@@ -140,9 +140,9 @@ export class UserInterface {
     public updatePassiveAbility(img: HTMLImageElement) {
         this.abilityCanvas.lineWidth = 1;
         this.abilityCanvas.strokeStyle = "rgb(230, 230, 230)";
-        this.abilityCanvas.clearRect(290, 45, 55, 55);
-        roundRect(this.abilityCanvas, 293, 47, 50, 50, 10, false, true);
-        this.abilityCanvas.drawImage(img, 293, 47, 50, 50);
+        this.abilityCanvas.clearRect(330, 30, 55, 55);
+        roundRect(this.abilityCanvas, 333, 32, 50, 50, 10, false, true);
+        this.abilityCanvas.drawImage(img, 333, 32, 50, 50);
     }
 
     protected iconCooldownLastFrame: number[] = [-1, -1, -1, -1];
@@ -150,7 +150,7 @@ export class UserInterface {
     protected renderAbilities() {
         for (let i: number = 0; i < this.renderAbilityIconFunctions.length; i++) {
             if (this.globalCooldownLastFrame !== this.controller.globalCooldown || this.iconCooldownLastFrame[i] !== this.playerAbilityStatus[i].cooldown) {
-                this.abilityCanvas.fillStyle = "rgb(200, 200, 200)";
+                this.abilityCanvas.fillStyle = "rgb(255, 255, 255)";
                 this.renderAbilityIconFunctions[i]();
                 this.abilityChanged[i] = false;
                 this.iconCooldownLastFrame[i] = this.playerAbilityStatus[i].cooldown + 0;
@@ -160,16 +160,16 @@ export class UserInterface {
     }
     protected renderAbilityIconFunctions: (() => void)[] = [
         () => {
-            this.renderAbilityIcon({ x: 7, y: 30 }, 70, 0);
+            this.renderAbilityIcon({ x: 5, y: 30 }, 70, 0);
         },
         () => {
-            this.renderAbilityIcon({ x: 82, y: 30 }, 70, 1);
+            this.renderAbilityIcon({ x: 90, y: 30 }, 70, 1);
         },
         () => {
-            this.renderAbilityIcon({ x: 160, y: 40 }, 60, 2);
+            this.renderAbilityIcon({ x: 180, y: 30 }, 60, 2);
         },
         () => {
-            this.renderAbilityIcon({ x: 225, y: 40 }, 60, 3);
+            this.renderAbilityIcon({ x: 255, y: 30 }, 60, 3);
         },
     ];
 

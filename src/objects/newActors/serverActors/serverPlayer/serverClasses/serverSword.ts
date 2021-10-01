@@ -1,5 +1,6 @@
 import { Game } from "../../../../../server/game";
 import { findVectorFromAngle, Vector } from "../../../../../vector";
+import { ClientSwordMessage } from "../../../../clientControllers/controllers/swordController";
 import { ServerDoodad } from "../../../../terrain/doodads/serverDoodad";
 import { ServerFloor } from "../../../../terrain/floor/serverFloor";
 import { ActorType } from "../../../actor";
@@ -14,14 +15,24 @@ export class ServerSword extends ServerPlayer {
         super(game, id, color, name, level, spec, "swordPlayer");
     }
 
-    updateInput(elapsedTime: number) {}
-
-    update(elapsedTime: number) {
-        this.updateActions(elapsedTime);
-        this.actorObject.update(elapsedTime, this.actionsNextFrame.moveLeft || this.actionsNextFrame.moveRight);
+    public serviceSwordMessage(data: ClientSwordMessage) {
+        this.updatePositionAndMomentum(data.momentum, data.position);
+        switch (data.msg.type) {
+            case "clientSwordWhirlwindHit":
+                this.assignWhirlwindDamage(data.msg.actors);
+                break;
+            case "clientSwordSlashHit":
+                this.assignSlashDamage(data.msg.actors);
+                break;
+            case "clientSwordAbility":
+                this.performServerAbility(data.msg.abilityType, data.msg.starting, data.msg.mousePos);
+                break;
+            default:
+                throw new Error(`Invalid clientSwordMessage type`);
+        }
     }
 
-    public assignWhirlwindDamage(
+    protected assignWhirlwindDamage(
         actors: {
             actorType: ActorType;
             actorId: number;
@@ -43,7 +54,7 @@ export class ServerSword extends ServerPlayer {
         });
     }
 
-    public assignSlashDamage(
+    protected assignSlashDamage(
         actors: {
             actorType: ActorType;
             actorId: number;
@@ -64,7 +75,7 @@ export class ServerSword extends ServerPlayer {
         });
     }
 
-    public performServerAbility(ability: SwordPlayerAbility, starting: boolean, globalMousePos: Vector) {
+    protected performServerAbility(ability: SwordPlayerAbility, starting: boolean, globalMousePos: Vector) {
         if (starting) this.startAbility[ability](globalMousePos);
         else this.endAbility[ability]();
     }
@@ -74,6 +85,8 @@ export class ServerSword extends ServerPlayer {
             Game.broadcastMessage({
                 type: "serverSwordMessage",
                 originId: this.id,
+                position: this.position,
+                momentum: this.momentum,
                 msg: {
                     type: "serverSwordAbility",
                     ability: "slash",
@@ -86,6 +99,8 @@ export class ServerSword extends ServerPlayer {
             Game.broadcastMessage({
                 type: "serverSwordMessage",
                 originId: this.id,
+                position: this.position,
+                momentum: this.momentum,
                 msg: {
                     type: "serverSwordAbility",
                     ability: "whirlwind",
@@ -103,6 +118,8 @@ export class ServerSword extends ServerPlayer {
             Game.broadcastMessage({
                 type: "serverSwordMessage",
                 originId: this.id,
+                position: this.position,
+                momentum: this.momentum,
                 msg: {
                     type: "serverSwordAbility",
                     ability: "whirlwind",
@@ -118,6 +135,8 @@ export class ServerSword extends ServerPlayer {
 export interface ServerSwordMessage {
     type: "serverSwordMessage";
     originId: number;
+    position: Vector;
+    momentum: Vector;
     msg: ServerSwordAbility;
 }
 
@@ -135,5 +154,5 @@ const SwordWhirlWindAbilityData = {
 
 const SwordSlashAbilityData = {
     damage: 10,
-    knockbackForce: 500,
+    knockbackForce: 5000,
 };

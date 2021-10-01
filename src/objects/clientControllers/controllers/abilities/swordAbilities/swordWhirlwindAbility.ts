@@ -23,8 +23,7 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
         );
     }
 
-    public pressFunc(globalMousePos: Vector) {
-        this.game.gameRenderer.screenZoom(0.8, 10);
+    pressFunc(globalMousePos: Vector) {
         this.controller.setNegativeGlobalCooldown();
         this.controller.setCurrentCastingAbility(this.abilityArrayIndex);
         this.player.performClientAbility["whirlwind"](globalMousePos);
@@ -35,7 +34,7 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
         this.controller.sendServerSwordAbility("whirlwind", true, { x: 0, y: 0 });
         //broadcast starting
     }
-    public castUpdateFunc(elapsedTime: number) {
+    castUpdateFunc(elapsedTime: number) {
         this.castStage += elapsedTime;
 
         if (
@@ -57,12 +56,15 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
             });
 
             if (actors.length !== 0) {
+                this.game.gameRenderer.screenZoom(1.06, 3);
                 this.game.serverTalker.sendMessage({
                     type: "clientSwordMessage",
+                    originId: this.player.getActorId(),
+                    position: this.player.position,
+                    momentum: this.player.momentum,
                     msg: {
                         type: "clientSwordWhirlwindHit",
                         actors,
-                        originId: this.player.getActorId(),
                     },
                 });
             }
@@ -72,10 +74,10 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
             this.stopFunc();
         }
     }
-    public releaseFunc() {
+    releaseFunc() {
         this.stopFunc();
     }
-    public stopFunc() {
+    stopFunc() {
         if (this.casting) {
             this.player.releaseClientAbility["whirlwind"]();
             this.controller.resetGlobalCooldown();
@@ -88,7 +90,7 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
         }
     }
 
-    public updateFunc(elapsedTime: number) {
+    updateFunc(elapsedTime: number) {
         if (this.cooldown > SwordWhirlWindAbilityData.cooldown) {
             this.cooldown = SwordWhirlWindAbilityData.cooldown + 0;
         }
@@ -98,7 +100,7 @@ export class SwordWhirlWindAbility extends PlayerHoldAbility {
         }
     }
 
-    public getIconCooldownPercent(): number {
+    getIconCooldownPercent(): number {
         if (this.cooldown === 0) return this.controller.globalCooldown / defaultActorConfig.globalCooldown;
         else return this.cooldown / SwordWhirlWindAbilityData.cooldown;
     }
@@ -118,5 +120,4 @@ export interface ClientSwordWhirlwindHit {
         actorId: number;
         angle: number;
     }[];
-    originId: number;
 }

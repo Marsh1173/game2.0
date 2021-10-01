@@ -4,42 +4,41 @@ import { findAngle } from "../../../../../findAngle";
 import { rotateShape, Vector } from "../../../../../vector";
 import { ActorType } from "../../../../newActors/actor";
 import { ClientActor, renderShape } from "../../../../newActors/clientActors/clientActor";
-import { ClientSword } from "../../../../newActors/clientActors/clientPlayer/clientClasses/clientSword";
+import { ClientHammer } from "../../../../newActors/clientActors/clientPlayer/clientClasses/clientHammer";
 import { Controller } from "../../controller";
-import { SwordController } from "../../swordController";
+import { HammerController } from "../../hammerController";
 import { PlayerPressAbility } from "../playerPressAbility";
-import { SwordWhirlWindAbility } from "./swordWhirlwindAbility";
 
-export class SwordSlashAbility extends PlayerPressAbility {
-    constructor(game: Game, protected readonly player: ClientSword, protected readonly controller: SwordController, abilityArrayIndex: number) {
+export class HammerSwingAbility extends PlayerPressAbility {
+    constructor(game: Game, protected readonly player: ClientHammer, protected readonly controller: HammerController, abilityArrayIndex: number) {
         super(
             game,
             player,
             controller,
-            SwordSlashAbilityData.cooldown + 0,
-            assetManager.images["slashIcon"],
-            SwordSlashAbilityData.totalCastTime + 0,
+            HammerSwingAbilityData.cooldown + 0,
+            assetManager.images["swingIcon"],
+            HammerSwingAbilityData.totalCastTime + 0,
             abilityArrayIndex,
         );
     }
 
     pressFunc(globalMousePos: Vector) {
         super.pressFunc(globalMousePos);
-        this.player.performClientAbility["slash"](globalMousePos);
+        this.player.performClientAbility["swing"](globalMousePos);
 
-        this.controller.sendServerSwordAbility("slash", true, globalMousePos);
+        this.controller.sendServerHammerAbility("swing", true, globalMousePos);
     }
     castUpdateFunc(elapsedTime: number) {
         super.castUpdateFunc(elapsedTime);
 
-        if (this.castStage > SwordSlashAbilityData.hitDetectFrame && this.castStage - elapsedTime < SwordSlashAbilityData.hitDetectFrame) {
+        if (this.castStage > HammerSwingAbilityData.hitDetectFrame && this.castStage - elapsedTime < HammerSwingAbilityData.hitDetectFrame) {
             let actors: {
                 actorType: ActorType;
                 actorId: number;
                 angle: number;
             }[] = [];
 
-            let shape: Vector[] = rotateShape(SwordSlashHitShape, this.angle, this.player.position, false);
+            let shape: Vector[] = rotateShape(HammerSwingHitShape, this.angle, this.player.position, false);
 
             this.globalActors.actors.forEach((actor) => {
                 if (actor.getActorId() !== this.player.getActorId() && actor.ifInsideLargerShape(shape)) {
@@ -52,27 +51,24 @@ export class SwordSlashAbility extends PlayerPressAbility {
             });
 
             if (actors.length > 0) {
-                this.game.gameRenderer.screenZoom(1.06);
+                this.game.gameRenderer.screenZoom(1.1, 7);
                 this.game.serverTalker.sendMessage({
-                    type: "clientSwordMessage",
+                    type: "clientHammerMessage",
                     originId: this.player.getActorId(),
                     position: this.player.position,
                     momentum: this.player.momentum,
                     msg: {
-                        type: "clientSwordSlashHit",
+                        type: "clientHammerSwingHit",
                         actors,
                     },
                 });
-                if (this.controller.abilityData[1] instanceof SwordWhirlWindAbility) {
-                    this.controller.abilityData[1].cooldown--;
-                }
             }
         }
     }
 }
 
-export interface ClientSwordSlashHit {
-    type: "clientSwordSlashHit";
+export interface ClientHammerSwingHit {
+    type: "clientHammerSwingHit";
     actors: {
         actorType: ActorType;
         actorId: number;
@@ -80,7 +76,7 @@ export interface ClientSwordSlashHit {
     }[];
 }
 
-export const SwordSlashHitShape: Vector[] = [
+export const HammerSwingHitShape: Vector[] = [
     { x: -10, y: -30 },
     { x: 7, y: -80 },
     { x: 100, y: -55 },
@@ -89,8 +85,8 @@ export const SwordSlashHitShape: Vector[] = [
     { x: 10, y: 70 },
 ];
 
-const SwordSlashAbilityData = {
-    cooldown: 0.3,
-    totalCastTime: 0.5,
-    hitDetectFrame: 0.05,
+const HammerSwingAbilityData = {
+    cooldown: 0.5,
+    totalCastTime: 0.8,
+    hitDetectFrame: 0.2,
 };

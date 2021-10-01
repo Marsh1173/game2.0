@@ -318,7 +318,8 @@ body {
 
 #commentDiv,
 #informationDiv,
-#patchNotesDiv {
+#patchNotesDiv,
+#settingsDiv {
     display: none;
     position: absolute;
     left: calc(50% - 250px);
@@ -453,6 +454,32 @@ body {
     border-radius: 10px;
 }
 
+/*SETTINGS DIV STYLE*/
+#settingsDiv {
+    height: 340px;
+    padding: 20px;
+}
+#settingsDiv hr {
+    width: 62%;
+    border: 1px solid rgb(99, 99, 99);
+}
+#settingsDiv div {
+    width: 60%;
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+label,
+p,
+h1 {
+    color: rgb(199, 199, 199);
+}
+h1 {
+    margin-bottom: 20px;
+    text-decoration: underline;
+}
+
 /* game layers*/
 #actorCanvas {
     top: 0px;
@@ -514,14 +541,14 @@ body {
     height: 120px;
     bottom: 25px;
     width: 400px;
-    left: calc(100% - 450px);
-    transform: skewX(3deg) skewY(3deg);
+    left: calc(90% - 400px);
+    transform: skewX(3deg) skewY(-3deg);
 }
 #healthCanvas {
     position: absolute;
-    transform: skewX(-5deg) skewY(-3deg);
+    transform: skewX(-5deg) skewY(3deg);
     height: 75px;
     bottom: 40px;
     width: 250px;
-    left: 80px;
+    left: 10%;
 }

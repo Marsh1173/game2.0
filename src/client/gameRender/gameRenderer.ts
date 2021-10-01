@@ -26,6 +26,7 @@ export class GameRenderer {
 
     public currentScreenPos: Vector = { x: 0, y: 0 };
     public currentScreenSize: Size = { width: 0, height: 0 };
+    public currentScreenRatio: number = 1;
 
     protected globalClientActors: GlobalClientActors;
     protected globalClientObjects: GlobalClientObjects;
@@ -149,8 +150,10 @@ export class GameRenderer {
         if (window.innerHeight !== this.previousWindowSize.height) {
             let ratio: number = window.innerWidth / 1920;
             if (ratio >= 1) {
+                this.currentScreenRatio = ratio;
                 this.previousWindowSize.height = window.innerHeight / ratio;
             } else {
+                this.currentScreenRatio = 1;
                 this.previousWindowSize.height = window.innerHeight;
             }
             this.updateCanvasHeight(this.actorCanvas);
@@ -174,6 +177,20 @@ export class GameRenderer {
     public screenZoom(multiplier: number, speed: number = 4) {
         this.targetZoom *= multiplier;
         this.zoomDelay = speed;
+    }
+
+    public getCanvasPosFromScreen(position: Vector): Vector {
+        if (this.currentScreenRatio === 1) {
+            return {
+                x: position.x / this.currentZoom + this.currentScreenPos.x,
+                y: position.y / this.currentZoom + this.currentScreenPos.y,
+            };
+        } else {
+            return {
+                x: position.x / (this.currentZoom * this.currentScreenRatio) + this.currentScreenPos.x,
+                y: position.y / (this.currentZoom * this.currentScreenRatio) + this.currentScreenPos.y,
+            };
+        }
     }
 }
 

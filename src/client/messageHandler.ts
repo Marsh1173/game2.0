@@ -7,6 +7,8 @@ export function handleMessage(this: Game, msg: ServerMessage) {
     let player;
 
     switch (msg.type) {
+        case "serverDebugMessage":
+            break;
         case "serverPlayerAction":
             if (msg.playerId === this.id) return;
             player = this.globalClientActors.players.find((player) => player.getActorId() === msg.playerId);
@@ -57,12 +59,40 @@ export function handleMessage(this: Game, msg: ServerMessage) {
                 player.updateFacingFromServer(msg.facingRight);
             }
             break;
+        case "serverStartTranslation":
+            let actor = this.globalClientActors.actors.find((actor) => actor.getActorId() === msg.actorId);
+            if (actor) {
+                actor.updatePositionAndMomentumFromServer(msg.position, msg.momentum);
+                actor.startTranslation(msg.angle, msg.translationName);
+            }
+            break;
         case "serverSwordMessage":
             if (msg.originId === this.id) return;
             let swordPlayer = this.globalClientActors.swordPlayers.find((player) => player.getActorId() === msg.originId);
             if (swordPlayer) {
+                swordPlayer.updatePositionAndMomentumFromServer(msg.position, msg.momentum);
                 if (msg.msg.starting) swordPlayer.performClientAbility[msg.msg.ability](msg.msg.mousePos);
                 else swordPlayer.releaseClientAbility[msg.msg.ability]();
+            }
+
+            break;
+        case "serverDaggersMessage":
+            if (msg.originId === this.id) return;
+            let daggersPlayer = this.globalClientActors.daggerPlayers.find((player) => player.getActorId() === msg.originId);
+            if (daggersPlayer) {
+                daggersPlayer.updatePositionAndMomentumFromServer(msg.position, msg.momentum);
+                if (msg.msg.starting) daggersPlayer.performClientAbility[msg.msg.ability](msg.msg.mousePos);
+                else daggersPlayer.releaseClientAbility[msg.msg.ability]();
+            }
+
+            break;
+        case "serverHammerMessage":
+            if (msg.originId === this.id) return;
+            let hammerPlayer = this.globalClientActors.hammerPlayers.find((player) => player.getActorId() === msg.originId);
+            if (hammerPlayer) {
+                hammerPlayer.updatePositionAndMomentumFromServer(msg.position, msg.momentum);
+                if (msg.msg.starting) hammerPlayer.performClientAbility[msg.msg.ability](msg.msg.mousePos);
+                else hammerPlayer.releaseClientAbility[msg.msg.ability]();
             }
 
             break;

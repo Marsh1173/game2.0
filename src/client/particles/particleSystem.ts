@@ -4,6 +4,7 @@ import { Game } from "../game";
 import { safeGetElementById } from "../util";
 import { DummySlashEffect2 } from "./particleClasses/dummySlashEffect2";
 import { DummyWhirlwindEffect } from "./particleClasses/dummyWhirlwindEffect";
+import { LungeEffect } from "./particleClasses/lungeEffect";
 import { ParticleBase } from "./particleClasses/particleBaseClass";
 import { ParticleGroup } from "./particleGroups/particleGroup";
 import { Sparks } from "./particleGroups/sparks";
@@ -73,5 +74,9 @@ export class ParticleSystem {
         let tempPtr: DummyWhirlwindEffect = new DummyWhirlwindEffect(this.particleCtx, position, flipX);
         this.particles.insertAtBegin(tempPtr);
         return tempPtr;
+    }
+
+    public addLungeEffect(position: Vector, color: string) {
+        this.particles.insertAtBegin(new LungeEffect(this.particleCtx, position, color));
     }
 }

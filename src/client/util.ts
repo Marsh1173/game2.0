@@ -31,6 +31,11 @@ export function fillPatchNotesDiv(div: HTMLElement): void {
 
 const patchNotes: { dateTitle: string; additions: string[]; ifNew: boolean }[] = [
     {
+        dateTitle: "TBD",
+        additions: ["Fixed a bug where large screens didn't correctly detect the mouse position."],
+        ifNew: true,
+    },
+    {
         dateTitle: "5-20-21 - Cooler Abilities / Polishing",
         additions: [
             "Redid Sword weapon and animations, hopefully for the better. Any feedback on how the abilities feel would be awesome.",
@@ -41,7 +46,7 @@ const patchNotes: { dateTitle: string; additions: string[]; ifNew: boolean }[] =
             "Fixed a small momentum bug to hopefully eliminate small discrepancies in players' positions between clients.",
             "Player boxes are slightly bigger (10%) with outlines for better visibility.",
         ],
-        ifNew: true,
+        ifNew: false,
     },
     {
         dateTitle: "5-15-21 - Basic Ability Functionality",

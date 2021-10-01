@@ -8,13 +8,14 @@ import { defaultActorConfig } from "../../actorConfig";
 import { PlayerObject } from "../../actorObjects/playerObject";
 import { ClassType, PlayerActionType, SerializedPlayer } from "../../serverActors/serverPlayer/serverPlayer";
 import { ClientActor } from "../clientActor";
+import { PlayerModel } from "../model/playerModels/playerModel";
 import { SwordPlayerModel } from "../model/playerModels/swordPlayerModel";
 import { ClientSword } from "./clientClasses/clientSword";
 
 export abstract class ClientPlayer extends ClientActor {
     actorObject: PlayerObject;
 
-    model: SwordPlayerModel;
+    protected abstract readonly model: PlayerModel;
 
     public abstract classType: ClassType;
     protected readonly color: string;
@@ -37,10 +38,9 @@ export abstract class ClientPlayer extends ClientActor {
         this.name = playerInfo.name;
         this.level = playerInfo.classLevel;
         this.spec = playerInfo.classSpec;
+        this.facingRight = playerInfo.facingRight;
 
         let playerSizePointer: Size = { width: defaultActorConfig.playerSize.width + 0, height: defaultActorConfig.playerSize.height + 0 };
-
-        this.model = new SwordPlayerModel(game, this, game.getActorCtx(), playerInfo.position, game.getActorSide(this.id), this.color, playerSizePointer);
 
         this.actorObject = new PlayerObject(game.getGlobalObjects(), this, this.position, this.momentum, playerSizePointer);
     }
@@ -108,8 +108,6 @@ export abstract class ClientPlayer extends ClientActor {
         this.actorObject.accelerateLeft(elapsedTime);
     }
 
-    protected abstract updateInput(elapsedTime: number): void;
-
     protected updateActions(elapsedTime: number) {
         this.model.update(elapsedTime);
 
@@ -139,6 +137,11 @@ export abstract class ClientPlayer extends ClientActor {
     public updateFacingFromServer(facingRight: boolean) {
         this.facingRight = facingRight;
         this.model.changeFacing(facingRight);
+    }
+
+    update(elapsedTime: number) {
+        this.updateActions(elapsedTime);
+        this.actorObject.update(elapsedTime, this.moveActionsNextFrame.moveLeft || this.moveActionsNextFrame.moveRight);
     }
 }
 

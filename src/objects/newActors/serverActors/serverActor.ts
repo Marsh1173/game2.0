@@ -74,6 +74,19 @@ export abstract class ServerActor extends Actor {
             newHealth: this.healthInfo.health,
         });
     }
+
+    public startTranslation(angle: number, translationName: TranslationName) {
+        Game.broadcastMessage({
+            type: "serverStartTranslation",
+            actorId: this.id,
+            actorType: this.actorType,
+            translationName,
+            angle,
+            position: this.position,
+            momentum: this.momentum,
+        });
+        this.actorObject.startTranslation(angle, translationName);
+    }
 }
 
 export interface ServerDamageMessage {
@@ -94,4 +107,14 @@ export interface ServerHealMessage {
     actorId: number;
     actorType: ActorType;
     newHealth: number;
+}
+
+export interface ServerStartTranslation {
+    type: "serverStartTranslation";
+    actorId: number;
+    actorType: ActorType;
+    translationName: TranslationName;
+    angle: number;
+    position: Vector;
+    momentum: Vector;
 }

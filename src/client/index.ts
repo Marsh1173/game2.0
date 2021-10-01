@@ -3,6 +3,8 @@ import { DaggersSpec, HammerSpec, SwordSpec } from "../objects/newActors/actor";
 import { ClassType } from "../objects/newActors/serverActors/serverPlayer/serverPlayer";
 import { Game } from "./game";
 import { assetManager } from "./gameRender/assetmanager";
+import { initComments } from "./mainMenu/comments";
+import { initSettingsButton } from "./mainMenu/settings";
 import { ServerTalker } from "./servertalker";
 import { fillPatchNotesDiv, safeGetElementById } from "./util";
 /*const particleSlider = safeGetElementById("particles");
@@ -170,33 +172,8 @@ function saveLocalData() {
 
 var screenCover: HTMLElement = safeGetElementById("screenCover");
 
-var settingsButtonToggled: boolean = false;
-safeGetElementById("settingsButton").onclick = () => {
-    if (settingsButtonToggled) {
-        //hide settings
-    } else {
-        //show settings
-    }
-};
-
-var commentDiv: HTMLElement = safeGetElementById("commentDiv");
-var emailOption: HTMLElement = safeGetElementById("emailOption");
-
-safeGetElementById("commentButton").onclick = () => {
-    emailOption.classList.add("selected");
-    commentDiv.style.display = "flex";
-    screenCover.style.display = "block";
-
-    screenCover.addEventListener("click", closeCommentDiv);
-
-    function closeCommentDiv() {
-        screenCover.removeEventListener("click", closeCommentDiv);
-
-        commentDiv.style.display = "none";
-        screenCover.style.display = "none";
-        emailOption.classList.remove("selected");
-    }
-};
+initSettingsButton(screenCover);
+initComments(screenCover);
 
 var informationDiv: HTMLElement = safeGetElementById("informationDiv");
 var infoOption: HTMLElement = safeGetElementById("infoOption");
@@ -218,6 +195,7 @@ safeGetElementById("informationButton").onclick = () => {
 
 var patchNotesDiv: HTMLElement = safeGetElementById("patchNotesDiv");
 var patchNotesOption: HTMLElement = safeGetElementById("patchNotesOption");
+fillPatchNotesDiv(patchNotesDiv);
 safeGetElementById("patchNotesButton").onclick = () => {
     patchNotesOption.classList.add("selected");
     patchNotesDiv.style.display = "flex";
@@ -235,6 +213,3 @@ safeGetElementById("patchNotesButton").onclick = () => {
 };
 var tipsButtonToggled: boolean = false;
 safeGetElementById("toggleTipsButton").onclick = () => {};
-
-var patchNotesDiv: HTMLElement = safeGetElementById("patchNotesDiv");
-fillPatchNotesDiv(patchNotesDiv);

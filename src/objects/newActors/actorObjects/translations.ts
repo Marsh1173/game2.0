@@ -1,6 +1,6 @@
 import { rotateVector, Vector } from "../../../vector";
 
-export type TranslationName = "testTranslation" | "shurikenDash";
+export type TranslationName = "testTranslation" | "lungeTranslation";
 
 export const translations: Record<TranslationName, Translation> = {
     testTranslation: {
@@ -15,14 +15,14 @@ export const translations: Record<TranslationName, Translation> = {
         ignoreCollision: true,
         ignoreGravity: false,
     },
-    shurikenDash: {
+    lungeTranslation: {
         keys: [
-            { pos: { x: -15, y: 0 }, time: 0.025 },
-            { pos: { x: -130, y: 0 }, time: 0.15 },
+            { pos: { x: 300, y: 0 }, time: 0.1 },
+            { pos: { x: 10, y: 0 }, time: 0.02 },
         ],
         flipAcrossY: false,
         ignoreCollision: false,
-        ignoreGravity: false,
+        ignoreGravity: true,
     },
 };
 
