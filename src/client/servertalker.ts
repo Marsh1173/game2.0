@@ -32,7 +32,7 @@ export class ServerTalker {
     }
 
     private async postHelper(url: string, data: any): Promise<any> {
-        return fetch("http://" + ServerTalker.hostName + "/" + url, {
+        return fetch("https://" + ServerTalker.hostName + "/" + url, {
             method: "POST",
             body: JSON.stringify(data),
             headers: {
@@ -42,7 +42,7 @@ export class ServerTalker {
     }
 
     private async getHelper(url: string): Promise<any> {
-        return fetch("http://" + ServerTalker.hostName + "/" + url).then((response) => response.json());
+        return fetch("https://" + ServerTalker.hostName + "/" + url).then((response) => response.json());
     }
 
     public async leave() {
