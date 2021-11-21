@@ -8,7 +8,7 @@ export class ServerTalker {
     constructor(joinRequest: JoinRequest, public messageHandler: (data: ServerMessage) => void = () => {}) {
         this.serverTalkerReady = new Promise<JoinResponse>((resolve, reject) => {
             this.join(joinRequest).then((response) => {
-                this.websocket = new WebSocket("wss://" + ServerTalker.hostName + "/" + response.id.toString());
+                this.websocket = new WebSocket("ws://" + ServerTalker.hostName + "/" + response.id.toString());
                 this.websocket.onmessage = (ev) => {
                     const data = JSON.parse(ev.data);
                     this.messageHandler(data);

@@ -80,7 +80,7 @@ safeGetElementById("startGame").onmouseup = async () => {
             spec = classInfo.sword.spec;
     }
 
-    await assetManager.loadAllNecessaryImages();
+    //await assetManager.loadAllNecessaryImages();
     const serverTalker = new ServerTalker({
         name,
         color: (safeGetElementById("color") as HTMLInputElement).value,
