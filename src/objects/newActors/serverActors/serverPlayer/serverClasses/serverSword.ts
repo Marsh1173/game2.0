@@ -154,5 +154,5 @@ const SwordWhirlWindAbilityData = {
 
 const SwordSlashAbilityData = {
     damage: 10,
-    knockbackForce: 5000,
+    knockbackForce: 50,
 };
