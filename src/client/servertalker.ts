@@ -8,7 +8,7 @@ export class ServerTalker {
     constructor(joinRequest: JoinRequest, public messageHandler: (data: ServerMessage) => void = () => {}) {
         this.serverTalkerReady = new Promise<JoinResponse>((resolve, reject) => {
             this.join(joinRequest).then((response) => {
-                this.websocket = new WebSocket("ws://" + ServerTalker.hostName + "/" + response.id.toString());
+                this.websocket = new WebSocket("wss://" + ServerTalker.hostName + "/" + response.id.toString());
                 this.websocket.onmessage = (ev) => {
                     const data = JSON.parse(ev.data);
                     this.messageHandler(data);
@@ -32,7 +32,7 @@ export class ServerTalker {
     }
 
     private async postHelper(url: string, data: any): Promise<any> {
-        return fetch("https://" + ServerTalker.hostName + "/" + url, {
+        return fetch("http://" + ServerTalker.hostName + "/" + url, {
             method: "POST",
             body: JSON.stringify(data),
             headers: {
@@ -42,7 +42,7 @@ export class ServerTalker {
     }
 
     private async getHelper(url: string): Promise<any> {
-        return fetch("https://" + ServerTalker.hostName + "/" + url).then((response) => response.json());
+        return fetch("http://" + ServerTalker.hostName + "/" + url).then((response) => response.json());
     }
 
     public async leave() {
